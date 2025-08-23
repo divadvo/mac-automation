@@ -8,19 +8,21 @@
   tags:
   - brew
 
-- name: Install command line tools via homebrew
+- name: Install command line tools via homebrew (with progress)
   homebrew:
-    name: '{{ homebrew_packages }}'
+    name: "{{ item }}"
     state: latest
+  loop: "{{ homebrew_packages }}"
   retries: 3
   delay: 10
   tags:
   - brew
 
-- name: Install GUI applications via homebrew cask
+- name: Install GUI applications via homebrew cask (with progress)
   homebrew_cask:
-    name: '{{ homebrew_cask_packages }}'
+    name: "{{ item }}"
     state: present
+  loop: "{{ homebrew_cask_packages }}"
   retries: 3
   delay: 10
   tags:
@@ -42,12 +44,14 @@
   tags:
   - mise
 
-- name: Install and activate mise-managed tools globally
+- name: Install and activate mise-managed tools globally (with verbose output)
   command: >
-    mise use -g
+    mise use -g --verbose
     node@{{ node_version }}
     ruby@{{ ruby_version }}
     bun@{{ bun_version }}
+  environment:
+    MISE_VERBOSE: "1"
   register: mise_global_install
   changed_when: "'installed' in mise_global_install.stdout or 'activated' in mise_global_install.stdout"
   when: >
