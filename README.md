@@ -37,7 +37,11 @@ This setup uses a **five-phase approach** with minimal manual steps:
    ```
 
 4. **Update your email:**
-   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address.
+   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address. This command will open the editor:
+
+   ```bash
+   open -e roles/divadvo_mac/vars/main.yml
+   ```
 
 ### Phase 2: First Playbook Execution
 
