@@ -36,8 +36,6 @@ This setup uses a **five-phase approach** with minimal manual steps:
    brew install uv
    ```
 
-4. **Open iTerm2** (for better terminal experience)
-
 ### Phase 2: First Playbook Execution
 
 Run the main setup playbook:
