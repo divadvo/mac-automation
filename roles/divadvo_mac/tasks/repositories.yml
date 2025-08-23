@@ -48,13 +48,17 @@
   register: recent_repos_result
   when: gh_auth_check.rc == 0
 
+# Priority repositories are excluded from recent cloning.
 - name: Clone recent repositories
   git:
     repo: "{{ item }}"
     dest: "~/pr/recent/{{ item.split('/')[-1].replace('.git', '') }}"
     accept_hostkey: yes
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
-  when: recent_repos_result is defined and recent_repos_result.stdout_lines is defined
+  when: 
+    - recent_repos_result is defined 
+    - recent_repos_result.stdout_lines is defined
+    - item.split('/')[-1].replace('.git', '') not in (priority_repos | map('split', '/') | map('last'))
   register: recent_clone_result
   failed_when: false
 
