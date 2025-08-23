@@ -15,7 +15,7 @@ That way I can set up a new MacBook quickly.
 
 ## Setup Process
 
-This setup uses a **four-phase approach** with minimal manual steps:
+This setup uses a **five-phase approach** with minimal manual steps:
 
 ### Phase 1: Manual Pre-work
 
@@ -69,31 +69,33 @@ uv run ./playbook-2.yml
 
 This clones your priority repositories to `~/pr/priority/` and recent repositories to `~/pr/recent/`.
 
-### Phase 5: SSH Key Setup (Optional)
+### Phase 5: Logout and Manual Configuration
 
-Add your generated SSH key to GitHub and other services:
+**Please log out and log back in** to ensure all macOS system settings take effect properly.
 
-1. **Display your public key:**
+After logging back in:
+
+1. **Add SSH key to GitHub and other services (Optional):**
+   
+   Display your public key:
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
-
-   **Or copy directly to clipboard:**
+   
+   Or copy directly to clipboard:
    ```bash
    pbcopy < ~/.ssh/id_ed25519.pub
    ```
-
-2. **Copy the output and add it to your accounts:**
+   
+   Copy the output and add it to your accounts:
    - **GitHub:** https://github.com/settings/ssh/new
-
-3. **Test the connection:**
+   
+   Test the connection:
    ```bash
    ssh -T git@github.com
    ```
 
-## Phase 6: re-login
-
-**Please log out and log back in** to ensure all macOS system settings take effect properly.
+2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc.
 
 ## Configuration
 
