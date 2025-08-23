@@ -36,6 +36,15 @@ This document covers tasks that require manual intervention after running the au
    - Ensure computer is authorized for iTunes purchases
    - Configure Library sync options
 
+### System Permissions
+
+#### iTerm2 Full Disk Access
+1. **Enable Full Disk Access for iTerm2**
+   - Go to System Preferences → Privacy & Security → Full Disk Access
+   - Click the lock to make changes (enter your password)
+   - Click "+" and add iTerm2 from Applications folder
+   - This allows iTerm2 to access all files and folders
+
 ### Network Services
 
 #### Tailscale VPN

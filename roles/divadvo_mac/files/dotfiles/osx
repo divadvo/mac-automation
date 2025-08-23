@@ -297,6 +297,18 @@ defaults write NSGlobalDomain com.apple.mouse.scaling -1
 defaults -currentHost write -globalDomain NSStatusItemSpacing -int 12
 defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
 
+# Disable click-to-show Desktop
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+# Show full website address in Safari
+defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
+
+# Show Status Bar in Safari
+defaults write com.apple.Safari ShowStatusBar -bool true
+
+# Show features for web developers in Safari
+defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
+
 
 ###############################################################################
 # Kill/restart affected applications                                          #

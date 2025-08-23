@@ -648,6 +648,38 @@
     value: 8
   # Original: defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
 
+- name: Disable click-to-show Desktop
+  osx_defaults:
+    domain: com.apple.WindowManager
+    key: EnableStandardClickToShowDesktop
+    type: bool
+    value: false
+  # Original: defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+- name: Show full website address in Safari
+  osx_defaults:
+    domain: com.apple.Safari
+    key: ShowFullURLInSmartSearchField
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
+
+- name: Show Status Bar in Safari
+  osx_defaults:
+    domain: com.apple.Safari
+    key: ShowStatusBar
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari ShowStatusBar -bool true
+
+- name: Show features for web developers in Safari
+  osx_defaults:
+    domain: com.apple.Safari
+    key: IncludeInternalDebugMenu
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
+
 ###############################################################################
 # Kill/restart affected applications                                         #
 ###############################################################################
