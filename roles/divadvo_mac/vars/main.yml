@@ -11,7 +11,7 @@ homebrew_packages:
 - yt-dlp
 - fd
 - redis
-- postgresql@17
+- postgresql@{{ postgresql_version }}
 - ripgrep
 - dockutil
 - bitwarden-cli
@@ -45,10 +45,24 @@ homebrew_cask_packages:
 - microsoft-office
 - tailscale-app
 
+# Runtime version configuration
+node_version: "24"
+ruby_version: "3"
+bun_version: "1"
+python_versions:
+  - "3.13"
+  - "3.14"
+postgresql_version: "17"
+
 # Python tools to install via uv tool install
 uv_tools:
 - name: build
 - name: ruff
+
+# Global npm tools to install
+npm_tools:
+  - yarn
+  - "@anthropic-ai/claude-code"
 
 # Email address for SSH key generation and git configuration
 user_email: "david.stepanovs@gmail.com"

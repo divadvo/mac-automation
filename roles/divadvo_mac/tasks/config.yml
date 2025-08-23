@@ -26,10 +26,16 @@
   - config/git/ignore
   - ssh/config
   - zprofile
-  - zshrc
   tags:
   - dotfiles
 
+- name: Template zshrc configuration file
+  template:
+    src: zshrc.j2
+    dest: ~/.zshrc
+    backup: yes
+  tags:
+  - dotfiles
 
 - name: Configure iTerm2 to use custom preferences folder
   osx_defaults:

@@ -35,9 +35,9 @@
 - name: Install and activate mise-managed tools globally
   command: >
     mise use -g
-    node@24
-    ruby@3
-    bun
+    node@{{ node_version }}
+    ruby@{{ ruby_version }}
+    bun@{{ bun_version }}
   tags:
   - mise
 
@@ -50,8 +50,7 @@
   command: >
     mise x --
     npm install -g
-    yarn
-    @anthropic-ai/claude-code
+    {{ npm_tools | join(' ') }}
   tags:
   - node
 
@@ -59,8 +58,7 @@
   command: >
     uv python install
     --reinstall
-    3.13
-    3.14
+    {{ python_versions | join(' ') }}
   register: uv_python_install
   changed_when: "'All requested versions already installed' not in uv_python_install.stderr"
   tags:
@@ -127,7 +125,7 @@
   become: false
 
 - name: Start and enable PostgreSQL database service
-  shell: brew services restart postgresql@17
+  shell: brew services restart postgresql@{{ postgresql_version }}
   register: postgres_restart
   changed_when: "'Successfully started' in postgres_restart.stdout"
   become: false
