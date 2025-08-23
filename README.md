@@ -113,6 +113,13 @@ Edit `roles/divadvo_mac/vars/main.yml` to customize:
 - `postgresql_version`: PostgreSQL version to install
 - `use_ansible_macos_config`: Use Ansible tasks (true) or shell script (false) for macOS defaults
 
+## Adding New Packages
+
+To install additional packages after initial setup: edit `roles/divadvo_mac/vars/main.yml` to add packages, then run:
+
+```bash
+uv run ./playbook.yml --tags packages
+```
 
 ## Troubleshooting
 
@@ -122,9 +129,6 @@ uv run ./playbook.yml --step -vvv --diff
 uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 ```
 
-## Testing
-
-For VM-based testing instructions, see [TESTING.md](./docs/TESTING.md).
 
 ## Documentation
 
