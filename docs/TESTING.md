@@ -1,6 +1,6 @@
 # Testing in VM
 
-Test the setup safely using Tart:
+Test the setup safely using Tart on the host:
 
 ```bash
 # Install Tart
@@ -9,8 +9,11 @@ brew install cirruslabs/cli/tart
 # Create VM (using vanilla image for clean testing)
 tart clone ghcr.io/cirruslabs/macos-sequoia-vanilla:latest sequoia-vanilla
 tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-vanilla
+```
 
-# Inside VM, install clipboard support
+Inside the VM run, install clipboard support:
+
+```bash
 brew install cirruslabs/cli/tart
 ```
 
