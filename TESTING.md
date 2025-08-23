@@ -1,0 +1,50 @@
+# Testing in VM
+
+Test the setup safely using Tart:
+
+```bash
+# Install Tart
+brew install cirruslabs/cli/tart
+
+# Create VM (using vanilla image for clean testing)
+tart clone ghcr.io/cirruslabs/macos-sequoia-vanilla:latest sequoia-vanilla
+tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-vanilla
+
+# Inside VM, install clipboard support
+brew install cirruslabs/cli/tart
+```
+
+## Development Testing in VM
+
+To test playbook changes from shared folders in the VM:
+
+```bash
+# Copy from shared folder to VM local directory
+rm -rf ~/test/mac-automation/
+rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/
+cd ~/test/mac-automation/
+
+# Run playbooks
+uv run ./playbook.yml
+```
+
+One-liner for quick testing:
+```bash
+rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml
+```
+
+## Tart Image Variants
+
+**Recommended: `-vanilla` image**
+- Minimal macOS installation with almost no additional software
+- Ideal for testing clean automation scripts
+- Better represents a fresh Mac out-of-the-box experience
+
+**Alternative: `-base` image**  
+- Includes pre-installed development tools (Xcode CLI tools, Homebrew, etc.)
+- Larger download but faster initial setup
+- May mask automation issues that only appear on truly clean systems
+
+For detailed differences, see the [official image templates repository](https://github.com/cirruslabs/macos-image-templates).
+
+**Why we use `-vanilla`**: Testing with the minimal image ensures our automation works on completely fresh Macs, catching any missing prerequisites or setup steps.

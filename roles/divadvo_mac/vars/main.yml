@@ -70,7 +70,7 @@ user_email: "david.stepanovs@gmail.com"
 
 # macOS Configuration Method
 # Set to true to use Ansible osx_defaults tasks, false to use shell script
-use_ansible_macos_config: false
+use_ansible_macos_config: true
 
 # Repository configuration
 # Repositories that are always cloned to ~/pr/priority/ (format: "owner/repo")

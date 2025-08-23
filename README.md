@@ -100,44 +100,19 @@ After logging back in:
 ## Configuration
 
 Edit `roles/divadvo_mac/vars/main.yml` to customize:
-- `user_email`: Your email for SSH key generation
-- `priority_repos`: Important repositories to always clone
-- `max_recent_repos`: Number of recent repositories to clone
 
-## Testing in VM
+- `user_email`: Your email for SSH key generation and git configuration
+- `priority_repos`: Important repositories to always clone to `~/pr/priority/`
+- `max_recent_repos`: Number of recent repositories to clone to `~/pr/recent/`
+- `homebrew_packages`: Command-line tools to install via Homebrew
+- `homebrew_cask_packages`: GUI applications to install via Homebrew Cask
+- `uv_tools`: Python tools to install globally via uv
+- `npm_tools`: Global npm packages to install
+- `node_version`, `ruby_version`, `bun_version`: Runtime versions managed by mise
+- `python_versions`: Python versions to install via uv
+- `postgresql_version`: PostgreSQL version to install
+- `use_ansible_macos_config`: Use Ansible tasks (true) or shell script (false) for macOS defaults
 
-Test the setup safely using Tart:
-
-```bash
-# Install Tart
-brew install cirruslabs/cli/tart
-
-# Create VM
-tart clone ghcr.io/cirruslabs/macos-sequoia-base:latest sequoia-base
-tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-base
-
-# Inside VM, install clipboard support
-brew install cirruslabs/cli/tart
-```
-
-### Development Testing in VM
-
-To test playbook changes from shared folders in the VM:
-
-```bash
-# Copy from shared folder to VM local directory
-rm -rf ~/test/mac-automation/
-rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/
-cd ~/test/mac-automation/
-
-# Run playbooks
-uv run ./playbook.yml
-```
-
-One-liner for quick testing:
-```bash
-rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml
-```
 
 ## Troubleshooting
 
@@ -147,10 +122,15 @@ uv run ./playbook.yml --step -vvv --diff
 uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 ```
 
+## Testing
+
+For VM-based testing instructions, see [TESTING.md](./TESTING.md).
+
 ## Documentation
 
 - [PREPARATION.md](./PREPARATION.md) - Pre-automation setup and old Mac migration
 - [MANUAL_SETUP.md](./MANUAL_SETUP.md) - Post-automation manual tasks
+- [TESTING.md](./TESTING.md) - VM-based testing instructions
 - [RESOURCES.md](./RESOURCES.md) - External links and references
 - [CLAUDE.md](./CLAUDE.md) - Development commands and project architecture
 
