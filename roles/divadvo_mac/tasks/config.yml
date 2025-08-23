@@ -38,12 +38,14 @@
   tags:
   - dotfiles
 
+# Configure iTerm2 to use custom preferences from David.json
+# This loads color schemes, profiles, and other iTerm2 settings
 - name: Configure iTerm2 to use custom preferences folder
   osx_defaults:
     domain: com.googlecode.iterm2
     key: PrefsCustomFolder
     type: string
-    value: "{{ ansible_env.PWD }}/roles/divadvo_mac/files"
+    value: "{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/iterm2"
   tags:
   - iterm
 
