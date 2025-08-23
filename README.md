@@ -95,7 +95,7 @@ After logging back in:
    ssh -T git@github.com
    ```
 
-2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc.
+2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./MANUAL_SETUP.md) for detailed instructions.
 
 ## Configuration
 
@@ -147,8 +147,10 @@ uv run ./playbook.yml --step -vvv --diff
 uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 ```
 
-## Resources
+## Documentation
 
-- [Dracula theme for iTerm2](https://draculatheme.com/iterm)
-- [macOS defaults reference](https://macos-defaults.com/)
+- [PREPARATION.md](./PREPARATION.md) - Pre-automation setup and old Mac migration
+- [MANUAL_SETUP.md](./MANUAL_SETUP.md) - Post-automation manual tasks
+- [RESOURCES.md](./RESOURCES.md) - External links and references
+- [CLAUDE.md](./CLAUDE.md) - Development commands and project architecture
 

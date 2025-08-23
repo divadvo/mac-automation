@@ -292,6 +292,11 @@ defaults write com.apple.appstore InAppReviewEnabled -int 0
 # Set mouse scaling to -1 to completely disable acceleration
 defaults write NSGlobalDomain com.apple.mouse.scaling -1
 
+# Configure menu bar spacing
+# Reduce spacing between menu bar items for better organization
+defaults -currentHost write -globalDomain NSStatusItemSpacing -int 12
+defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
+
 
 ###############################################################################
 # Kill/restart affected applications                                          #

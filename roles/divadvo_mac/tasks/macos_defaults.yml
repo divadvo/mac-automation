@@ -630,6 +630,24 @@
     value: -1
   # Original: defaults write NSGlobalDomain com.apple.mouse.scaling -1
 
+- name: Configure menu bar item spacing
+  osx_defaults:
+    domain: NSGlobalDomain
+    host: current
+    key: NSStatusItemSpacing
+    type: int
+    value: 12
+  # Original: defaults -currentHost write -globalDomain NSStatusItemSpacing -int 12
+
+- name: Configure menu bar selection padding
+  osx_defaults:
+    domain: NSGlobalDomain
+    host: current
+    key: NSStatusItemSelectionPadding
+    type: int
+    value: 8
+  # Original: defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
+
 ###############################################################################
 # Kill/restart affected applications                                         #
 ###############################################################################
