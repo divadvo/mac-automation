@@ -19,32 +19,51 @@ homebrew_packages:
 
 # GUI applications to install via Homebrew Cask
 homebrew_cask_packages:
-- citrix-workspace
-- orbstack
-- cleanshot
-- betterdisplay
-- bambu-studio
-- iina
-- whatsapp
-- discord
-- zoom
-- teamviewer
-- musescore
-- visual-studio-code
-- adobe-creative-cloud
-- jetbrains-toolbox
-- chatgpt
-- iterm2
-- unnaturalscrollwheels
-- raycast
-- rectangle
-- spotify
-- google-chrome
-- brave-browser
-- firefox
-- microsoft-office
-- tailscale-app
-- font-meslo-lg-nerd-font
+  # Development Tools
+  - visual-studio-code
+  - jetbrains-toolbox
+  - iterm2
+  
+  # Web Browsers
+  - google-chrome
+  - brave-browser
+  - firefox
+  
+  # Communication
+  - whatsapp
+  - discord
+  - zoom
+  - teamviewer
+  
+  # Media & Entertainment
+  - iina
+  - spotify
+  - musescore
+  
+  # Productivity & Office
+  - microsoft-office
+  - cleanshot
+  
+  # System Utilities
+  - raycast
+  - rectangle
+  - orbstack
+  - betterdisplay
+  - unnaturalscrollwheels
+  - tailscale-app
+  
+  # Creative & Design
+  - bambu-studio
+  - adobe-creative-cloud
+  
+  # Enterprise/Business
+  - citrix-workspace
+  
+  # AI Tools
+  - chatgpt
+  
+  # Fonts
+  - font-meslo-lg-nerd-font
 
 # Runtime version configuration
 node_version: "24"
