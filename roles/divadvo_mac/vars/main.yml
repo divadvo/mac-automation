@@ -66,7 +66,8 @@ npm_tools:
   - "@anthropic-ai/claude-code"
 
 # Email address for SSH key generation and git configuration
-user_email: "david.stepanovs@gmail.com"
+# CHANGE THIS to your email address before running
+user_email: "your@email.com"
 
 # macOS Configuration Method
 # Set to true to use Ansible osx_defaults tasks, false to use shell script

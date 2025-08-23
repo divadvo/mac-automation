@@ -1,3 +1,9 @@
+- name: Validate system requirements and dependencies
+  import_tasks: validate.yml
+  tags:
+  - validate
+  - always
+
 - name: System setup and SSH keys
   import_tasks: setup.yml
   tags:

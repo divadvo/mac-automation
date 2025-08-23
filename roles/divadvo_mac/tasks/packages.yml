@@ -28,6 +28,16 @@
 
 - name: Configure mise to disable Python tool management
   command: mise settings set disable_tools python
+  register: mise_python_setting
+  changed_when: "'Setting has been updated' in mise_python_setting.stdout or 'Setting changed' in mise_python_setting.stdout"
+  failed_when: false
+  tags:
+  - mise
+
+- name: Check currently installed mise tools
+  command: mise list --current
+  register: mise_current_tools
+  failed_when: false
   changed_when: false
   tags:
   - mise
@@ -38,11 +48,19 @@
     node@{{ node_version }}
     ruby@{{ ruby_version }}
     bun@{{ bun_version }}
+  register: mise_global_install
+  changed_when: "'installed' in mise_global_install.stdout or 'activated' in mise_global_install.stdout"
+  when: >
+    'node@' + node_version not in mise_current_tools.stdout or
+    'ruby@' + ruby_version not in mise_current_tools.stdout or
+    'bun@' + bun_version not in mise_current_tools.stdout
   tags:
   - mise
 
 - name: Rebuild mise shims for installed tools
   command: mise reshim
+  register: mise_reshim
+  changed_when: "'shim' in mise_reshim.stdout"
   tags:
   - mise
 
@@ -51,13 +69,22 @@
     mise x --
     npm install -g
     {{ npm_tools | join(' ') }}
+  register: npm_global_install
+  changed_when: "'added' in npm_global_install.stdout or 'updated' in npm_global_install.stdout"
   tags:
   - node
 
-- name: Install Python versions via uv
+- name: Check installed Python versions
+  command: uv python list
+  register: uv_python_list
+  failed_when: false
+  changed_when: false
+  tags:
+  - uv
+
+- name: Install Python versions via uv (only missing ones)
   command: >
     uv python install
-    --reinstall
     {{ python_versions | join(' ') }}
   register: uv_python_install
   changed_when: "'All requested versions already installed' not in uv_python_install.stderr"

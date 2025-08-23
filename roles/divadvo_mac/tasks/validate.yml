@@ -1,0 +1,75 @@
+- name: Check if running on macOS
+  fail:
+    msg: "This playbook is designed for macOS only"
+  when: ansible_os_family != "Darwin"
+  tags:
+  - validate
+
+- name: Check if homebrew is installed
+  command: which brew
+  register: brew_check
+  failed_when: false
+  changed_when: false
+  tags:
+  - validate
+
+- name: Fail if homebrew is not installed
+  fail:
+    msg: "Homebrew is required but not installed. Please install it first: /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  when: brew_check.rc != 0
+  tags:
+  - validate
+
+- name: Check if Command Line Tools are installed
+  command: xcode-select -p
+  register: xcode_check
+  failed_when: false
+  changed_when: false
+  tags:
+  - validate
+
+- name: Fail if Command Line Tools are not installed
+  fail:
+    msg: "Xcode Command Line Tools are required but not installed. Please install them first: xcode-select --install"
+  when: xcode_check.rc != 0
+  tags:
+  - validate
+
+- name: Check network connectivity
+  uri:
+    url: https://github.com
+    method: HEAD
+    timeout: 10
+  register: network_check
+  failed_when: false
+  changed_when: false
+  tags:
+  - validate
+
+- name: Warn about network connectivity issues
+  debug:
+    msg: "Warning: Network connectivity issues detected. Some tasks may fail."
+  when: network_check.status != 200
+  tags:
+  - validate
+
+- name: Check available disk space
+  shell: df -h / | awk 'NR==2 {print $4}' | sed 's/G//g'
+  register: disk_space
+  changed_when: false
+  tags:
+  - validate
+
+- name: Warn about low disk space
+  debug:
+    msg: "Warning: Less than 10GB of free space available. Consider freeing up space before continuing."
+  when: disk_space.stdout | int < 10
+  tags:
+  - validate
+
+- name: Check if user_email is configured
+  fail:
+    msg: "user_email must be configured. Please edit roles/divadvo_mac/vars/main.yml and change 'your@email.com' to your actual email address"
+  when: user_email is not defined or user_email == "" or user_email == "your@email.com"
+  tags:
+  - validate
