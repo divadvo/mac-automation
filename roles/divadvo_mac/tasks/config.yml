@@ -26,6 +26,7 @@
   - config/git/ignore
   - ssh/config
   - zprofile
+  - p10k.zsh
   tags:
   - dotfiles
 

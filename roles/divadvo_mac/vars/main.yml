@@ -44,6 +44,7 @@ homebrew_cask_packages:
 - firefox
 - microsoft-office
 - tailscale-app
+- font-meslo-lg-nerd-font
 
 # Runtime version configuration
 node_version: "24"
