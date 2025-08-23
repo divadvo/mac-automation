@@ -564,12 +564,6 @@
   when: ansible_user_uid == 0
   # Original: sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
 
-- name: Restart Spotlight service
-  shell: killall mds > /dev/null 2>&1
-  failed_when: false
-  become: true
-  when: ansible_user_uid == 0
-  # Original: killall mds > /dev/null 2>&1
 
 ###############################################################################
 # Activity Monitor                                                           #
@@ -689,6 +683,7 @@
     - Finder
     - Mail
     - SystemUIServer
+    - mds
     # Terminal excluded to prevent killing Ansible session
   # Original: killall "${app}" > /dev/null 2>&1 for each app
 
