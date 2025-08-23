@@ -91,7 +91,7 @@ Add your generated SSH key to GitHub and other services:
    ssh -T git@github.com
    ```
 
-## Final Step
+## Phase 6: re-login
 
 **Please log out and log back in** to ensure all macOS system settings take effect properly.
 
