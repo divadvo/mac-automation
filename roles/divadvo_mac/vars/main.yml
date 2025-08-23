@@ -21,6 +21,7 @@ homebrew_packages:
   # Search & File Tools
   - fd
   - ripgrep
+  - rsync
   
   # Databases
   - redis
