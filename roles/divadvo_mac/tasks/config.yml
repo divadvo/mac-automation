@@ -30,11 +30,6 @@
   tags:
   - dotfiles
 
-- name: scripts repo
-  git:
-    repo: https://github.com/divadvo/divadvo-scripts
-    dest: ~/scripts
-    update: true
 
 - name: iTerm custom settings file
   osx_defaults:

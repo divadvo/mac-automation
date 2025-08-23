@@ -189,14 +189,10 @@ fi
 
 # Extend Path
 export PATH=~/.local/bin:$PATH
-export PATH=~/script:$PATH
+export PATH=~/pr/priority/divadvo-scripts:$PATH
 export PATH=~/bin:$PATH
 export PATH=$(dirname "$(uv python find --directory / -q 3.13)"):$PATH
-export PATH=/opt/homebrew/opt/postgresql@16/bin:$PATH
-export PATH=~/.cargo/bin:$PATH
-export PATH=/Applications/Inkscape.app/Contents/MacOS:$PATH
-export PATH=~/bin/google-cloud-sdk/bin:$PATH
-
+export PATH=/opt/homebrew/opt/postgresql@17/bin:$PATH
 
 # Aliases
 
