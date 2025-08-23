@@ -95,7 +95,7 @@ After logging back in:
    ssh -T git@github.com
    ```
 
-2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./MANUAL_SETUP.md) for detailed instructions.
+2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) for detailed instructions.
 
 ## Configuration
 
@@ -124,13 +124,13 @@ uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 
 ## Testing
 
-For VM-based testing instructions, see [TESTING.md](./TESTING.md).
+For VM-based testing instructions, see [TESTING.md](./docs/TESTING.md).
 
 ## Documentation
 
-- [PREPARATION.md](./PREPARATION.md) - Pre-automation setup and old Mac migration
-- [MANUAL_SETUP.md](./MANUAL_SETUP.md) - Post-automation manual tasks
-- [TESTING.md](./TESTING.md) - VM-based testing instructions
-- [RESOURCES.md](./RESOURCES.md) - External links and references
+- [PREPARATION.md](./docs/PREPARATION.md) - Pre-automation setup and old Mac migration
+- [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) - Post-automation manual tasks
+- [TESTING.md](./docs/TESTING.md) - VM-based testing instructions
+- [RESOURCES.md](./docs/RESOURCES.md) - External links and references
 - [CLAUDE.md](./CLAUDE.md) - Development commands and project architecture
 
