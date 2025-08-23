@@ -7,11 +7,10 @@ That way I can set up a new MacBook quickly.
 
 ## What it does
 
-- Installs essential development tools (homebrew, git, gh, neovim, etc.)
-- Generates fresh SSH keys and configures GitHub authentication
-- Sets up dotfiles (zsh, git config, SSH config)
-- Clones your important GitHub repositories to `~/pr/`
-- Configures macOS settings and applications
+- Installs development tools via Homebrew (CLI tools, GUI apps, runtime versions)
+- Generates SSH keys and sets up GitHub authentication  
+- Configures dotfiles and macOS system settings
+- Clones your GitHub repositories
 
 ## Setup Process
 
