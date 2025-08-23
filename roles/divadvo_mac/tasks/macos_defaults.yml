@@ -618,6 +618,17 @@
     value: 0
   # Original: defaults write com.apple.appstore InAppReviewEnabled -int 0
 
+###############################################################################
+# Custom configurations                                                      #
+###############################################################################
+
+- name: Disable mouse acceleration
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.mouse.scaling
+    type: int
+    value: -1
+  # Original: defaults write NSGlobalDomain com.apple.mouse.scaling -1
 
 ###############################################################################
 # Kill/restart affected applications                                         #
