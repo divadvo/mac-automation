@@ -595,22 +595,15 @@
 # Messages                                                                   #
 ###############################################################################
 
-- name: Disable smart quotes in Messages (annoying for code)
+- name: Configure Messages spell checking and smart quotes (annoying for code)
   osx_defaults:
     domain: com.apple.messageshelper.MessageController
     key: SOInputLineSettings
     type: dict
     value:
       automaticQuoteSubstitutionEnabled: false
-  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
-
-- name: Disable continuous spell checking in Messages
-  osx_defaults:
-    domain: com.apple.messageshelper.MessageController
-    key: SOInputLineSettings
-    type: dict
-    value:
       continuousSpellCheckingEnabled: false
+  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
   # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
 
 ###############################################################################
