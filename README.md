@@ -36,6 +36,9 @@ This setup uses a **five-phase approach** with minimal manual steps:
    brew install uv
    ```
 
+4. **Update your email:**
+   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address.
+
 ### Phase 2: First Playbook Execution
 
 Run the main setup playbook:
