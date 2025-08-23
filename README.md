@@ -21,8 +21,9 @@ This setup uses a **four-phase approach** with minimal manual steps:
 
 1. **Clone this repository:**
    ```bash
-   git clone https://github.com/divadvo/mac-ansible
-   cd mac-ansible
+   mkdir -p ~/pr/priority
+   git clone https://github.com/divadvo/mac-ansible ~/pr/priority/mac-ansible
+   cd ~/pr/priority/mac-ansible
    ```
 
 2. **Install homebrew:**
@@ -33,7 +34,7 @@ This setup uses a **four-phase approach** with minimal manual steps:
 
 3. **Install dependencies:**
    ```bash
-   brew install uv iterm2
+   brew install uv
    ```
 
 4. **Open iTerm2** (for better terminal experience)
