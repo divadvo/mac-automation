@@ -51,7 +51,7 @@ user_email: "david.stepanovs@gmail.com"
 
 # Repository configuration
 priority_repos:
-  - "divadvo/mac-ansible"
+  - "divadvo/mac-automation"
   - "divadvo/divadvo-scripts"
   # Add your important repositories here
 

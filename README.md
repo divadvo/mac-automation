@@ -1,4 +1,4 @@
-# mac-ansible
+# mac-automation
 
 
 I use this project to configure my MacBook the way I like it.
@@ -22,8 +22,8 @@ This setup uses a **four-phase approach** with minimal manual steps:
 1. **Clone this repository:**
    ```bash
    mkdir -p ~/pr/priority
-   git clone https://github.com/divadvo/mac-ansible ~/pr/priority/mac-ansible
-   cd ~/pr/priority/mac-ansible
+   git clone https://github.com/divadvo/mac-automation ~/pr/priority/mac-automation
+   cd ~/pr/priority/mac-automation
    ```
 
 2. **Install homebrew:**
@@ -108,7 +108,7 @@ brew install cirruslabs/cli/tart
 
 # Create VM
 tart clone ghcr.io/cirruslabs/macos-sequoia-base:latest sequoia-base
-tart run --dir=mac-ansible:~/pr/mac-ansible:ro sequoia-base
+tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-base
 
 # Inside VM, install clipboard support
 brew install cirruslabs/cli/tart
@@ -120,9 +120,9 @@ To test playbook changes from shared folders in the VM:
 
 ```bash
 # Copy from shared folder to VM local directory
-rm -rf ~/test/mac-ansible/
-rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-ansible/ ~/test/mac-ansible/
-cd ~/test/mac-ansible/
+rm -rf ~/test/mac-automation/
+rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/
+cd ~/test/mac-automation/
 
 # Run playbooks
 uv run ./playbook.yml
@@ -130,7 +130,7 @@ uv run ./playbook.yml
 
 One-liner for quick testing:
 ```bash
-rm -rf ~/test/mac-ansible/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-ansible/ ~/test/mac-ansible/ && cd ~/test/mac-ansible/ && uv run ./playbook.yml
+rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml
 ```
 
 ## Troubleshooting

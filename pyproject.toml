@@ -1,5 +1,5 @@
 [project]
-name = "mac-ansible"
+name = "mac-automation"
 version = "0"
 description = "🐄 Ansible-powered MacBook configuration"
 readme = "README.md"

@@ -15,7 +15,7 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 - **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
 
 ### Testing in VM
-- **Quick test setup**: `rm -rf ~/test/mac-ansible/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-ansible/ ~/test/mac-ansible/ && cd ~/test/mac-ansible/ && uv run ./playbook.yml`
+- **Quick test setup**: `rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml`
 
 ## Architecture
 
