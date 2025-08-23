@@ -1,0 +1,558 @@
+#############################################################################
+# macOS System Defaults Configuration (Ansible Implementation)             #
+# Alternative to shell script execution - provides better idempotency      #
+#############################################################################
+
+###############################################################################
+# General UI/UX                                                               #
+###############################################################################
+
+- name: Expand save panel by default
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSNavPanelExpandedStateForSaveMode
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+
+- name: Expand print panel by default
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: PMPrintingExpandedStateForPrint
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+
+- name: Save to disk (not to iCloud) by default
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSDocumentSaveNewDocumentsToCloud
+    type: bool
+    value: false
+  # Original: defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+- name: Automatically quit printer app once print jobs complete
+  osx_defaults:
+    domain: com.apple.print.PrintingPrefs
+    key: "Quit When Finished"
+    type: bool
+    value: true
+  # Original: defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
+
+- name: Restart automatically if computer freezes
+  shell: systemsetup -setrestartfreeze on
+  become: true
+  when: ansible_user_uid == 0
+  # Original: systemsetup -setrestartfreeze on (requires sudo)
+
+- name: Disable smart quotes (annoying when typing code)
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSAutomaticQuoteSubstitutionEnabled
+    type: bool
+    value: false
+  # Original: defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+
+- name: Disable smart dashes (annoying when typing code)
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSAutomaticDashSubstitutionEnabled
+    type: bool
+    value: false
+  # Original: defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+
+- name: Set desktop background to dark-grey stone color
+  shell: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
+  # Original: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
+
+###############################################################################
+# Trackpad, mouse, keyboard, Bluetooth accessories, and input                #
+###############################################################################
+
+- name: Set trackpad haptic feedback to light/silent clicking
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: FirstClickThreshold
+    type: int
+    value: 0
+  # Original: defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 0
+
+- name: Set trackpad actuation strength to light
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: ActuationStrength
+    type: int
+    value: 0
+  # Original: defaults write com.apple.AppleMultitouchTrackpad ActuationStrength -int 0
+
+- name: Enable trackpad right-click (Bluetooth trackpad)
+  osx_defaults:
+    domain: com.apple.driver.AppleBluetoothMultitouch.trackpad
+    key: TrackpadRightClick
+    type: bool
+    value: true
+  # Original: defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
+
+- name: Enable trackpad right-click (built-in trackpad)
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: TrackpadRightClick
+    type: bool
+    value: true
+  # Original: defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
+
+- name: Map trackpad bottom right corner to right-click
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: TrackpadCornerSecondaryClick
+    type: int
+    value: 2
+  # Original: defaults write com.apple.AppleMultitouchTrackpad TrackpadCornerSecondaryClick -int 2
+
+- name: Enable context menu gesture
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: ContextMenuGesture
+    type: int
+    value: 1
+  # Original: defaults write NSGlobalDomain ContextMenuGesture -int 1
+
+- name: Disable press-and-hold for keys (favor key repeat)
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: ApplePressAndHoldEnabled
+    type: bool
+    value: false
+  # Original: defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+- name: Set fast keyboard repeat rate
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: InitialKeyRepeat
+    type: int
+    value: 20
+  # Original: defaults write NSGlobalDomain InitialKeyRepeat -int 20
+
+- name: Set blazingly fast keyboard repeat rate
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: KeyRepeat
+    type: int
+    value: 1
+  # Original: defaults write NSGlobalDomain KeyRepeat -int 1
+
+- name: Disable auto-correct
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSAutomaticSpellingCorrectionEnabled
+    type: bool
+    value: false
+  # Original: defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+
+###############################################################################
+# Screen                                                                      #
+###############################################################################
+
+- name: Save screenshots to Downloads folder
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: location
+    type: string
+    value: "{{ ansible_env.HOME }}/Downloads"
+  # Original: defaults write com.apple.screencapture location -string "${HOME}/Downloads"
+
+- name: Save screenshots in PNG format
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: type
+    type: string
+    value: png
+  # Original: defaults write com.apple.screencapture type -string "png"
+
+- name: Disable shadow in screenshots
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: disable-shadow
+    type: bool
+    value: true
+  # Original: defaults write com.apple.screencapture disable-shadow -bool true
+
+###############################################################################
+# Finder                                                                      #
+###############################################################################
+
+- name: Set Desktop as default location for new Finder windows
+  osx_defaults:
+    domain: com.apple.finder
+    key: NewWindowTarget
+    type: string
+    value: PfDe
+  # Original: defaults write com.apple.finder NewWindowTarget -string "PfDe"
+
+- name: Set Desktop path for new Finder windows
+  osx_defaults:
+    domain: com.apple.finder
+    key: NewWindowTargetPath
+    type: string
+    value: "file://{{ ansible_env.HOME }}/Desktop/"
+  # Original: defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/Desktop/"
+
+- name: Show external hard drives on desktop
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowExternalHardDrivesOnDesktop
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+
+- name: Show hard drives on desktop
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowHardDrivesOnDesktop
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
+
+- name: Show mounted servers on desktop
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowMountedServersOnDesktop
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
+
+- name: Show removable media on desktop
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowRemovableMediaOnDesktop
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+
+- name: Show all filename extensions in Finder
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: AppleShowAllExtensions
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+- name: Show status bar in Finder
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowStatusBar
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowStatusBar -bool true
+
+- name: Allow text selection in Quick Look
+  osx_defaults:
+    domain: com.apple.finder
+    key: QLEnableTextSelection
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder QLEnableTextSelection -bool true
+
+- name: Display full POSIX path as Finder window title
+  osx_defaults:
+    domain: com.apple.finder
+    key: _FXShowPosixPathInTitle
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+
+- name: Search current folder by default
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXDefaultSearchScope
+    type: string
+    value: SCcf
+  # Original: defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+
+- name: Disable warning when changing file extension
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXEnableExtensionChangeWarning
+    type: bool
+    value: false
+  # Original: defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+- name: Enable spring loading for directories
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.springing.enabled
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain com.apple.springing.enabled -bool true
+
+- name: Remove spring loading delay for directories
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.springing.delay
+    type: float
+    value: 0.1
+  # Original: defaults write NSGlobalDomain com.apple.springing.delay -float 0.1
+
+- name: Avoid creating .DS_Store files on network volumes
+  osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: true
+  # Original: defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+- name: Use column view in all Finder windows by default
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXPreferredViewStyle
+    type: string
+    value: clmv
+  # Original: defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+
+- name: Show ~/Library folder
+  shell: chflags nohidden ~/Library
+  # Original: chflags nohidden ~/Library
+
+###############################################################################
+# Dock, Dashboard, and hot corners                                           #
+###############################################################################
+
+- name: Remove all apps from dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: persistent-apps
+    type: array
+    value: []
+  # Original: defaults write com.apple.dock persistent-apps -array
+
+- name: Set dock icon size
+  osx_defaults:
+    domain: com.apple.dock
+    key: tilesize
+    type: int
+    value: 30
+  # Original: defaults write com.apple.dock tilesize -int 30
+
+- name: Position dock on left side
+  osx_defaults:
+    domain: com.apple.dock
+    key: orientation
+    type: string
+    value: left
+  # Original: defaults write com.apple.dock orientation -string "left"
+
+- name: Disable showing recent applications in dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: false
+  # Original: defaults write com.apple.dock show-recents -bool false
+
+- name: Remove Downloads folder from dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: persistent-others
+    type: array
+    value: []
+  # Original: defaults write com.apple.dock persistent-others -array
+
+- name: Speed up Mission Control animations
+  osx_defaults:
+    domain: com.apple.dock
+    key: expose-animation-duration
+    type: float
+    value: 0.15
+  # Original: defaults write com.apple.dock expose-animation-duration -float 0.15
+
+- name: Make dock icons of hidden applications translucent
+  osx_defaults:
+    domain: com.apple.dock
+    key: showhidden
+    type: bool
+    value: true
+  # Original: defaults write com.apple.dock showhidden -bool true
+
+- name: Enable reduce transparency option
+  osx_defaults:
+    domain: com.apple.universalaccess
+    key: reduceTransparency
+    type: bool
+    value: true
+  # Original: defaults write com.apple.universalaccess reduceTransparency -bool true
+
+- name: Set bottom right hot corner to Mission Control
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-br-corner
+    type: int
+    value: 2
+  # Original: defaults write com.apple.dock wvous-br-corner -int 2
+
+- name: Set bottom right hot corner modifier
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-br-modifier
+    type: int
+    value: 0
+  # Original: defaults write com.apple.dock wvous-br-modifier -int 0
+
+- name: Set top right hot corner to put display to sleep
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-tr-corner
+    type: int
+    value: 10
+  # Original: defaults write com.apple.dock wvous-tr-corner -int 10
+
+- name: Set top right hot corner modifier
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-tr-modifier
+    type: int
+    value: 0
+  # Original: defaults write com.apple.dock wvous-tr-modifier -int 0
+
+- name: Set bottom left hot corner to Desktop
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-bl-corner
+    type: int
+    value: 4
+  # Original: defaults write com.apple.dock wvous-bl-corner -int 4
+
+- name: Set bottom left hot corner modifier
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-bl-modifier
+    type: int
+    value: 0
+  # Original: defaults write com.apple.dock wvous-bl-modifier -int 0
+
+###############################################################################
+# Safari & WebKit                                                            #
+###############################################################################
+
+- name: Enable Safari Develop menu
+  osx_defaults:
+    domain: com.apple.Safari
+    key: IncludeDevelopMenu
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari IncludeDevelopMenu -bool true
+
+- name: Enable Safari Web Inspector
+  osx_defaults:
+    domain: com.apple.Safari
+    key: WebKitDeveloperExtrasEnabledPreferenceKey
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+
+- name: Enable Safari WebKit2 developer extras
+  osx_defaults:
+    domain: com.apple.Safari
+    key: com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled
+    type: bool
+    value: true
+  # Original: defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+
+- name: Add Web Inspector context menu item globally
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: WebKitDeveloperExtras
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+
+###############################################################################
+# Mail                                                                        #
+###############################################################################
+
+- name: Copy email addresses as plain text in Mail.app
+  osx_defaults:
+    domain: com.apple.mail
+    key: AddressesIncludeNameOnPasteboard
+    type: bool
+    value: false
+  # Original: defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
+
+###############################################################################
+# Activity Monitor                                                           #
+###############################################################################
+
+- name: Show main window when launching Activity Monitor
+  osx_defaults:
+    domain: com.apple.ActivityMonitor
+    key: OpenMainWindow
+    type: bool
+    value: true
+  # Original: defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
+
+- name: Show all processes in Activity Monitor
+  osx_defaults:
+    domain: com.apple.ActivityMonitor
+    key: ShowCategory
+    type: int
+    value: 0
+  # Original: defaults write com.apple.ActivityMonitor ShowCategory -int 0
+
+###############################################################################
+# Messages                                                                   #
+###############################################################################
+
+- name: Disable smart quotes in Messages (annoying for code)
+  osx_defaults:
+    domain: com.apple.messageshelper.MessageController
+    key: SOInputLineSettings
+    type: dict
+    value:
+      automaticQuoteSubstitutionEnabled: false
+  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
+
+- name: Disable continuous spell checking in Messages
+  osx_defaults:
+    domain: com.apple.messageshelper.MessageController
+    key: SOInputLineSettings
+    type: dict
+    value:
+      continuousSpellCheckingEnabled: false
+  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
+
+###############################################################################
+# App Store                                                                  #
+###############################################################################
+
+- name: Disable in-app rating requests from App Store apps
+  osx_defaults:
+    domain: com.apple.appstore
+    key: InAppReviewEnabled
+    type: int
+    value: 0
+  # Original: defaults write com.apple.appstore InAppReviewEnabled -int 0
+
+###############################################################################
+# Add Google Chrome to Dock                                                  #
+###############################################################################
+
+- name: Add Google Chrome to dock using dockutil
+  shell: dockutil --add "/Applications/Google Chrome.app"
+  failed_when: false
+  when: ansible_facts.packages['dockutil'] is defined
+  # Original: dockutil --add "/Applications/Google Chrome.app"
+
+###############################################################################
+# Kill/restart affected applications                                         #
+###############################################################################
+
+- name: Restart affected applications
+  shell: killall "{{ item }}" > /dev/null 2>&1
+  failed_when: false
+  loop:
+    - cfprefsd
+    - Dock
+    - Finder
+    - Mail
+    - SystemUIServer
+    - Terminal
+  # Original: killall "${app}" > /dev/null 2>&1 for each app
