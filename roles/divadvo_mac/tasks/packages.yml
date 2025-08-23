@@ -1,44 +1,38 @@
-- name: Update homebrew
+- name: Update homebrew package index and install git
   homebrew:
     name: git
     state: latest
     update_homebrew: true
+  retries: 3
+  delay: 10
   tags:
   - brew
 
-- name: Install homebrew packages
+- name: Install command line tools via homebrew
   homebrew:
     name: '{{ homebrew_packages }}'
     state: latest
+  retries: 3
+  delay: 10
   tags:
   - brew
 
-- name: Install homebrew cask packages
-  command: brew install {{ homebrew_cask_packages|join(" ") }}
+- name: Install GUI applications via homebrew cask
+  homebrew_cask:
+    name: '{{ homebrew_cask_packages }}'
+    state: present
+  retries: 3
+  delay: 10
   tags:
   - brew
 
-- name: Mise disable Python
+- name: Configure mise to disable Python tool management
   command: mise settings set disable_tools python
+  changed_when: false
   tags:
   - mise
 
-- name: Mise install Node
-  command: mise latest node@24
-  tags:
-  - mise
-
-- name: Mise install Ruby
-  command: mise latest ruby@3
-  tags:
-  - mise
-
-- name: Mise install Bun
-  command: mise latest bun
-  tags:
-  - mise
-
-- name: Mise activates
+- name: Install and activate mise-managed tools globally
   command: >
     mise use -g
     node@24
@@ -47,12 +41,12 @@
   tags:
   - mise
 
-- name: Mise reshim
+- name: Rebuild mise shims for installed tools
   command: mise reshim
   tags:
   - mise
 
-- name: npm install tools
+- name: Install global npm tools
   command: >
     mise x --
     npm install -g
@@ -61,7 +55,7 @@
   tags:
   - node
 
-- name: uv install latest Pythons
+- name: Install Python versions via uv
   command: >
     uv python install
     --reinstall
@@ -72,7 +66,7 @@
   tags:
   - uv
 
-- name: uv install tools
+- name: Install Python tools via uv
   command: >
     uv tool install
     --python 3.13
@@ -86,7 +80,7 @@
   tags:
   - uv
 
-- name: uv upgrade tools
+- name: Upgrade Python tools via uv
   command: >
     uv tool upgrade
     {{ item.name }}
@@ -99,33 +93,41 @@
   tags:
   - uv
 
-- name: uv prune cache
+- name: Clean up uv cache
   command: uv cache prune
   register: uv_prune
   changed_when: "'Removed' in uv_prune.stderr"
   tags:
   - uv
 
-- name: Install oh-my-zsh
+- name: Install oh-my-zsh shell framework
   shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   args:
     creates: ~/.oh-my-zsh
+  retries: 3
+  delay: 10
   become: false
 
-- name: Install Powerlevel10k theme
+- name: Install Powerlevel10k zsh theme
   git:
     repo: https://github.com/romkatv/powerlevel10k.git
     dest: ~/.oh-my-zsh/custom/themes/powerlevel10k
     depth: 1
+  retries: 3
+  delay: 10
   become: false
 
-- name: Install NVChad for Neovim
+- name: Install NVChad Neovim configuration
   git:
     repo: https://github.com/NvChad/starter
     dest: ~/.config/nvim
     depth: 1
+  retries: 3
+  delay: 10
   become: false
 
-- name: Start PostgreSQL service
+- name: Start and enable PostgreSQL database service
   shell: brew services restart postgresql@17
+  register: postgres_restart
+  changed_when: "'Successfully started' in postgres_restart.stdout"
   become: false

@@ -1,3 +1,4 @@
+# Command line tools to install via Homebrew
 homebrew_packages:
 - git
 - git-lfs
@@ -16,7 +17,8 @@ homebrew_packages:
 - bitwarden-cli
 - gh
 
-homebrew_cask_packages: # TODO: don't forget to add back
+# GUI applications to install via Homebrew Cask
+homebrew_cask_packages:
 - citrix-workspace
 - orbstack
 - cleanshot
@@ -43,16 +45,20 @@ homebrew_cask_packages: # TODO: don't forget to add back
 - microsoft-office
 - tailscale-app
 
+# Python tools to install via uv tool install
 uv_tools:
 - name: build
 - name: ruff
 
+# Email address for SSH key generation and git configuration
 user_email: "david.stepanovs@gmail.com"
 
 # Repository configuration
+# Repositories that are always cloned to ~/pr/priority/ (format: "owner/repo")
 priority_repos:
   - "divadvo/mac-automation"
   - "divadvo/divadvo-scripts"
   # Add your important repositories here
 
+# Maximum number of recent repositories to clone to ~/pr/recent/
 max_recent_repos: 10

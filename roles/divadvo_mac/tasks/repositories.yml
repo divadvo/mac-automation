@@ -1,10 +1,10 @@
-- name: Check GitHub CLI authentication
+- name: Verify GitHub CLI authentication status
   command: gh auth status
   register: gh_auth_check
   failed_when: false
   changed_when: false
 
-- name: Display GitHub CLI authentication instructions
+- name: Prompt user to authenticate with GitHub CLI
   pause:
     prompt: |
       GitHub CLI is not authenticated. Please run:
@@ -14,18 +14,18 @@
       After authentication, press ENTER to continue...
   when: gh_auth_check.rc != 0
 
-- name: Verify GitHub CLI authentication after manual setup
+- name: Confirm GitHub CLI authentication is working
   command: gh auth status
   when: gh_auth_check.rc != 0
 
-- name: Create ~/pr folder
+- name: Create main projects directory
   file:
     path: ~/pr
     state: directory
     mode: '0755'
   become: false
 
-- name: Create repository directories
+- name: Create priority and recent repository directories
   file:
     path: "{{ item }}"
     state: directory
@@ -34,22 +34,24 @@
     - ~/pr/priority
     - ~/pr/recent
 
-- name: Clone priority repositories
+- name: Clone high-priority repositories to ~/pr/priority/
   git:
     repo: "git@github.com:{{ item }}.git"
     dest: "~/pr/priority/{{ item.split('/')[1] }}"
     accept_hostkey: yes
   loop: "{{ priority_repos }}"
+  retries: 3
+  delay: 10
   register: priority_clone_result
-  failed_when: false
+  failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.msg | default("")
 
-- name: Get recent repositories from GitHub
+- name: Fetch list of recent repositories from GitHub
   shell: gh repo list --limit {{ max_recent_repos }} --json name,sshUrl --jq '.[] | .sshUrl'
   register: recent_repos_result
   when: gh_auth_check.rc == 0
 
 # Priority repositories are excluded from recent cloning.
-- name: Clone recent repositories
+- name: Clone recent repositories to ~/pr/recent/ (excluding priority repos)
   git:
     repo: "{{ item }}"
     dest: "~/pr/recent/{{ item.split('/')[-1].replace('.git', '') }}"
@@ -59,10 +61,12 @@
     - recent_repos_result is defined 
     - recent_repos_result.stdout_lines is defined
     - item.split('/')[-1].replace('.git', '') not in (priority_repos | map('split', '/') | map('last'))
+  retries: 3
+  delay: 10
   register: recent_clone_result
-  failed_when: false
+  failed_when: recent_clone_result.rc != 0 and "already exists" not in recent_clone_result.msg | default("")
 
-- name: Display repository cloning summary
+- name: Show summary of cloned repositories
   debug:
     msg: |
       Repository cloning complete!
