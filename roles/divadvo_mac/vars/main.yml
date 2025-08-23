@@ -9,6 +9,7 @@ homebrew_packages:
   - mise
   - neovim
   - uv
+  - ruby-build
   
   # Network Tools
   - wget
