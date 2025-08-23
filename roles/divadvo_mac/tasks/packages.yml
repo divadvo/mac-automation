@@ -68,13 +68,22 @@
   tags:
   - mise
 
-- name: Install global npm tools
+- name: Check installed global npm tools
+  command: mise x -- npm list -g --depth=0 --json
+  register: npm_list
+  changed_when: false
+  failed_when: false
+  tags:
+  - node
+
+- name: Install global npm tools (only missing ones)
   command: >
     mise x --
-    npm install -g
-    {{ npm_tools | join(' ') }}
-  register: npm_global_install
-  changed_when: "'added' in npm_global_install.stdout or 'updated' in npm_global_install.stdout"
+    npm install -g {{ item }}
+  loop: "{{ npm_tools }}"
+  register: npm_install_result
+  changed_when: "'added' in npm_install_result.stdout or 'updated' in npm_install_result.stdout"
+  when: "item not in npm_list.stdout"
   tags:
   - node
 
@@ -88,10 +97,11 @@
 
 - name: Install Python versions via uv (only missing ones)
   command: >
-    uv python install
-    {{ python_versions | join(' ') }}
+    uv python install {{ item }}
+  loop: "{{ python_versions }}"
   register: uv_python_install
-  changed_when: "'All requested versions already installed' not in uv_python_install.stderr"
+  changed_when: "'already installed' not in uv_python_install.stderr and uv_python_install.rc == 0"
+  failed_when: false
   tags:
   - uv
 
