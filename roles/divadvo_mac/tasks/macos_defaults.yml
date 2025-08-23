@@ -596,15 +596,11 @@
 ###############################################################################
 
 - name: Configure Messages spell checking and smart quotes (annoying for code)
-  osx_defaults:
-    domain: com.apple.messageshelper.MessageController
-    key: SOInputLineSettings
-    type: dict
-    value:
-      automaticQuoteSubstitutionEnabled: false
-      continuousSpellCheckingEnabled: false
-  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
-  # Original: defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
+  shell: |
+    defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
+    defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
+  register: messages_config
+  changed_when: true
 
 ###############################################################################
 # App Store                                                                  #
