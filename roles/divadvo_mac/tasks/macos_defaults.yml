@@ -229,6 +229,14 @@
     value: true
   # Original: defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
+- name: Show hidden files in Finder by default
+  osx_defaults:
+    domain: com.apple.finder
+    key: AppleShowAllFiles
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder AppleShowAllFiles -bool true
+
 - name: Show all filename extensions in Finder
   osx_defaults:
     domain: NSGlobalDomain
@@ -301,6 +309,30 @@
     value: true
   # Original: defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+- name: Enable snap-to-grid for desktop icons
+  shell: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Enable snap-to-grid for FK standard view icons
+  shell: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Enable snap-to-grid for standard view icons
+  shell: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Set desktop icon size to 64px
+  shell: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Set FK standard view icon size to 64px
+  shell: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Set standard view icon size to 64px
+  shell: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  # Original: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
 - name: Use column view in all Finder windows by default
   osx_defaults:
     domain: com.apple.finder
@@ -324,6 +356,32 @@
     type: array
     value: []
   # Original: defaults write com.apple.dock persistent-apps -array
+
+# Add Chrome to Dock
+- name: Check if dockutil command is available
+  shell: command -v dockutil
+  register: dockutil_check
+  failed_when: false
+  changed_when: false
+
+- name: Add Google Chrome to dock using dockutil
+  shell: dockutil --add "/Applications/Google Chrome.app"
+  when: dockutil_check.rc == 0
+  failed_when: false
+  # Original: dockutil --add "/Applications/Google Chrome.app"
+
+- name: Add Google Chrome to dock using defaults (fallback)
+  osx_defaults:
+    domain: com.apple.dock
+    key: persistent-apps
+    type: array-add
+    value:
+      - tile-data:
+          file-data:
+            _CFURLString: "/Applications/Google Chrome.app"
+            _CFURLStringType: 0
+  when: dockutil_check.rc != 0
+  # Original: defaults write com.apple.dock persistent-apps -array-add '<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>/Applications/Google Chrome.app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>'
 
 - name: Set dock icon size
   osx_defaults:
@@ -381,6 +439,19 @@
     value: true
   # Original: defaults write com.apple.universalaccess reduceTransparency -bool true
 
+# Hot corners
+# Possible values:
+#  0: no-op
+#  2: Mission Control
+#  3: Show application windows
+#  4: Desktop
+#  5: Start screen saver
+#  6: Disable screen saver
+#  7: Dashboard
+# 10: Put display to sleep
+# 11: Launchpad
+# 12: Notification Center
+# Bottom right screen corner → Mission Control
 - name: Set bottom right hot corner to Mission Control
   osx_defaults:
     domain: com.apple.dock
@@ -397,6 +468,7 @@
     value: 0
   # Original: defaults write com.apple.dock wvous-br-modifier -int 0
 
+# Top right screen corner → Put display to sleep
 - name: Set top right hot corner to put display to sleep
   osx_defaults:
     domain: com.apple.dock
@@ -413,6 +485,7 @@
     value: 0
   # Original: defaults write com.apple.dock wvous-tr-modifier -int 0
 
+# Bottom left screen corner → Desktop
 - name: Set bottom left hot corner to Desktop
   osx_defaults:
     domain: com.apple.dock
@@ -478,6 +551,27 @@
   # Original: defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
 ###############################################################################
+# Spotlight                                                                  #
+###############################################################################
+
+- name: Disable Spotlight indexing for mounted volumes
+  osx_defaults:
+    domain: /.Spotlight-V100/VolumeConfiguration
+    key: Exclusions
+    type: array
+    value: ["/Volumes"]
+  become: true
+  when: ansible_user_uid == 0
+  # Original: sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+
+- name: Restart Spotlight service
+  shell: killall mds > /dev/null 2>&1
+  failed_when: false
+  become: true
+  when: ansible_user_uid == 0
+  # Original: killall mds > /dev/null 2>&1
+
+###############################################################################
 # Activity Monitor                                                           #
 ###############################################################################
 
@@ -531,15 +625,6 @@
     value: 0
   # Original: defaults write com.apple.appstore InAppReviewEnabled -int 0
 
-###############################################################################
-# Add Google Chrome to Dock                                                  #
-###############################################################################
-
-- name: Add Google Chrome to dock using dockutil
-  shell: dockutil --add "/Applications/Google Chrome.app"
-  failed_when: false
-  when: ansible_facts.packages['dockutil'] is defined
-  # Original: dockutil --add "/Applications/Google Chrome.app"
 
 ###############################################################################
 # Kill/restart affected applications                                         #
@@ -556,3 +641,4 @@
     - SystemUIServer
     - Terminal
   # Original: killall "${app}" > /dev/null 2>&1 for each app
+

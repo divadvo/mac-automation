@@ -46,7 +46,7 @@ Run the main setup playbook:
 uv run ./playbook.yml
 ```
 
-This installs all software, generates SSH keys, and sets up dotfiles. At the end, you'll see instructions for Phase 3.
+This installs all software, generates SSH keys, sets up dotfiles, and configures macOS system preferences.
 
 ### Phase 3: Manual GitHub Authentication
 
@@ -90,6 +90,10 @@ Add your generated SSH key to GitHub and other services:
    ```bash
    ssh -T git@github.com
    ```
+
+## Final Step
+
+**Please log out and log back in** to ensure all macOS system settings take effect properly.
 
 ## Configuration
 
