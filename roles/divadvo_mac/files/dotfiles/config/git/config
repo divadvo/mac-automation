@@ -1,0 +1,15 @@
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[user]
+    name = David Stepanov
+    email = david.stepanovs@gmail.com
+    
+[web]
+  browser = google-chrome
+
+[color]
+    ui = true

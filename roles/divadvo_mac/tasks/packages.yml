@@ -1,0 +1,131 @@
+- name: Update homebrew
+  homebrew:
+    name: git
+    state: latest
+    update_homebrew: true
+  tags:
+  - brew
+
+- name: Install homebrew packages
+  homebrew:
+    name: '{{ homebrew_packages }}'
+    state: latest
+  tags:
+  - brew
+
+- name: Install homebrew cask packages
+  command: brew install {{ homebrew_cask_packages|join(" ") }}
+  tags:
+  - brew
+
+- name: Mise disable Python
+  command: mise settings set disable_tools python
+  tags:
+  - mise
+
+- name: Mise install Node
+  command: mise latest node@24
+  tags:
+  - mise
+
+- name: Mise install Ruby
+  command: mise latest ruby@3
+  tags:
+  - mise
+
+- name: Mise install Bun
+  command: mise latest bun
+  tags:
+  - mise
+
+- name: Mise activates
+  command: >
+    mise use -g
+    node@24
+    ruby@3
+    bun
+  tags:
+  - mise
+
+- name: Mise reshim
+  command: mise reshim
+  tags:
+  - mise
+
+- name: npm install tools
+  command: >
+    mise x --
+    npm install -g
+    yarn
+    @anthropic-ai/claude-code
+  tags:
+  - node
+
+- name: uv install latest Pythons
+  command: >
+    uv python install
+    --reinstall
+    3.13
+    3.14
+  register: uv_python_install
+  changed_when: "'All requested versions already installed' not in uv_python_install.stderr"
+  tags:
+  - uv
+
+- name: uv install tools
+  command: >
+    uv tool install
+    --python 3.13
+    {{ item.name }}
+    {% if item.with is defined %}
+    {% for w in item.with %}--with {{ w }}{% endfor %}
+    {% endif %}
+  loop: '{{ uv_tools }}'
+  register: uv_tool_install
+  changed_when: "'already installed' not in uv_tool_install.stderr"
+  tags:
+  - uv
+
+- name: uv upgrade tools
+  command: >
+    uv tool upgrade
+    {{ item.name }}
+    {% if item.with is defined %}
+    {% for w in item.with %}--upgrade-package {{ w }}{% endfor %}
+    {% endif %}
+  loop: '{{ uv_tools }}'
+  register: uv_upgrade
+  changed_when: "'Nothing to upgrade' not in uv_upgrade.stderr"
+  tags:
+  - uv
+
+- name: uv prune cache
+  command: uv cache prune
+  register: uv_prune
+  changed_when: "'Removed' in uv_prune.stderr"
+  tags:
+  - uv
+
+- name: Install oh-my-zsh
+  shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  args:
+    creates: ~/.oh-my-zsh
+  become: false
+
+- name: Install Powerlevel10k theme
+  git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: ~/.oh-my-zsh/custom/themes/powerlevel10k
+    depth: 1
+  become: false
+
+- name: Install NVChad for Neovim
+  git:
+    repo: https://github.com/NvChad/starter
+    dest: ~/.config/nvim
+    depth: 1
+  become: false
+
+- name: Start PostgreSQL service
+  shell: brew services restart postgresql@17
+  become: false

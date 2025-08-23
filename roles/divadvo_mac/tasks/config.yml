@@ -1,0 +1,63 @@
+- name: dotfiles dirs
+  file:
+    path: '~/.{{ item }}'
+    state: directory
+  loop:
+  - innotop
+  - ipython/profile_default/startup
+  - config/atuin
+  - config/gh
+  - config/git
+  - config/pip
+  - config/zed
+  tags:
+  - dotfiles
+
+- name: dotfiles links
+  file:
+    src: '{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/{{ item }}'
+    path: '~/.{{ item }}'
+    state: link
+    force: yes # Remove file first, in case it exists
+  loop:
+  - config/ripgreprc
+  - config/git/attributes
+  - config/git/config
+  - config/git/ignore
+  - ssh/config
+  - zprofile
+  - zshrc
+  tags:
+  - dotfiles
+
+- name: scripts repo
+  git:
+    repo: https://github.com/divadvo/divadvo-scripts
+    dest: ~/scripts
+    update: true
+
+- name: iTerm custom settings file
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: PrefsCustomFolder
+    type: string
+    value: "{{ ansible_env.PWD }}/roles/divadvo_mac/files"
+  tags:
+  - iterm
+
+- name: iTerm use custom settings file
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: LoadPrefsFromCustomFolder
+    type: boolean
+    value: true
+  tags:
+  - iterm
+
+## Run configs for mac stuff https://github.com/geerlingguy/dotfiles/blob/master/.osx
+## --no-restart
+
+- name: Run macOS configuration script
+  command: "{{ role_path }}/files/dotfiles/osx"
+  changed_when: false
+  become: false

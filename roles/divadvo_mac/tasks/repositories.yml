@@ -1,0 +1,69 @@
+- name: Check GitHub CLI authentication
+  command: gh auth status
+  register: gh_auth_check
+  failed_when: false
+  changed_when: false
+
+- name: Display GitHub CLI authentication instructions
+  pause:
+    prompt: |
+      GitHub CLI is not authenticated. Please run:
+      gh auth login
+      
+      Follow the prompts to authenticate with GitHub.
+      After authentication, press ENTER to continue...
+  when: gh_auth_check.rc != 0
+
+- name: Verify GitHub CLI authentication after manual setup
+  command: gh auth status
+  when: gh_auth_check.rc != 0
+
+- name: Create ~/pr folder
+  file:
+    path: ~/pr
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Create repository directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - ~/pr/priority
+    - ~/pr/recent
+
+- name: Clone priority repositories
+  git:
+    repo: "git@github.com:{{ item }}.git"
+    dest: "~/pr/priority/{{ item.split('/')[1] }}"
+    accept_hostkey: yes
+  loop: "{{ priority_repos }}"
+  register: priority_clone_result
+  failed_when: false
+
+- name: Get recent repositories from GitHub
+  shell: gh repo list --limit {{ max_recent_repos }} --json name,sshUrl --jq '.[] | .sshUrl'
+  register: recent_repos_result
+  when: gh_auth_check.rc == 0
+
+- name: Clone recent repositories
+  git:
+    repo: "{{ item }}"
+    dest: "~/pr/recent/{{ item.split('/')[-1].replace('.git', '') }}"
+    accept_hostkey: yes
+  loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
+  when: recent_repos_result is defined and recent_repos_result.stdout_lines is defined
+  register: recent_clone_result
+  failed_when: false
+
+- name: Display repository cloning summary
+  debug:
+    msg: |
+      Repository cloning complete!
+      
+      Priority repositories: {{ priority_repos | length }} repos cloned to ~/pr/priority/
+      Recent repositories: {{ (recent_repos_result.stdout_lines | default([])) | length }} repos cloned to ~/pr/recent/
+      
+      Check ~/pr/ for all your development projects.

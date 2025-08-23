@@ -1,0 +1,37 @@
+- name: ssh dir stat
+  stat:
+    path: ~/.ssh
+  register: ssh_dir
+
+- name: ssh dir exists
+  when: not ssh_dir.stat.exists
+  file:
+    path: ~/.ssh
+    state: directory
+    mode: '0700'
+
+- name: Check if SSH key exists
+  stat:
+    path: ~/.ssh/id_ed25519
+  register: ssh_key
+
+- name: Generate SSH key
+  when: not ssh_key.stat.exists
+  command: ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "{{ user_email }}"
+
+- name: Set SSH key permissions
+  file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "~/.ssh/id_ed25519", mode: "0600" }
+    - { path: "~/.ssh/id_ed25519.pub", mode: "0644" }
+
+- name: Start ssh-agent
+  shell: eval "$(ssh-agent -s)"
+  when: not ssh_key.stat.exists
+
+- name: Add SSH key to ssh-agent and keychain
+  shell: ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+  when: not ssh_key.stat.exists
+

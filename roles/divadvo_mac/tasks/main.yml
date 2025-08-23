@@ -1,0 +1,20 @@
+- name: System setup and SSH keys
+  import_tasks: setup.yml
+  tags:
+  - ssh
+  - setup
+
+- name: Install packages and tools
+  import_tasks: packages.yml
+  tags:
+  - packages
+  - brew
+  - mise
+  - uv
+
+- name: Configure dotfiles and settings
+  import_tasks: config.yml
+  tags:
+  - dotfiles
+  - config
+

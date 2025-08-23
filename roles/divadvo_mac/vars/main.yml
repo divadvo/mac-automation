@@ -1,0 +1,58 @@
+homebrew_packages:
+- git
+- git-lfs
+- mise
+- neovim
+- uv
+- wget
+- curl
+- xh
+- yt-dlp
+- fd
+- redis
+- postgresql@17
+- ripgrep
+- dockutil
+- bitwarden-cli
+- gh
+
+homebrew_cask_packages: # TODO: don't forget to add back
+- citrix-workspace
+- orbstack
+- cleanshot
+- betterdisplay
+- bambu-studio
+- iina
+- whatsapp
+- discord
+- zoom
+- teamviewer
+- musescore
+- visual-studio-code
+- adobe-creative-cloud
+- jetbrains-toolbox
+- chatgpt
+- iterm2
+- unnaturalscrollwheels
+- raycast
+- rectangle
+- spotify
+- google-chrome
+- brave-browser
+- firefox
+- microsoft-office
+- tailscale-app
+
+uv_tools:
+- name: build
+- name: ruff
+
+user_email: "david.stepanovs@gmail.com"
+
+# Repository configuration
+priority_repos:
+  - "divadvo/mac-ansible"
+  - "divadvo/divadvo-scripts"
+  # Add your important repositories here
+
+max_recent_repos: 10
