@@ -32,6 +32,34 @@ homebrew_packages:
   
   # Security Tools
   - bitwarden-cli
+  
+  # Optional Tools (can be commented out for minimal install)
+  # Fuzzy Finding & Navigation
+  # - fzf
+  # - zoxide
+  
+  # # Terminal Multiplexers
+  # - tmux
+  # - zellij
+  
+  # # Help & Documentation
+  # - tldr
+  # - cheat
+  
+  # # File Viewing & Management
+  # - lsd
+  # - tree
+  # - bat
+  # - micro
+  
+  # # Development Tools
+  # - git-delta
+  # - jq
+  
+  # # System Monitoring
+  # - htop
+  # - lnav
+  # - bottom
 
 # GUI applications to install via Homebrew Cask
 homebrew_cask_packages:
