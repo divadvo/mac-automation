@@ -33,7 +33,7 @@ This setup uses a **five-phase approach** with minimal manual steps:
 
 3. **Install dependencies:**
    ```bash
-   brew install uv
+   eval "$(/opt/homebrew/bin/brew shellenv)" && brew install uv
    ```
 
 4. **Update your email:**
