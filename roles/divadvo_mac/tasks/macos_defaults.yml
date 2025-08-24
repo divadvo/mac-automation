@@ -39,9 +39,17 @@
     value: true
   # Original: defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
+- name: Check current restart freeze setting
+  shell: systemsetup -getrestartfreeze
+  register: restart_freeze_current
+  become: true
+  changed_when: false
+  failed_when: false
+
 - name: Restart automatically if computer freezes
   shell: systemsetup -setrestartfreeze on
   become: true
+  when: "'On' not in restart_freeze_current.stdout"
   # Original: systemsetup -setrestartfreeze on (requires sudo)
 
 - name: Disable smart quotes (annoying when typing code)
@@ -315,28 +323,70 @@
     value: true
   # Original: defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+- name: Check current desktop icons arrange setting
+  shell: /usr/libexec/PlistBuddy -c "Print :DesktopViewSettings:IconViewSettings:arrangeBy" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "none"
+  register: desktop_arrange_current
+  changed_when: false
+  failed_when: false
+
 - name: Enable snap-to-grid for desktop icons
   shell: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  when: desktop_arrange_current.stdout != "grid"
   # Original: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Check current FK standard view icons arrange setting
+  shell: /usr/libexec/PlistBuddy -c "Print :FK_StandardViewSettings:IconViewSettings:arrangeBy" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "none"
+  register: fk_arrange_current
+  changed_when: false
+  failed_when: false
 
 - name: Enable snap-to-grid for FK standard view icons
   shell: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  when: fk_arrange_current.stdout != "grid"
   # Original: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Check current standard view icons arrange setting
+  shell: /usr/libexec/PlistBuddy -c "Print :StandardViewSettings:IconViewSettings:arrangeBy" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "none"
+  register: standard_arrange_current
+  changed_when: false
+  failed_when: false
 
 - name: Enable snap-to-grid for standard view icons
   shell: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+  when: standard_arrange_current.stdout != "grid"
   # Original: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Check current desktop icon size
+  shell: /usr/libexec/PlistBuddy -c "Print :DesktopViewSettings:IconViewSettings:iconSize" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "0"
+  register: desktop_iconsize_current
+  changed_when: false
+  failed_when: false
 
 - name: Set desktop icon size to 64px
   shell: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  when: desktop_iconsize_current.stdout != "64"
   # Original: /usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Check current FK standard view icon size
+  shell: /usr/libexec/PlistBuddy -c "Print :FK_StandardViewSettings:IconViewSettings:iconSize" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "0"
+  register: fk_iconsize_current
+  changed_when: false
+  failed_when: false
 
 - name: Set FK standard view icon size to 64px
   shell: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  when: fk_iconsize_current.stdout != "64"
   # Original: /usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+
+- name: Check current standard view icon size
+  shell: /usr/libexec/PlistBuddy -c "Print :StandardViewSettings:IconViewSettings:iconSize" ~/Library/Preferences/com.apple.finder.plist 2>/dev/null || echo "0"
+  register: standard_iconsize_current
+  changed_when: false
+  failed_when: false
 
 - name: Set standard view icon size to 64px
   shell: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
+  when: standard_iconsize_current.stdout != "64"
   # Original: /usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:iconSize 64" ~/Library/Preferences/com.apple.finder.plist
 
 - name: Use column view in all Finder windows by default
@@ -377,9 +427,16 @@
   failed_when: false
   changed_when: false
 
+- name: Check if Chrome is already in dock
+  shell: dockutil --list | grep -q "Google Chrome"
+  register: chrome_in_dock
+  when: dockutil_check.rc == 0
+  changed_when: false
+  failed_when: false
+
 - name: Add Google Chrome to dock using dockutil
   shell: dockutil --add "/Applications/Google Chrome.app"
-  when: dockutil_check.rc == 0
+  when: dockutil_check.rc == 0 and chrome_in_dock.rc != 0
   failed_when: false
   # Original: dockutil --add "/Applications/Google Chrome.app"
 
@@ -420,12 +477,19 @@
     value: false
   # Original: defaults write com.apple.dock show-recents -bool false
 
+- name: Check current persistent-others in dock
+  shell: defaults read com.apple.dock persistent-others 2>/dev/null | wc -l || echo "0"
+  register: dock_others_count
+  changed_when: false
+  failed_when: false
+
 - name: Remove Downloads folder from dock
   osx_defaults:
     domain: com.apple.dock
     key: persistent-others
     type: array
     value: []
+  when: dock_others_count.stdout|int > 0
   # Original: defaults write com.apple.dock persistent-others -array
 
 - name: Speed up Mission Control animations
@@ -567,11 +631,17 @@
 # Spotlight                                                                  #
 ###############################################################################
 
+- name: Check current Spotlight exclusions
+  shell: defaults read /.Spotlight-V100/VolumeConfiguration Exclusions 2>/dev/null | grep -q "/Volumes" && echo "present" || echo "absent"
+  register: spotlight_exclusions_check
+  become: true
+  changed_when: false
+  failed_when: false
+
 - name: Disable Spotlight indexing for mounted volumes
   shell: defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
   become: true
-  register: spotlight_config
-  changed_when: true
+  when: spotlight_exclusions_check.stdout == "absent"
   failed_when: false
   # Original: sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
 
@@ -600,9 +670,15 @@
 # Messages                                                                   #
 ###############################################################################
 
-- name: Check current Messages settings
-  shell: defaults read com.apple.messageshelper.MessageController SOInputLineSettings 2>/dev/null || echo "not found"
-  register: messages_current_settings
+- name: Check Messages automatic quote substitution setting
+  shell: defaults read com.apple.messageshelper.MessageController SOInputLineSettings automaticQuoteSubstitutionEnabled 2>/dev/null || echo "1"
+  register: messages_quote_setting
+  changed_when: false
+  failed_when: false
+
+- name: Check Messages continuous spell checking setting
+  shell: defaults read com.apple.messageshelper.MessageController SOInputLineSettings continuousSpellCheckingEnabled 2>/dev/null || echo "1"
+  register: messages_spell_setting
   changed_when: false
   failed_when: false
 
@@ -610,9 +686,7 @@
   shell: |
     defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
     defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
-  when: >
-    "automaticQuoteSubstitutionEnabled = 0" not in messages_current_settings.stdout or
-    "continuousSpellCheckingEnabled = 0" not in messages_current_settings.stdout
+  when: messages_quote_setting.stdout != "0" or messages_spell_setting.stdout != "0"
 
 ###############################################################################
 # App Store                                                                  #
