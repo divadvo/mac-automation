@@ -568,12 +568,11 @@
 ###############################################################################
 
 - name: Disable Spotlight indexing for mounted volumes
-  osx_defaults:
-    domain: /.Spotlight-V100/VolumeConfiguration
-    key: Exclusions
-    type: array
-    value: ["/Volumes"]
+  shell: defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
   become: true
+  register: spotlight_config
+  changed_when: true
+  failed_when: false
   # Original: sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
 
 
