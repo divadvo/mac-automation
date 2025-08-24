@@ -10,7 +10,6 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 
 ### Running Playbooks
 - **Main setup playbook**: `uv run ./playbook.yml`
-- **Repository cloning only**: `uv run ./playbook-2.yml --tags repositories`
 - **Debug mode**: `uv run ./playbook.yml --step -vvv --diff`
 - **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
 - **Run specific sections by tag**:
@@ -25,10 +24,9 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 ## Architecture
 
 ### Project Structure
-- **`playbook.yml`**: Main playbook for Phase 2 setup (packages, SSH, dotfiles)
-- **`playbook-2.yml`**: Repository cloning playbook for Phase 4
+- **`playbook.yml`**: Main playbook for complete MacBook setup
 - **`roles/divadvo_mac/`**: Single Ansible role containing all configuration
-  - **`tasks/main.yml`**: Orchestrates the three main task categories
+  - **`tasks/main.yml`**: Orchestrates all task categories with proper tagging
   - **`tasks/setup.yml`**: SSH key generation and system setup
   - **`tasks/packages.yml`**: Package installation (homebrew, mise, uv, npm tools)
   - **`tasks/config.yml`**: Dotfiles symlinking and macOS configuration
@@ -37,10 +35,11 @@ This is an Ansible-based MacBook configuration system that automates the setup o
   - **`files/dotfiles/`**: Configuration files to be symlinked
 
 ### Task Organization
-The role is organized into three main categories:
+The role is organized into four main categories:
 1. **System setup and SSH keys** (`setup.yml`) - Creates SSH keys and configures authentication
 2. **Install packages and tools** (`packages.yml`) - Manages homebrew, mise, uv, and npm installations
 3. **Configure dotfiles and settings** (`config.yml`) - Symlinks dotfiles and configures macOS defaults
+4. **Clone repositories** (`repositories.yml`) - Clones priority and recent GitHub repositories
 
 ### Package Management Strategy
 - **Homebrew**: For system packages and cask applications

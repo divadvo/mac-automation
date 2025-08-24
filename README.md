@@ -64,11 +64,11 @@ Follow the prompts to sign in to GitHub. Test authentication with:
 gh auth status
 ```
 
-### Phase 4: Second Playbook Execution
+### Phase 4: Repository Cloning
 
 Clone your repositories:
 ```bash
-uv run ./playbook-2.yml
+uv run ./playbook.yml --tags repositories
 ```
 
 This clones your priority repositories to `~/pr/priority/` and recent repositories to `~/pr/recent/`.
