@@ -99,9 +99,8 @@
   command: >
     uv python install {{ item }}
   loop: "{{ python_versions }}"
+  when: "item not in uv_python_list.stdout"
   register: uv_python_install
-  changed_when: "'Installed Python' in uv_python_install.stderr"
-  failed_when: false
   tags:
   - uv
 
