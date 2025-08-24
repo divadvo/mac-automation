@@ -9,7 +9,7 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 ## Development Commands
 
 ### Running Playbooks
-- **Main setup playbook** (setup, packages, config): `uv run ./playbook.yml`
+- **Main setup playbook** (setup, packages, config - excludes repositories): `uv run ./playbook.yml`
 - **Debug mode**: `uv run ./playbook.yml --step -vvv --diff`
 - **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
 - **Run specific sections by tag**:
@@ -17,7 +17,6 @@ This is an Ansible-based MacBook configuration system that automates the setup o
   - Packages only: `uv run ./playbook.yml --tags packages`  
   - Dotfiles only: `uv run ./playbook.yml --tags config`
   - Repositories only: `uv run ./playbook.yml --tags repositories`
-  - Everything including repositories: `uv run ./playbook.yml --tags all`
 
 ### Testing in VM
 - **Quick test setup**: `rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml`
