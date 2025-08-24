@@ -427,6 +427,18 @@
   failed_when: false
   changed_when: false
 
+- name: Check dockutil version for Sequoia compatibility
+  shell: dockutil --version | head -1
+  register: dockutil_version_check
+  when: dockutil_check.rc == 0
+  failed_when: false
+  changed_when: false
+
+- name: Display dockutil version for troubleshooting
+  debug:
+    msg: "Using dockutil version: {{ dockutil_version_check.stdout | default('Not available') }}"
+  when: dockutil_check.rc == 0 and dockutil_version_check.stdout is defined
+
 - name: Check if Chrome is already in dock
   shell: dockutil --list | grep -q "Google Chrome"
   register: chrome_in_dock
@@ -477,20 +489,48 @@
     value: false
   # Original: defaults write com.apple.dock show-recents -bool false
 
-- name: Check current persistent-others in dock
-  shell: defaults read com.apple.dock persistent-others 2>/dev/null | wc -l || echo "0"
-  register: dock_others_count
+# Remove Downloads folder from dock (Sequoia-compatible)
+- name: Initialize dock plist for dockutil
+  shell: dockutil --list >/dev/null 2>&1
+  when: dockutil_check.rc == 0
+  failed_when: false
   changed_when: false
+
+- name: Check if Downloads folder is in dock (dockutil method)
+  shell: dockutil --list | grep -i "downloads" | grep -q "folder"
+  register: downloads_in_dock_dockutil
+  when: dockutil_check.rc == 0
+  failed_when: false
+  changed_when: false
+
+- name: Check if Downloads folder is in dock (defaults method)
+  shell: defaults read com.apple.dock persistent-others 2>/dev/null | grep -q "Downloads" && echo "present" || echo "absent"
+  register: downloads_in_dock_defaults
+  failed_when: false
+  changed_when: false
+
+- name: Debug Downloads folder detection results
+  debug:
+    msg: 
+      - "dockutil detection result: {{ 'Found' if (dockutil_check.rc == 0 and downloads_in_dock_dockutil.rc == 0) else 'Not found' }}"
+      - "defaults detection result: {{ downloads_in_dock_defaults.stdout | default('Unknown') }}"
+  when: dockutil_check.rc == 0 or downloads_in_dock_defaults.stdout is defined
+
+- name: Remove Downloads folder from dock using dockutil
+  shell: dockutil --remove "Downloads" --no-restart
+  when: dockutil_check.rc == 0 and downloads_in_dock_dockutil.rc == 0
   failed_when: false
 
-- name: Remove Downloads folder from dock
-  osx_defaults:
-    domain: com.apple.dock
-    key: persistent-others
-    type: array
-    value: []
-  when: dock_others_count.stdout|int > 0
-  # Original: defaults write com.apple.dock persistent-others -array
+- name: Remove Downloads folder from dock using defaults (fallback method)
+  shell: |
+    # Get current persistent-others array and remove Downloads entries
+    defaults delete com.apple.dock persistent-others 2>/dev/null || true
+    # Force dock restart to apply changes
+    killall Dock 2>/dev/null || true
+  when: >
+    (dockutil_check.rc != 0 or downloads_in_dock_dockutil.rc != 0) and 
+    downloads_in_dock_defaults.stdout == "present"
+  # Fallback: Use defaults delete to completely remove persistent-others array
 
 - name: Speed up Mission Control animations
   osx_defaults:
@@ -771,11 +811,11 @@
   failed_when: false
   loop:
     - cfprefsd
-    - Dock
     - Finder
     - Mail
     - SystemUIServer
     - mds
     # Terminal excluded to prevent killing Ansible session
+    # Dock excluded as it's handled specifically in dock tasks
   # Original: killall "${app}" > /dev/null 2>&1 for each app
 
