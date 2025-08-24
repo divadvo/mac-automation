@@ -100,7 +100,7 @@
     uv python install {{ item }}
   loop: "{{ python_versions }}"
   register: uv_python_install
-  changed_when: "'already available' not in item.stderr and 'already installed' not in item.stderr"
+  changed_when: "'Installed Python' in uv_python_install.stderr"
   failed_when: false
   tags:
   - uv
