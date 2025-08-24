@@ -14,7 +14,7 @@ That way I can set up a new MacBook quickly.
 
 ## Setup Process
 
-This setup uses a **five-phase approach** with minimal manual steps:
+This setup uses a **six-phase approach** with minimal manual steps:
 
 ### Phase 1: Manual Pre-work
 
@@ -50,7 +50,7 @@ Run the main setup playbook:
 uv run ./playbook.yml
 ```
 
-This installs all software, generates SSH keys, sets up dotfiles, and configures macOS system preferences.
+This installs all software, generates SSH keys, and sets up dotfiles.
 
 ### Phase 3: Manual GitHub Authentication
 
@@ -73,7 +73,16 @@ uv run ./playbook.yml --tags repositories
 
 This clones your priority repositories to `~/pr/priority/` and recent repositories to `~/pr/recent/`.
 
-### Phase 5: Logout and Manual Configuration
+### Phase 5: macOS System Configuration
+
+Apply macOS system defaults:
+```bash
+uv run ./playbook.yml --tags macos
+```
+
+This configures system preferences, Finder settings, Dock preferences, and other macOS defaults.
+
+### Phase 6: Logout and Manual Configuration
 
 **Please log out and log back in** to ensure all macOS system settings take effect properly.
 

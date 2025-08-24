@@ -67,6 +67,7 @@
   tags:
   - macos
   - ansible_config
+  - never
 
 - name: Apply macOS system defaults via shell script
   command: "{{ role_path }}/files/dotfiles/osx"
@@ -76,3 +77,4 @@
   tags:
   - macos
   - shell_config
+  - never
