@@ -42,7 +42,6 @@
 - name: Restart automatically if computer freezes
   shell: systemsetup -setrestartfreeze on
   become: true
-  when: ansible_user_uid == 0
   # Original: systemsetup -setrestartfreeze on (requires sudo)
 
 - name: Disable smart quotes (annoying when typing code)
@@ -575,7 +574,6 @@
     type: array
     value: ["/Volumes"]
   become: true
-  when: ansible_user_uid == 0
   # Original: sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
 
 
