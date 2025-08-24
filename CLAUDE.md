@@ -13,6 +13,11 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 - **Repository cloning playbook**: `uv run ./playbook-2.yml`
 - **Debug mode**: `uv run ./playbook.yml --step -vvv --diff`
 - **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
+- **Run specific sections by tag**:
+  - Setup only: `uv run ./playbook.yml --tags setup`
+  - Packages only: `uv run ./playbook.yml --tags packages`  
+  - Dotfiles only: `uv run ./playbook.yml --tags dotfiles`
+  - Repositories only: `uv run ./playbook.yml --tags repositories`
 
 ### Testing in VM
 - **Quick test setup**: `rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml`

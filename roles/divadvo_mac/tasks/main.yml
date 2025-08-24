@@ -24,3 +24,10 @@
   - dotfiles
   - config
 
+- name: Clone repositories
+  import_tasks: repositories.yml
+  tags:
+  - repositories
+  - repos
+  - git
+

@@ -10,5 +10,6 @@
 - hosts: localhost
   connection: local
   roles:
-  - role: divadvo_mac
-    tasks_from: repositories
+  - divadvo_mac
+  tags:
+  - repositories
