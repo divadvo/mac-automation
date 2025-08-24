@@ -165,8 +165,16 @@
   delay: 10
   become: false
 
+- name: Check PostgreSQL service status
+  shell: brew services list | grep postgresql@{{ postgresql_version }}
+  register: postgres_status
+  changed_when: false
+  failed_when: false
+  become: false
+
 - name: Start and enable PostgreSQL database service
-  shell: brew services restart postgresql@{{ postgresql_version }}
-  register: postgres_restart
-  changed_when: "'Successfully started' in postgres_restart.stdout"
+  shell: brew services start postgresql@{{ postgresql_version }}
+  register: postgres_start
+  changed_when: "'Successfully started' in postgres_start.stdout"
+  when: "'started' not in postgres_status.stdout"
   become: false

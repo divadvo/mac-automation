@@ -61,8 +61,15 @@
     value: false
   # Original: defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
+- name: Check current desktop background
+  shell: osascript -e 'tell application "Finder" to get desktop picture as string'
+  register: current_desktop_bg
+  changed_when: false
+  failed_when: false
+
 - name: Set desktop background to dark-grey stone color
   shell: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
+  when: "'Stone.png' not in current_desktop_bg.stdout"
   # Original: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
 
 ###############################################################################
@@ -341,8 +348,15 @@
     value: clmv
   # Original: defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
 
+- name: Check ~/Library folder visibility
+  shell: ls -lOd ~/Library | grep -q hidden
+  register: library_hidden_check
+  changed_when: false
+  failed_when: false
+
 - name: Show ~/Library folder
   shell: chflags nohidden ~/Library
+  when: library_hidden_check.rc == 0
   # Original: chflags nohidden ~/Library
 
 ###############################################################################
@@ -589,12 +603,19 @@
 # Messages                                                                   #
 ###############################################################################
 
+- name: Check current Messages settings
+  shell: defaults read com.apple.messageshelper.MessageController SOInputLineSettings 2>/dev/null || echo "not found"
+  register: messages_current_settings
+  changed_when: false
+  failed_when: false
+
 - name: Configure Messages spell checking and smart quotes (annoying for code)
   shell: |
     defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
     defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
-  register: messages_config
-  changed_when: true
+  when: >
+    "automaticQuoteSubstitutionEnabled = 0" not in messages_current_settings.stdout or
+    "continuousSpellCheckingEnabled = 0" not in messages_current_settings.stdout
 
 ###############################################################################
 # App Store                                                                  #
