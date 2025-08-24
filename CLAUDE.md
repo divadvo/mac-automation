@@ -10,7 +10,7 @@ This is an Ansible-based MacBook configuration system that automates the setup o
 
 ### Running Playbooks
 - **Main setup playbook**: `uv run ./playbook.yml`
-- **Repository cloning playbook**: `uv run ./playbook-2.yml`
+- **Repository cloning only**: `uv run ./playbook-2.yml --tags repositories`
 - **Debug mode**: `uv run ./playbook.yml --step -vvv --diff`
 - **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
 - **Run specific sections by tag**:

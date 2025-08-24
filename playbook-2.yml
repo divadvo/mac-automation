@@ -11,5 +11,3 @@
   connection: local
   roles:
   - divadvo_mac
-  tags:
-  - repositories
