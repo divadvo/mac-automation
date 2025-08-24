@@ -11,3 +11,7 @@
   connection: local
   roles:
   - divadvo_mac
+  tags:
+  - setup
+  - packages
+  - config
