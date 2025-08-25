@@ -80,6 +80,13 @@ echo "$MAC_AUTOMATION_PREFIX ✨ RECOMMENDED: Test your authentication first!"
 echo "$MAC_AUTOMATION_PREFIX Before continuing, try logging into GitHub.com in your browser."
 echo "$MAC_AUTOMATION_PREFIX If you have passkeys from another device, they should sync via iCloud."
 echo ""
+read -p "$MAC_AUTOMATION_PREFIX Would you like to open GitHub.com now to test login? (y/N): " open_github
+if [ "$open_github" = "y" ] || [ "$open_github" = "Y" ] || [ "$open_github" = "yes" ] || [ "$open_github" = "Yes" ]; then
+    echo "$MAC_AUTOMATION_PREFIX Opening GitHub.com in your browser..."
+    open "https://github.com/login"
+    echo "$MAC_AUTOMATION_PREFIX Please test your login, then return here."
+    echo ""
+fi
 read -p "$MAC_AUTOMATION_PREFIX Have you verified you can log into GitHub.com? (y/N): " github_verified
 echo ""
 echo "$MAC_AUTOMATION_PREFIX Authentication flow:"
