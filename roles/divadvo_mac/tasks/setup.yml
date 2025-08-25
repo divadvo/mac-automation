@@ -14,10 +14,14 @@
   stat:
     path: ~/.ssh/id_ed25519
   register: ssh_key
+  tags:
+    - never
 
 - name: Generate new ed25519 SSH key pair
   when: not ssh_key.stat.exists
   command: ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "{{ user_email }}"
+  tags:
+    - never
 
 - name: Set proper permissions on SSH key files
   file:
@@ -26,14 +30,20 @@
   loop:
     - { path: "~/.ssh/id_ed25519", mode: "0600" }
     - { path: "~/.ssh/id_ed25519.pub", mode: "0644" }
+  tags:
+    - never
 
 - name: Start SSH agent service
   shell: eval "$(ssh-agent -s)"
   when: not ssh_key.stat.exists
+  tags:
+    - never
 
 - name: Add SSH key to macOS keychain and ssh-agent
   shell: ssh-add --apple-use-keychain ~/.ssh/id_ed25519
   when: not ssh_key.stat.exists
+  tags:
+    - never
 
 - name: Upload SSH key to GitHub
   shell: gh ssh-key add ~/.ssh/id_ed25519.pub --title "MacBook - $(date '+%Y-%m-%d')"
@@ -41,4 +51,6 @@
   register: gh_ssh_upload
   failed_when: gh_ssh_upload.rc != 0 and 'key is already present' not in gh_ssh_upload.stderr
   changed_when: gh_ssh_upload.rc == 0
+  tags:
+    - never
 
