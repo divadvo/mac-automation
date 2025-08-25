@@ -1,15 +1,8 @@
 # mac-automation
 
 I use this project to configure my MacBook the way I like it.
-It contains Ansible code to install software and set up configuration files through symlinks to this repository.
-That way I can set up a new MacBook quickly.
-
-## What it does
-
-- Installs development tools via Homebrew (CLI tools, GUI apps, runtime versions)
-- Generates SSH keys and automatically uploads them to GitHub
-- Configures dotfiles and macOS system settings
-- Clones your GitHub repositories automatically
+It contains Ansible code to install applications via Homebrew, generate SSH keys, configure dotfiles and macos settings, and automatically clone repositories.
+That way I can set up a new MacBook quickly with all my preferred software and settings.
 
 ## Setup Process
 
