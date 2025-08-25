@@ -24,10 +24,34 @@ brew install uv gh git
 
 # Get user details for configuration
 echo "📝 Getting user details for configuration..."
-echo "Please enter your email address:"
-read -p "Email: " user_email
-echo "Please enter your full name:"
-read -p "Name: " user_name
+
+# Loop until user confirms details are correct
+while true; do
+    echo "Please enter your email address:"
+    read -p "Email: " user_email
+    echo "Please enter your full name:"
+    read -p "Name: " user_name
+    
+    # Show captured values for verification
+    echo ""
+    echo "Please verify your details:"
+    echo "  Email: '$user_email'"
+    echo "  Name:  '$user_name'"
+    echo ""
+    
+    # Ask for confirmation
+    read -p "Are these details correct? (y/N): " confirm
+    case $confirm in
+        [Yy]|[Yy][Ee][Ss])
+            echo "✅ Details confirmed!"
+            break
+            ;;
+        *)
+            echo "Let's try again..."
+            echo ""
+            ;;
+    esac
+done
 
 # Authenticate with GitHub CLI
 echo "🔑 Authenticating with GitHub CLI..."
