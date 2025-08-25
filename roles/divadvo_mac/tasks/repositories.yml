@@ -1,22 +1,8 @@
 - name: Verify GitHub CLI authentication status
   command: gh auth status
   register: gh_auth_check
-  failed_when: false
+  failed_when: gh_auth_check.rc != 0
   changed_when: false
-
-- name: Prompt user to authenticate with GitHub CLI
-  pause:
-    prompt: |
-      GitHub CLI is not authenticated. Please run:
-      gh auth login
-      
-      Follow the prompts to authenticate with GitHub.
-      After authentication, press ENTER to continue...
-  when: gh_auth_check.rc != 0
-
-- name: Confirm GitHub CLI authentication is working
-  command: gh auth status
-  when: gh_auth_check.rc != 0
 
 - name: Create main projects directory
   file:
@@ -48,7 +34,6 @@
 - name: Fetch list of recent repositories from GitHub
   shell: gh repo list --limit {{ max_recent_repos }} --json name,sshUrl --jq '.[] | .sshUrl'
   register: recent_repos_result
-  when: gh_auth_check.rc == 0
 
 # Priority repositories are excluded from recent cloning.
 - name: Clone recent repositories to ~/pr/recent/ (excluding priority repos)
