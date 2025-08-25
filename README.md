@@ -12,6 +12,12 @@ This setup uses a streamlined **multi-phase approach** with GitHub CLI integrati
 
 Run the bootstrap script to automatically set up everything:
 
+**One-liner:**
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh)"
+```
+
+**Or step-by-step:**
 ```bash
 cd /tmp
 curl -sSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh -o bootstrap.sh
