@@ -1,9 +1,11 @@
 {
-  "Ansi 7 Color (Light)" : {
-    "Green Component" : 0.73333334922790527,
-    "Blue Component" : 0.73333334922790527,
-    "Red Component" : 0.73333334922790527
-  },
+  "New Bookmarks": [
+    {
+      "Ansi 7 Color (Light)" : {
+        "Green Component" : 0.73333334922790527,
+        "Blue Component" : 0.73333334922790527,
+        "Red Component" : 0.73333334922790527
+      },
   "Ansi 15 Color (Light)" : {
     "Green Component" : 1,
     "Blue Component" : 1,
@@ -528,4 +530,6 @@
     "Blue Component" : 0,
     "Red Component" : 0
   }
+    }
+  ]
 }
