@@ -30,5 +30,11 @@
   - repositories
   - repos
   - git
+
+- name: Apply macOS system configuration
+  import_tasks: macos.yml
+  tags:
+  - macos
+  - system
   - never
 

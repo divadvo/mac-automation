@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+## Run configs for mac stuff https://github.com/geerlingguy/dotfiles/blob/master/.osx
+## --no-restart
+
 # To run line by line:
 #set -x
 #trap read debug
