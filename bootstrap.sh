@@ -83,9 +83,10 @@ sed -i.bak "s/user_email: \".*\"/user_email: \"$user_email\"/" roles/divadvo_mac
 sed -i.bak2 "s/user_name: \".*\"/user_name: \"$user_name\"/" roles/divadvo_mac/vars/main.yml
 
 echo ""
-echo "🎉 Bootstrap complete! Next steps:"
-echo "1. Run the main playbook: uv run ./playbook.yml"
-echo "2. Apply macOS settings: uv run ./playbook.yml --tags macos"
-echo "3. Log out and back in for macOS settings to take effect"
-echo ""
+echo "🎉 Bootstrap complete!"
 echo "📁 Repository location: $PRIORITY_DIR/mac-automation"
+echo ""
+echo "Next, navigate to the repository:"
+echo "cd $PRIORITY_DIR/mac-automation"
+echo ""
+echo "👉 See README.md for Phase 2-4 instructions"

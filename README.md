@@ -17,47 +17,21 @@ This setup uses a streamlined **4-phase approach** with GitHub CLI integration:
 
 ### Phase 1: Bootstrap Setup
 
-1. **Install Homebrew:**
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-   *Note: This automatically installs Xcode Command Line Tools if needed*
+Run the bootstrap script to automatically set up everything:
 
-2. **Set up PATH for Homebrew:**
-   ```bash
-   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-   eval "$(/opt/homebrew/bin/brew shellenv)"
-   ```
+```bash
+cd tmp
+curl -sSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh -o bootstrap.sh
+chmod +x bootstrap.sh
+./bootstrap.sh
+```
 
-3. **Install essential tools:**
-   ```bash
-   brew install uv gh git
-   ```
-
-4. **Configure git with your details:**
-   ```bash
-   git config --global user.email "your-email@example.com"
-   git config --global user.name "Your Name"
-   ```
-
-5. **Authenticate with GitHub CLI:**
-   ```bash
-   gh auth login
-   ```
-   Follow the prompts to authenticate with your GitHub account.
-
-6. **Clone this repository:**
-   ```bash
-   mkdir -p ~/pr/priority
-   gh repo clone divadvo/mac-automation ~/pr/priority/mac-automation
-   cd ~/pr/priority/mac-automation
-   ```
-
-7. **Update your email in the configuration:**
-   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address:
-   ```bash
-   open -e roles/divadvo_mac/vars/main.yml
-   ```
+The bootstrap script will automatically:
+- Install Homebrew and essential tools (uv, gh, git)
+- Prompt for your email and name with verification
+- Authenticate with GitHub CLI
+- Clone this repository to `~/pr/priority/mac-automation`
+- Update configuration with your details
 
 ### Phase 2: Automated Setup
 
