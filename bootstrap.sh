@@ -58,8 +58,14 @@ done
 
 # Authenticate with GitHub CLI
 echo "🔑 Authenticating with GitHub CLI..."
-echo "Please follow the prompts to authenticate with GitHub:"
-gh auth login
+echo "You will be shown a device code to enter in GitHub."
+echo "You can use the GitHub mobile app or any browser to complete authentication:"
+echo "  1. A device code will be displayed (e.g., ABCD-1234)"
+echo "  2. Open GitHub mobile app → Settings → Applications → Device activation"
+echo "  3. OR visit https://github.com/login/device in any browser"
+echo "  4. Enter the device code when prompted"
+echo ""
+gh auth login --web
 
 # Verify authentication
 echo "✅ Verifying GitHub authentication..."
