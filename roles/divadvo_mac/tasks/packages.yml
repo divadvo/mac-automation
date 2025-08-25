@@ -22,7 +22,7 @@
   homebrew_cask:
     name: "{{ item }}"
     state: present
-  loop: "{{ homebrew_cask_packages }}"
+  loop: "{{ homebrew_cask_packages_test if testing_mode else homebrew_cask_packages }}"
   retries: 3
   delay: 10
   tags:

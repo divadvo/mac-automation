@@ -27,13 +27,19 @@ rm -rf ~/test/mac-automation/
 rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/
 cd ~/test/mac-automation/
 
-# Run playbooks
-uv run ./playbook.yml
+# Run playbooks (with testing mode for faster execution)
+uv run ./playbook.yml -e testing_mode=true
 ```
 
 One-liner for quick testing:
 ```bash
-rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml
+rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml -e testing_mode=true
+```
+
+Or clone and run:
+
+```bash
+git stash && git pull && git stash pop && uv run ./playbook.yml -e testing_mode=true
 ```
 
 ## Tart Image Variants

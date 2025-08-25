@@ -108,7 +108,15 @@ homebrew_cask_packages:
   - chatgpt
   
   # Fonts
-  - font-meslo-lg-nerd-font
+  #- font-meslo-lg-nerd-font
+
+# Minimal GUI applications for testing
+homebrew_cask_packages_test:
+  - visual-studio-code
+  - iterm2
+  - google-chrome
+  - raycast
+  - rectangle
 
 # Runtime version configuration
 node_version: "24"
@@ -152,3 +160,6 @@ priority_repos:
 
 # Maximum number of recent repositories to clone to recent directory
 max_recent_repos: 10
+
+# Set to true to install only essential casks for faster testing
+testing_mode: false
