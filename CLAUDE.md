@@ -1,83 +1,75 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# divadvo/mac-automation - CLAUDE.md
 
 ## Project Overview
 
-This is an Ansible-based MacBook configuration system that automates the setup of a new Mac. It uses a multi-phase approach to install software, generate SSH keys, configure dotfiles, and clone repositories.
+Ansible-based MacBook automation system with multi-phase setup workflow. Uses bootstrap script, GitHub CLI integration, and automatic SSH key management. See README.md for user setup instructions.
 
 ## Development Commands
 
 ### Running Playbooks
-- **Main setup playbook** (setup, packages, config - excludes repositories): `uv run ./playbook.yml`
+- **Setup, packages, config, repos**: `uv run ./playbook.yml`
+- **Including macOS settings**: `uv run ./playbook.yml --tags all`
 - **Debug mode**: `uv run ./playbook.yml --step -vvv --diff`
-- **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"`
-- **Run specific sections by tag**:
-  - Setup only: `uv run ./playbook.yml --tags setup`
-  - Packages only: `uv run ./playbook.yml --tags packages`  
-  - Dotfiles only: `uv run ./playbook.yml --tags config`
-  - Repositories only: `uv run ./playbook.yml --tags repositories`
-  - macOS defaults only: `uv run ./playbook.yml --tags macos`
+- **Start at specific task**: `uv run ./playbook.yml --step -vvv --diff --start-at-task "task name"`
 
-### Testing in VM
-- **Quick test setup**: `rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml`
+### Run by Tags
+- Setup/SSH: `uv run ./playbook.yml --tags setup`
+- Packages: `uv run ./playbook.yml --tags packages`  
+- Dotfiles: `uv run ./playbook.yml --tags config`
+- Repositories: `uv run ./playbook.yml --tags repositories`
+- macOS settings: `uv run ./playbook.yml --tags macos`
+
+### Testing
+- **VM testing**: `rm -rf ~/test/mac-automation/ && rsync -avh --progress --exclude .git/ /Volumes/My\ Shared\ Files/mac-automation/ ~/test/mac-automation/ && cd ~/test/mac-automation/ && uv run ./playbook.yml`
 
 ## Architecture
 
-### Project Structure
-- **`playbook.yml`**: Main playbook for complete MacBook setup
-- **`roles/divadvo_mac/`**: Single Ansible role containing all configuration
-  - **`tasks/main.yml`**: Orchestrates all task categories with proper tagging
-  - **`tasks/setup.yml`**: SSH key generation and system setup
-  - **`tasks/packages.yml`**: Package installation (homebrew, mise, uv, npm tools)
-  - **`tasks/config.yml`**: Dotfiles symlinking and macOS configuration
-  - **`tasks/repositories.yml`**: GitHub repository cloning logic
-  - **`vars/main.yml`**: Main configuration variables
-  - **`files/dotfiles/`**: Configuration files to be symlinked
+### Key Files
+- **`bootstrap.sh`**: Phase 1 setup script (Homebrew, tools, GitHub auth, repo cloning)
+- **`playbook.yml`**: Main Ansible playbook
+- **`roles/divadvo_mac/`**: Single role containing all configuration
 
-### Task Organization
-The role is organized into four main categories:
-1. **System setup and SSH keys** (`setup.yml`) - Creates SSH keys and configures authentication
-2. **Install packages and tools** (`packages.yml`) - Manages homebrew, mise, uv, and npm installations
-3. **Configure dotfiles and settings** (`config.yml`) - Symlinks dotfiles and configures macOS defaults
-4. **Clone repositories** (`repositories.yml`) - Clones priority and recent GitHub repositories
+### Task Structure
+- **`tasks/main.yml`**: Task orchestration with tags
+- **`tasks/setup.yml`**: SSH keys + automatic GitHub upload
+- **`tasks/packages.yml`**: Package management (brew, mise, uv, npm)
+- **`tasks/config.yml`**: Dotfiles and application config
+- **`tasks/macos.yml`**: macOS system defaults (with `never` tags)
+- **`tasks/repositories.yml`**: GitHub repository cloning
 
-### Package Management Strategy
-- **Homebrew**: For system packages and cask applications
-- **mise**: For runtime version management (Node.js, Ruby, Bun)
-- **uv**: For Python tools and version management
-- **npm**: For global JavaScript tools
+### Configuration
+- **`vars/main.yml`**: All variables including directory paths
+- **`templates/`**: Jinja2 templates (git config, zshrc)
+- **`files/dotfiles/`**: Static configuration files for symlinking
 
-### Configuration Management
-- Variables defined in `roles/divadvo_mac/vars/main.yml`
-- Dotfiles stored in `roles/divadvo_mac/files/dotfiles/`
-- Symlinked to appropriate locations in home directory
-- macOS defaults configured via `osx_defaults` module
+### Key Features
+- **Bootstrap integration**: Single-command setup with input validation
+- **SSH automation**: Key generation + automatic GitHub upload via `gh cli`
+- **Git templating**: Dynamic git config using user details from vars
+- **Directory variables**: Configurable paths (`priority_dir`, `recent_dir`, `projects_dir`)
+- **macOS separation**: System settings isolated in macos.yml with `never` tags
+
+### Package Management
+- **Homebrew**: System packages and applications
+- **mise**: Runtime versions (Node.js, Ruby, Bun)
+- **uv**: Python tools and versions
+- **npm**: Global JavaScript tools
 
 ### Repository Management
-- Priority repositories always cloned to priority directory (configurable via `priority_dir`)
-- Recent repositories cloned to recent directory (limited by `max_recent_repos`, configurable via `recent_dir`)
-- Uses GitHub CLI for repository discovery and authentication
+- Uses GitHub CLI for authentication and discovery
+- Priority repos → `{{ priority_dir }}` (always cloned)
+- Recent repos → `{{ recent_dir }}` (limited by `max_recent_repos`)
 
-## Key Configuration Files
+## Configuration Variables
 
-### Variables (`roles/divadvo_mac/vars/main.yml`)
-- `user_email`: Email for SSH key generation
-- `homebrew_packages`: CLI tools to install via brew
-- `homebrew_cask_packages`: Applications to install via brew cask
-- `uv_tools`: Python tools to install via uv
-- `priority_repos`: Important repositories to always clone
-- `max_recent_repos`: Number of recent repositories to clone
-
-### Ansible Configuration (`ansible.cfg`)
-- Uses local inventory only
-- YAML output format for better readability
-- Task debugger enabled for troubleshooting
+See README.md for user-configurable options. Key technical variables:
+- `user_email`, `user_name`: Set by bootstrap script
+- `priority_dir`, `recent_dir`, `projects_dir`: Directory structure
+- `use_ansible_macos_config`: Ansible tasks vs shell script for macOS defaults
 
 ## Dependencies
 
-The project requires:
-- **Python 3.13+** (managed via `pyproject.toml`)
-- **uv** for Python package management
-- **Ansible** (installed via uv dependencies)
-- **Homebrew** (installed manually in Phase 1)
+- Python 3.13+ (pyproject.toml)
+- uv for package management
+- Ansible (via uv)
+- Homebrew (installed by bootstrap)
