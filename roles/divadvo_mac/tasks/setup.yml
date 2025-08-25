@@ -35,3 +35,10 @@
   shell: ssh-add --apple-use-keychain ~/.ssh/id_ed25519
   when: not ssh_key.stat.exists
 
+- name: Upload SSH key to GitHub
+  shell: gh ssh-key add ~/.ssh/id_ed25519.pub --title "MacBook - $(date '+%Y-%m-%d')"
+  when: not ssh_key.stat.exists
+  register: gh_ssh_upload
+  failed_when: gh_ssh_upload.rc != 0 and 'key is already present' not in gh_ssh_upload.stderr
+  changed_when: gh_ssh_upload.rc == 0
+
