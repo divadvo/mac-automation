@@ -13,14 +13,14 @@ That way I can set up a new MacBook quickly.
 
 ## Setup Process
 
-This setup uses a streamlined **4-phase approach** with GitHub CLI integration:
+This setup uses a streamlined **multi-phase approach** with GitHub CLI integration:
 
 ### Phase 1: Bootstrap Setup
 
 Run the bootstrap script to automatically set up everything:
 
 ```bash
-cd tmp
+cd /tmp
 curl -sSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh -o bootstrap.sh
 chmod +x bootstrap.sh
 ./bootstrap.sh
