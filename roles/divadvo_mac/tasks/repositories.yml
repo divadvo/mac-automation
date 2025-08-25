@@ -6,7 +6,7 @@
 
 - name: Create main projects directory
   file:
-    path: ~/pr
+    path: "{{ projects_dir }}"
     state: directory
     mode: '0755'
   become: false
@@ -17,13 +17,13 @@
     state: directory
     mode: '0755'
   loop:
-    - ~/pr/priority
-    - ~/pr/recent
+    - "{{ priority_dir }}"
+    - "{{ recent_dir }}"
 
-- name: Clone high-priority repositories to ~/pr/priority/
+- name: Clone high-priority repositories to {{ priority_dir }}/
   git:
     repo: "git@github.com:{{ item }}.git"
-    dest: "~/pr/priority/{{ item.split('/')[1] }}"
+    dest: "{{ priority_dir }}/{{ item.split('/')[1] }}"
     accept_hostkey: yes
   loop: "{{ priority_repos }}"
   retries: 3
@@ -36,10 +36,10 @@
   register: recent_repos_result
 
 # Priority repositories are excluded from recent cloning.
-- name: Clone recent repositories to ~/pr/recent/ (excluding priority repos)
+- name: Clone recent repositories to {{ recent_dir }}/ (excluding priority repos)
   git:
     repo: "{{ item }}"
-    dest: "~/pr/recent/{{ item.split('/')[-1].replace('.git', '') }}"
+    dest: "{{ recent_dir }}/{{ item.split('/')[-1].replace('.git', '') }}"
     accept_hostkey: yes
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
   when: 
@@ -56,7 +56,7 @@
     msg: |
       Repository cloning complete!
       
-      Priority repositories: {{ priority_repos | length }} repos cloned to ~/pr/priority/
-      Recent repositories: {{ (recent_repos_result.stdout_lines | default([])) | length }} repos cloned to ~/pr/recent/
+      Priority repositories: {{ priority_repos | length }} repos cloned to {{ priority_dir }}/
+      Recent repositories: {{ (recent_repos_result.stdout_lines | default([])) | length }} repos cloned to {{ recent_dir }}/
       
-      Check ~/pr/ for all your development projects.
+      Check {{ projects_dir }}/ for all your development projects.

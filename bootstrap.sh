@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Directory configuration
+PRIORITY_DIR=~/pr/priority
+
 echo "🚀 MacBook Automation Bootstrap Script"
 echo "======================================"
 
@@ -64,14 +67,14 @@ gh auth status
 
 # Clone the repository
 echo "📥 Cloning mac-automation repository..."
-mkdir -p ~/pr/priority
-if [ -d ~/pr/priority/mac-automation ]; then
+mkdir -p $PRIORITY_DIR
+if [ -d $PRIORITY_DIR/mac-automation ]; then
     echo "Repository already exists, updating..."
-    cd ~/pr/priority/mac-automation
+    cd $PRIORITY_DIR/mac-automation
     #git pull
 else
-    gh repo clone divadvo/mac-automation ~/pr/priority/mac-automation
-    cd ~/pr/priority/mac-automation
+    gh repo clone divadvo/mac-automation $PRIORITY_DIR/mac-automation
+    cd $PRIORITY_DIR/mac-automation
 fi
 
 # Update configuration with user details
@@ -85,4 +88,4 @@ echo "1. Run the main playbook: uv run ./playbook.yml"
 echo "2. Apply macOS settings: uv run ./playbook.yml --tags macos"
 echo "3. Log out and back in for macOS settings to take effect"
 echo ""
-echo "📁 Repository location: ~/pr/priority/mac-automation"
+echo "📁 Repository location: $PRIORITY_DIR/mac-automation"

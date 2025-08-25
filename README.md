@@ -92,8 +92,9 @@ After logging back in:
 Edit `roles/divadvo_mac/vars/main.yml` to customize:
 
 - `user_email`: Your email for SSH key generation and git configuration
-- `priority_repos`: Important repositories to always clone to `~/pr/priority/`
-- `max_recent_repos`: Number of recent repositories to clone to `~/pr/recent/`
+- `priority_repos`: Important repositories to always clone to priority directory
+- `max_recent_repos`: Number of recent repositories to clone to recent directory
+- `projects_dir`, `priority_dir`, `recent_dir`: Directory paths for project organization
 - `homebrew_packages`: Command-line tools to install via Homebrew
 - `homebrew_cask_packages`: GUI applications to install via Homebrew Cask
 - `uv_tools`: Python tools to install globally via uv

@@ -55,8 +55,8 @@ The role is organized into four main categories:
 - macOS defaults configured via `osx_defaults` module
 
 ### Repository Management
-- Priority repositories always cloned to `~/pr/priority/`
-- Recent repositories cloned to `~/pr/recent/` (limited by `max_recent_repos`)
+- Priority repositories always cloned to priority directory (configurable via `priority_dir`)
+- Recent repositories cloned to recent directory (limited by `max_recent_repos`, configurable via `recent_dir`)
 - Uses GitHub CLI for repository discovery and authentication
 
 ## Key Configuration Files
