@@ -22,11 +22,18 @@
   loop:
   - config/ripgreprc
   - config/git/attributes
-  - config/git/config
   - config/git/ignore
   - ssh/config
   - zprofile
   - p10k.zsh
+  tags:
+  - dotfiles
+
+- name: Template git configuration file
+  template:
+    src: config/git/config.j2
+    dest: ~/.config/git/config
+    backup: yes
   tags:
   - dotfiles
 

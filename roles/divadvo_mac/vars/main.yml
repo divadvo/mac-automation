@@ -132,6 +132,7 @@ npm_tools:
 # Email address for SSH key generation and git configuration
 # CHANGE THIS to your email address before running
 user_email: "your@email.com"
+user_name: "Your Name"
 
 # macOS Configuration Method
 # Set to true to use Ansible osx_defaults tasks, false to use shell script
