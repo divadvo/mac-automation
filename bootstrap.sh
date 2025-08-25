@@ -1,32 +1,43 @@
 #!/bin/bash
 set -euo pipefail
 
-# Directory configuration
+# Configuration
 PRIORITY_DIR=~/pr/priority
+MAC_AUTOMATION_PREFIX="[BOOTSTRAP]"
 
 echo "🚀 MacBook Automation Bootstrap Script"
 echo "======================================"
+echo
+
+echo "=== PHASE 1: HOMEBREW SETUP ==="
+echo
 
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then
-    echo "📦 Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "$MAC_AUTOMATION_PREFIX 📦 Installing Homebrew..."
+    echo "--- Homebrew Installation Output ---"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "--- End Homebrew Installation ---"
     
     # Set up PATH for Homebrew
-    echo "🔧 Setting up Homebrew PATH..."
+    echo "$MAC_AUTOMATION_PREFIX 🔧 Setting up Homebrew PATH..."
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
 else
-    echo "✅ Homebrew is already installed"
+    echo "$MAC_AUTOMATION_PREFIX ✅ Homebrew is already installed"
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+echo
 
-# Install essential tools
-echo "🛠️  Installing essential tools (uv, gh, git)..."
+echo "$MAC_AUTOMATION_PREFIX 🛠️  Installing essential tools (uv, gh, git)..."
+echo "--- Brew Install Output ---"
 brew install uv gh git
+echo "--- End Brew Install ---"
+echo
 
-# Get user details for configuration
-echo "📝 Getting user details for configuration..."
+echo "=== PHASE 2: USER CONFIGURATION ==="
+echo
+echo "$MAC_AUTOMATION_PREFIX 📝 Getting user details for configuration..."
 
 # Loop until user confirms details are correct
 while true; do
@@ -46,53 +57,67 @@ while true; do
     read -p "Are these details correct? (y/N): " confirm
     case $confirm in
         [Yy]|[Yy][Ee][Ss])
-            echo "✅ Details confirmed!"
+            echo "$MAC_AUTOMATION_PREFIX ✅ Details confirmed!"
             break
             ;;
         *)
-            echo "Let's try again..."
+            echo "$MAC_AUTOMATION_PREFIX Let's try again..."
             echo ""
             ;;
     esac
 done
+echo
 
-# Authenticate with GitHub CLI
-echo "🔑 Authenticating with GitHub CLI..."
-echo "You will be shown a device code to enter in GitHub."
-echo "You can use the GitHub mobile app or any browser to complete authentication:"
-echo "  1. A device code will be displayed (e.g., ABCD-1234)"
-echo "  2. Open GitHub mobile app → Settings → Applications → Device activation"
-echo "  3. OR visit https://github.com/login/device in any browser"
-echo "  4. Enter the device code when prompted"
+echo "=== PHASE 3: GITHUB AUTHENTICATION ==="
+echo
+echo "$MAC_AUTOMATION_PREFIX 🔑 Authenticating with GitHub CLI..."
+echo "$MAC_AUTOMATION_PREFIX You will be shown a device code to enter in GitHub."
+echo "$MAC_AUTOMATION_PREFIX GitHub CLI will also ask about generating SSH keys."
 echo ""
-gh auth login --web
+echo "$MAC_AUTOMATION_PREFIX Authentication steps:"
+echo "$MAC_AUTOMATION_PREFIX   1. A device code will be displayed (e.g., ABCD-1234)"
+echo "$MAC_AUTOMATION_PREFIX   2. Open GitHub mobile app → Settings → Applications → Device activation"
+echo "$MAC_AUTOMATION_PREFIX   3. OR visit https://github.com/login/device in any browser"
+echo "$MAC_AUTOMATION_PREFIX   4. Enter the device code when prompted"
+echo "$MAC_AUTOMATION_PREFIX   5. Answer 'y' to generate SSH key when asked (recommended)"
+echo ""
+echo "--- GitHub CLI Authentication ---"
+gh auth login --hostname github.com --git-protocol ssh --web
+echo "--- End GitHub CLI Authentication ---"
 
-# Verify authentication
-echo "✅ Verifying GitHub authentication..."
+echo "$MAC_AUTOMATION_PREFIX ✅ Verifying GitHub authentication..."
+echo "--- GitHub Auth Status ---"
 gh auth status
+echo "--- End GitHub Auth Status ---"
+echo
 
-# Clone the repository
-echo "📥 Cloning mac-automation repository..."
+echo "=== PHASE 4: REPOSITORY SETUP ==="
+echo
+echo "$MAC_AUTOMATION_PREFIX 📥 Cloning mac-automation repository..."
 mkdir -p $PRIORITY_DIR
 if [ -d $PRIORITY_DIR/mac-automation ]; then
-    echo "Repository already exists, updating..."
+    echo "$MAC_AUTOMATION_PREFIX Repository already exists, updating..."
     cd $PRIORITY_DIR/mac-automation
     #git pull
 else
+    echo "--- Git Clone Output ---"
     gh repo clone divadvo/mac-automation $PRIORITY_DIR/mac-automation
+    echo "--- End Git Clone ---"
     cd $PRIORITY_DIR/mac-automation
 fi
+echo
 
-# Update configuration with user details
-echo "📝 Updating configuration with your details..."
+echo "$MAC_AUTOMATION_PREFIX 📝 Updating configuration with your details..."
 sed -i.bak "s/user_email: \".*\"/user_email: \"$user_email\"/" roles/divadvo_mac/vars/main.yml
 sed -i.bak2 "s/user_name: \".*\"/user_name: \"$user_name\"/" roles/divadvo_mac/vars/main.yml
 
+echo
+echo "======================================"
+echo "🎉 BOOTSTRAP COMPLETE!"
+echo "======================================"
+echo "$MAC_AUTOMATION_PREFIX 📁 Repository location: $PRIORITY_DIR/mac-automation"
 echo ""
-echo "🎉 Bootstrap complete!"
-echo "📁 Repository location: $PRIORITY_DIR/mac-automation"
-echo ""
-echo "Next, navigate to the repository:"
+echo "$MAC_AUTOMATION_PREFIX Next, navigate to the repository:"
 echo "cd $PRIORITY_DIR/mac-automation"
 echo ""
-echo "👉 See README.md for Phase 2-4 instructions"
+echo "$MAC_AUTOMATION_PREFIX 👉 See README.md for Phase 2-4 instructions"
