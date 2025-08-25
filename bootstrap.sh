@@ -22,15 +22,12 @@ fi
 echo "🛠️  Installing essential tools (uv, gh, git)..."
 brew install uv gh git
 
-# Configure git
-echo "📝 Configuring git..."
-echo "Please enter your email address for git configuration:"
+# Get user details for configuration
+echo "📝 Getting user details for configuration..."
+echo "Please enter your email address:"
 read -p "Email: " user_email
-echo "Please enter your full name for git configuration:"
+echo "Please enter your full name:"
 read -p "Name: " user_name
-
-git config --global user.email "$user_email"
-git config --global user.name "$user_name"
 
 # Authenticate with GitHub CLI
 echo "🔑 Authenticating with GitHub CLI..."
@@ -53,9 +50,10 @@ else
     cd ~/pr/priority/mac-automation
 fi
 
-# Update email in configuration
-echo "📝 Updating configuration with your email..."
+# Update configuration with user details
+echo "📝 Updating configuration with your details..."
 sed -i.bak "s/user_email: \".*\"/user_email: \"$user_email\"/" roles/divadvo_mac/vars/main.yml
+sed -i.bak2 "s/user_name: \".*\"/user_name: \"$user_name\"/" roles/divadvo_mac/vars/main.yml
 
 echo ""
 echo "🎉 Bootstrap complete! Next steps:"
