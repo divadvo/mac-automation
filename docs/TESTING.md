@@ -9,12 +9,23 @@ brew install cirruslabs/cli/tart
 # Create VM (using vanilla image for clean testing)
 tart clone ghcr.io/cirruslabs/macos-sequoia-vanilla:latest sequoia-vanilla
 tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-vanilla
+
+# To delete VM:
+tart delete sequoia-vanilla
 ```
 
 Inside the VM run, install clipboard support:
 
 ```bash
 brew install cirruslabs/cli/tart
+```
+
+## Quick VM Recreation
+
+To quickly recreate a fresh VM for testing:
+
+```bash
+tart delete sequoia-vanilla && tart clone ghcr.io/cirruslabs/macos-sequoia-vanilla:latest sequoia-vanilla && tart run --dir=mac-automation:~/pr/mac-automation:ro sequoia-vanilla
 ```
 
 ## Development Testing in VM
