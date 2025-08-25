@@ -9,7 +9,7 @@ echo "🚀 MacBook Automation Bootstrap Script"
 echo "======================================"
 echo
 
-echo "=== PHASE 1: HOMEBREW SETUP ==="
+echo "=== PART 1: HOMEBREW SETUP ==="
 echo
 
 # Check if Homebrew is installed
@@ -35,7 +35,7 @@ brew install uv gh git
 echo "--- End Brew Install ---"
 echo
 
-echo "=== PHASE 2: USER CONFIGURATION ==="
+echo "=== PART 2: USER CONFIGURATION ==="
 echo
 echo "$MAC_AUTOMATION_PREFIX 📝 Getting user details for configuration..."
 
@@ -68,7 +68,7 @@ while true; do
 done
 echo
 
-echo "=== PHASE 3: GITHUB AUTHENTICATION ==="
+echo "=== PART 3: GITHUB AUTHENTICATION ==="
 echo
 echo "$MAC_AUTOMATION_PREFIX 🔑 Authenticating with GitHub CLI..."
 echo "$MAC_AUTOMATION_PREFIX GitHub offers multiple modern authentication methods:"
@@ -118,7 +118,7 @@ gh auth status
 echo "--- End GitHub Auth Status ---"
 echo
 
-echo "=== PHASE 4: REPOSITORY SETUP ==="
+echo "=== PART 4: REPOSITORY SETUP ==="
 echo
 echo "$MAC_AUTOMATION_PREFIX 📥 Cloning mac-automation repository..."
 mkdir -p $PRIORITY_DIR
