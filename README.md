@@ -1,6 +1,5 @@
 # mac-automation
 
-
 I use this project to configure my MacBook the way I like it.
 It contains Ansible code to install software and set up configuration files through symlinks to this repository.
 That way I can set up a new MacBook quickly.
@@ -8,107 +7,85 @@ That way I can set up a new MacBook quickly.
 ## What it does
 
 - Installs development tools via Homebrew (CLI tools, GUI apps, runtime versions)
-- Generates SSH keys and sets up GitHub authentication  
+- Generates SSH keys and automatically uploads them to GitHub
 - Configures dotfiles and macOS system settings
-- Clones your GitHub repositories
+- Clones your GitHub repositories automatically
 
 ## Setup Process
 
-This setup uses a **six-phase approach** with minimal manual steps:
+This setup uses a streamlined **4-phase approach** with GitHub CLI integration:
 
-### Phase 1: Manual Pre-work
+### Phase 1: Bootstrap Setup
 
-1. **Clone this repository:**
-   ```bash
-   mkdir -p ~/pr/priority
-   git clone https://github.com/divadvo/mac-automation ~/pr/priority/mac-automation
-   cd ~/pr/priority/mac-automation
-   ```
-
-2. **Install homebrew:**
+1. **Install Homebrew:**
    ```bash
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
    *Note: This automatically installs Xcode Command Line Tools if needed*
 
-3. **Install dependencies:**
+2. **Set up PATH for Homebrew:**
    ```bash
-   eval "$(/opt/homebrew/bin/brew shellenv)" && brew install uv
+   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+   eval "$(/opt/homebrew/bin/brew shellenv)"
    ```
 
-4. **Update your email:**
-   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address. This command will open the editor:
+3. **Install essential tools:**
+   ```bash
+   brew install uv gh git
+   ```
 
+4. **Configure git with your details:**
+   ```bash
+   git config --global user.email "your-email@example.com"
+   git config --global user.name "Your Name"
+   ```
+
+5. **Authenticate with GitHub CLI:**
+   ```bash
+   gh auth login
+   ```
+   Follow the prompts to authenticate with your GitHub account.
+
+6. **Clone this repository:**
+   ```bash
+   mkdir -p ~/pr/priority
+   gh repo clone divadvo/mac-automation ~/pr/priority/mac-automation
+   cd ~/pr/priority/mac-automation
+   ```
+
+7. **Update your email in the configuration:**
+   Edit `roles/divadvo_mac/vars/main.yml` and change `user_email` to your actual email address:
    ```bash
    open -e roles/divadvo_mac/vars/main.yml
    ```
 
-### Phase 2: First Playbook Execution
+### Phase 2: Automated Setup
 
-Run the main setup playbook:
+Run the main playbook for complete automated setup:
 ```bash
 uv run ./playbook.yml
 ```
 
-This installs all software, generates SSH keys, and sets up dotfiles.
+This will automatically:
+- Generate SSH keys and upload them to GitHub
+- Install all packages (homebrew, mise, uv tools, npm tools)
+- Configure dotfiles and shell enhancements
+- Clone your priority and recent GitHub repositories
 
-### Phase 3: Manual GitHub Authentication
+### Phase 3: macOS System Configuration
 
-Authenticate with GitHub CLI:
-```bash
-gh auth login
-```
-
-Follow the prompts to sign in to GitHub. Test authentication with:
-```bash
-gh auth status
-```
-
-### Phase 4: Repository Cloning
-
-Clone your repositories:
-```bash
-uv run ./playbook.yml --tags repositories
-```
-
-This clones your priority repositories to `~/pr/priority/` and recent repositories to `~/pr/recent/`.
-
-### Phase 5: macOS System Configuration
-
-Apply macOS system defaults:
+Apply macOS system settings and preferences:
 ```bash
 uv run ./playbook.yml --tags macos
 ```
 
-This configures system preferences, Finder settings, Dock preferences, and other macOS defaults.
+**Important**: Log out and log back in after this step to ensure all macOS system settings take effect properly.
 
-### Phase 6: Logout and Manual Configuration
-
-**Please log out and log back in** to ensure all macOS system settings take effect properly.
+### Phase 4: Final Manual Steps
 
 After logging back in:
 
-1. **Add SSH key to GitHub and other services (Optional):**
-   
-   Display your public key:
-   ```bash
-   cat ~/.ssh/id_ed25519.pub
-   ```
-   
-   Or copy directly to clipboard:
-   ```bash
-   pbcopy < ~/.ssh/id_ed25519.pub
-   ```
-   
-   Copy the output and add it to your accounts:
-   - **GitHub:** https://github.com/settings/ssh/new
-   
-   Test the connection:
-   ```bash
-   ssh -T git@github.com
-   ```
-
-2. **Manually configure all installed cask applications** such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) for detailed instructions.
+1. **Manually configure installed applications:** Configure applications such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) for detailed instructions.
 
 ## Configuration
 
