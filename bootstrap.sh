@@ -19,9 +19,10 @@ if ! command -v brew &> /dev/null; then
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     echo "--- End Homebrew Installation ---"
     
-    # Set up PATH for Homebrew
+    # Set up PATH for Homebrew (both login and non-login shells)
     echo "$MAC_AUTOMATION_PREFIX 🔧 Setting up Homebrew PATH..."
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
     eval "$(/opt/homebrew/bin/brew shellenv)"
 else
     echo "$MAC_AUTOMATION_PREFIX ✅ Homebrew is already installed"
@@ -151,3 +152,6 @@ echo "$MAC_AUTOMATION_PREFIX 🚀 Phase 2: Run the automated setup:"
 echo "uv run ./playbook.yml"
 echo ""
 echo "$MAC_AUTOMATION_PREFIX 📖 For more details, see README.md"
+echo ""
+echo "$MAC_AUTOMATION_PREFIX 🔄 Starting fresh shell with updated PATH..."
+exec zsh
