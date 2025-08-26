@@ -238,7 +238,7 @@ class MacBootstrap
 
   def handle_next_phases
     run_main_playbook if ask_yes_no("Run Phase 2 (main playbook)?")
-    open_manual_setup if ask_yes_no("Open Phase 3 manual setup guide?", default: true)
+    open_manual_setup if ask_yes_no("Open Phase 4 manual setup guide?", default: true)
   end
 
   def run_main_playbook
@@ -247,13 +247,8 @@ class MacBootstrap
   end
 
   def open_manual_setup
-    manual_file = File.join(REPO_PATH, "docs/MANUAL_SETUP.md")
-    if File.exist?(manual_file)
-      system("open '#{manual_file}'")
-      log("📖 Phase 3: Manual setup guide opened", type: :success)
-    else
-      log("Manual setup file not found", type: :warning)
-    end
+    system("open 'https://github.com/divadvo/mac-automation/blob/main/docs/MANUAL_SETUP.md'")
+    log("📖 Phase 4: Manual setup guide opened", type: :success)
   end
 
   def start_fresh_shell
