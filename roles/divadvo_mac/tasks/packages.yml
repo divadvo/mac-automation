@@ -44,20 +44,33 @@
   tags:
   - mise
 
-- name: Install and activate mise-managed tools globally (with verbose output)
-  command: >
-    mise use -g --verbose
-    node@{{ node_version }}
-    ruby@{{ ruby_version }}
-    bun@{{ bun_version }}
+- name: Install and activate Node.js via mise (with verbose output)
+  command: mise use -g --verbose node@{{ node_version }}
   environment:
     MISE_VERBOSE: "1"
-  register: mise_global_install
-  changed_when: "'installed' in mise_global_install.stdout or 'activated' in mise_global_install.stdout"
-  when: >
-    'node@' + node_version not in mise_current_tools.stdout or
-    'ruby@' + ruby_version not in mise_current_tools.stdout or
-    'bun@' + bun_version not in mise_current_tools.stdout
+  register: mise_node_install
+  changed_when: "'installed' in mise_node_install.stdout or 'activated' in mise_node_install.stdout"
+  when: "'node@' + node_version not in mise_current_tools.stdout"
+  tags:
+  - mise
+
+- name: Install and activate Ruby via mise (with verbose output)
+  command: mise use -g --verbose ruby@{{ ruby_version }}
+  environment:
+    MISE_VERBOSE: "1"
+  register: mise_ruby_install
+  changed_when: "'installed' in mise_ruby_install.stdout or 'activated' in mise_ruby_install.stdout"
+  when: "'ruby@' + ruby_version not in mise_current_tools.stdout"
+  tags:
+  - mise
+
+- name: Install and activate Bun via mise (with verbose output)
+  command: mise use -g --verbose bun@{{ bun_version }}
+  environment:
+    MISE_VERBOSE: "1"
+  register: mise_bun_install
+  changed_when: "'installed' in mise_bun_install.stdout or 'activated' in mise_bun_install.stdout"
+  when: "'bun@' + bun_version not in mise_current_tools.stdout"
   tags:
   - mise
 
