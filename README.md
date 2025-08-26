@@ -10,19 +10,24 @@ This setup uses a streamlined **multi-phase approach** with GitHub CLI integrati
 
 ### Phase 1: Bootstrap Setup
 
-Run the bootstrap script to automatically set up everything:
+Run the Ruby bootstrap script to automatically set up everything (idempotent and can be safely re-run):
 
-**One-liner:**
+**One-liner (Recommended):**
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh)"
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.rb)"
 ```
 
 **Or step-by-step:**
 ```bash
 cd /tmp
-curl -sSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh -o bootstrap.sh
-chmod +x bootstrap.sh
-./bootstrap.sh
+curl -sSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.rb -o bootstrap.rb
+chmod +x bootstrap.rb
+./bootstrap.rb
+```
+
+**Legacy bash version (still available):**
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh)"
 ```
 
 The bootstrap script will automatically:
