@@ -242,8 +242,14 @@ class MacBootstrap
   end
 
   def run_main_playbook
-    testing_flag = ask_yes_no("Use testing mode? (fewer packages)") ? " -e testing_mode=true" : ""
-    run_command("uv run ./playbook.yml#{testing_flag}", "🚀 Phase 2: Running main playbook...")
+    base_cmd = "uv run ./playbook.yml"
+    full_cmd = base_cmd
+    test_cmd = "#{base_cmd} -e testing_mode=true"
+    
+    puts "\nCommands available:", "• Full mode: #{full_cmd}", "• Testing mode: #{test_cmd}", ""
+    
+    cmd = ask_yes_no("Use testing mode? (fewer packages)") ? test_cmd : full_cmd
+    run_command(cmd, "🚀 Phase 2: Running main playbook...")
   end
 
   def open_manual_setup
