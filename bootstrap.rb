@@ -126,13 +126,22 @@ class MacBootstrap
   def setup_tools
     return unless run_step("ESSENTIAL TOOLS")
 
-    missing_tools = %w[uv gh git].reject { |tool| command_exists?(tool) }
+    tools_to_install = []
     
-    if missing_tools.empty?
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ All essential tools already installed"
+    %w[uv gh git].each do |tool|
+      unless homebrew_package_installed?(tool)
+        tools_to_install << tool
+        puts "#{MAC_AUTOMATION_PREFIX} #{tool}: Not installed via Homebrew"
+      else
+        puts "#{MAC_AUTOMATION_PREFIX} #{tool}: ✅ Already installed via Homebrew"
+      end
+    end
+    
+    if tools_to_install.empty?
+      puts "#{MAC_AUTOMATION_PREFIX} ✅ All essential tools already installed via Homebrew"
     else
-      puts "#{MAC_AUTOMATION_PREFIX} 🛠️  Installing missing tools: #{missing_tools.join(', ')}"
-      run_command("brew install #{missing_tools.join(' ')}", "🛠️  Installing essential tools...")
+      puts "#{MAC_AUTOMATION_PREFIX} 🛠️  Installing missing tools: #{tools_to_install.join(', ')}"
+      run_command("brew install #{tools_to_install.join(' ')}", "🛠️  Installing essential tools...")
     end
 
     mark_step_complete("tools_setup")
@@ -308,6 +317,10 @@ class MacBootstrap
 
   def command_exists?(command)
     system("which #{command} > /dev/null 2>&1")
+  end
+
+  def homebrew_package_installed?(package)
+    system("brew list #{package} > /dev/null 2>&1")
   end
 
   def github_authenticated?
