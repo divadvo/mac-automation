@@ -4,12 +4,10 @@
 
 require 'fileutils'
 require 'yaml'
-require 'net/http'
-require 'uri'
 
 class MacBootstrap
   PRIORITY_DIR = File.expand_path("~/pr/priority").freeze
-  MAC_AUTOMATION_PREFIX = "[BOOTSTRAP]".freeze
+  PREFIX = "[BOOTSTRAP]".freeze
   STATE_DIR = File.expand_path("~/.mac-bootstrap").freeze
   REPO_PATH = File.join(PRIORITY_DIR, "mac-automation").freeze
   CONFIG_PATH = File.join(REPO_PATH, "roles/divadvo_mac/vars/main.yml").freeze
@@ -17,7 +15,7 @@ class MacBootstrap
   def initialize
     @changes_made = false
     FileUtils.mkdir_p(STATE_DIR)
-    puts "🚀 MacBook Automation Bootstrap Script (Ruby)"
+    log(:info, "🚀 MacBook Automation Bootstrap Script (Ruby)")
     puts "=" * 42
     puts
   end
@@ -31,349 +29,248 @@ class MacBootstrap
     update_config
     
     if @changes_made
-      puts
-      puts "=" * 42
-      puts "🎉 BOOTSTRAP COMPLETE!"
-      puts "=" * 42
-      puts "#{MAC_AUTOMATION_PREFIX} 📁 Repository location: #{REPO_PATH}"
-      puts
-      puts "#{MAC_AUTOMATION_PREFIX} Next steps:"
-      puts "cd #{REPO_PATH}"
-      puts
-      puts "#{MAC_AUTOMATION_PREFIX} 🚀 Phase 2: Run the automated setup:"
-      puts "uv run ./playbook.yml"
-      puts
-      puts "#{MAC_AUTOMATION_PREFIX} 📖 For more details, see README.md"
-      puts
-      puts "#{MAC_AUTOMATION_PREFIX} 🔄 Starting fresh shell with updated PATH..."
+      show_completion_message
       exec("zsh")
     else
-      puts
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ All steps already complete - no changes needed!"
-      puts "#{MAC_AUTOMATION_PREFIX} 📁 Repository location: #{REPO_PATH}"
-      puts "#{MAC_AUTOMATION_PREFIX} You can run: cd #{REPO_PATH} && uv run ./playbook.yml"
+      log(:success, "All steps complete - no changes needed!")
+      log(:info, "📁 Repository: #{REPO_PATH}")
+      log(:info, "Run: cd #{REPO_PATH} && uv run ./playbook.yml")
     end
   end
 
   private
 
-  def step_completed?(step)
-    File.exist?(File.join(STATE_DIR, step))
-  end
-
-  def mark_step_complete(step)
-    FileUtils.touch(File.join(STATE_DIR, step))
-    @changes_made = true
+  def log(type, message)
+    icon = case type
+    when :success then "✅"
+    when :error then "❌" 
+    when :warning then "⚠️"
+    when :step then ""
+    when :command then ""
+    else ""
+    end
+    
+    if type == :step
+      puts "\n=== #{message.upcase} ===\n"
+    elsif type == :command
+      puts "#{PREFIX} #{message}\n--- Command Output ---"
+    else
+      puts "#{PREFIX} #{icon}#{icon.empty? ? '' : ' '}#{message}"
+    end
   end
 
   def run_step(step_name)
-    if step_completed?(step_name)
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ #{step_name} already completed"
+    step_file = File.join(STATE_DIR, step_name.downcase.gsub(' ', '_'))
+    if File.exist?(step_file)
+      log(:success, "#{step_name} already completed")
       return false
     end
-    
-    puts
-    puts "=== #{step_name.upcase} ==="
-    puts
+    log(:step, step_name)
     true
   end
 
+  def complete_step(step_name)
+    FileUtils.touch(File.join(STATE_DIR, step_name.downcase.gsub(' ', '_')))
+    @changes_made = true
+  end
+
   def run_command(command, description = nil)
-    puts "#{MAC_AUTOMATION_PREFIX} #{description}" if description
-    puts "--- Command Output ---" if description
-    
-    success = system(command)
-    
-    if success
-      puts "--- End Command Output ---" if description
-    else
+    log(:command, description) if description
+    unless system(command)
       puts "--- Command Failed ---"
-      puts "#{MAC_AUTOMATION_PREFIX} ❌ Command failed: #{command}"
-      puts "#{MAC_AUTOMATION_PREFIX} Exit status: #{$?.exitstatus}"
-      puts "#{MAC_AUTOMATION_PREFIX} Current PATH: #{ENV['PATH']}"
+      log(:error, "Command failed: #{command}")
       exit(1)
     end
+    puts "--- End Command Output ---" if description
   end
 
   def install_homebrew
     return unless run_step("HOMEBREW SETUP")
-
-    if command_exists?("brew")
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ Homebrew is already installed"
-      run_command('eval "$(/opt/homebrew/bin/brew shellenv)"')
-    else
-      puts "#{MAC_AUTOMATION_PREFIX} 📦 Installing Homebrew..."
-      ENV['NONINTERACTIVE'] = '1'
-      run_command('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
-                 "📦 Installing Homebrew...")
-      
-      puts "#{MAC_AUTOMATION_PREFIX} 🔧 Setting up Homebrew PATH..."
-      setup_homebrew_path
-      run_command('eval "$(/opt/homebrew/bin/brew shellenv)"')
-    end
-
-    mark_step_complete("homebrew_setup")
-  end
-
-  def setup_homebrew_path
-    brew_setup_line = 'eval "$(/opt/homebrew/bin/brew shellenv)"'
     
-    [File.expand_path("~/.zprofile"), File.expand_path("~/.zshrc")].each do |shell_file|
-      next if File.exist?(shell_file) && File.read(shell_file).include?(brew_setup_line)
+    if system("which brew > /dev/null 2>&1")
+      log(:success, "Homebrew already installed")
+    else
+      log(:info, "📦 Installing Homebrew...")
+      ENV['NONINTERACTIVE'] = '1'
+      run_command('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', "📦 Installing Homebrew...")
       
-      puts "#{MAC_AUTOMATION_PREFIX} Adding Homebrew PATH to #{File.basename(shell_file)}"
-      File.open(shell_file, 'a') { |f| f.puts(brew_setup_line) }
+      # Setup PATH
+      brew_line = 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+      [File.expand_path("~/.zprofile"), File.expand_path("~/.zshrc")].each do |file|
+        next if File.exist?(file) && File.read(file).include?(brew_line)
+        log(:info, "Adding Homebrew PATH to #{File.basename(file)}")
+        File.open(file, 'a') { |f| f.puts(brew_line) }
+      end
     end
+    
+    run_command('eval "$(/opt/homebrew/bin/brew shellenv)"')
+    complete_step("HOMEBREW SETUP")
   end
 
   def setup_tools
     return unless run_step("ESSENTIAL TOOLS")
-
-    # Ensure Homebrew is accessible in current session
-    unless command_exists?("brew")
-      puts "#{MAC_AUTOMATION_PREFIX} 🔧 Setting up Homebrew environment..."
+    
+    # Ensure brew accessible
+    unless system("which brew > /dev/null 2>&1")
       ENV['PATH'] = "/opt/homebrew/bin:/opt/homebrew/sbin:#{ENV['PATH']}"
     end
     
-    # Verify brew is now accessible
-    unless command_exists?("brew")
-      puts "#{MAC_AUTOMATION_PREFIX} ❌ Homebrew not found in PATH after setup"
-      puts "#{MAC_AUTOMATION_PREFIX} PATH: #{ENV['PATH']}"
-      exit(1)
-    end
-
-    tools_to_install = []
-    
+    # Install missing tools
+    missing = []
     %w[uv gh git].each do |tool|
-      unless homebrew_package_installed?(tool)
-        tools_to_install << tool
-        puts "#{MAC_AUTOMATION_PREFIX} #{tool}: Not installed via Homebrew"
+      if system("brew list #{tool} > /dev/null 2>&1")
+        log(:success, "#{tool}: Already installed")
       else
-        puts "#{MAC_AUTOMATION_PREFIX} #{tool}: ✅ Already installed via Homebrew"
+        missing << tool
+        log(:info, "#{tool}: Missing")
       end
     end
     
-    if tools_to_install.empty?
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ All essential tools already installed via Homebrew"
-    else
-      puts "#{MAC_AUTOMATION_PREFIX} 🛠️  Installing missing tools: #{tools_to_install.join(', ')}"
-      brew_command = command_exists?("brew") ? "brew" : "/opt/homebrew/bin/brew"
-      run_command("#{brew_command} install #{tools_to_install.join(' ')}", "🛠️  Installing essential tools...")
+    unless missing.empty?
+      log(:info, "🛠️ Installing: #{missing.join(', ')}")
+      brew_cmd = system("which brew > /dev/null 2>&1") ? "brew" : "/opt/homebrew/bin/brew"
+      run_command("#{brew_cmd} install #{missing.join(' ')}", "🛠️ Installing tools...")
     end
-
-    mark_step_complete("tools_setup")
+    
+    complete_step("ESSENTIAL TOOLS")
   end
 
   def get_user_config
     return unless run_step("USER CONFIGURATION")
-
-    if config_already_set?
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ User configuration already set"
-      config = load_existing_config
+    
+    if config_set?
+      config = YAML.load_file(CONFIG_PATH) rescue {}
       @user_email = config['user_email']
       @user_name = config['user_name']
-      puts "#{MAC_AUTOMATION_PREFIX} Using: #{@user_name} <#{@user_email}>"
-      return
-    end
-
-    puts "#{MAC_AUTOMATION_PREFIX} 📝 Getting user details for configuration..."
-    
-    loop do
-      print "Please enter your email address: "
-      @user_email = gets.chomp
-      print "Please enter your full name: "
-      @user_name = gets.chomp
-      
-      puts
-      puts "Please verify your details:"
-      puts "  Email: '#{@user_email}'"
-      puts "  Name:  '#{@user_name}'"
-      puts
-      
-      print "Are these details correct? (y/N): "
-      confirm = gets.chomp
-      
-      if confirm.match?(/^[Yy]([Ee][Ss])?$/)
-        puts "#{MAC_AUTOMATION_PREFIX} ✅ Details confirmed!"
-        break
-      else
-        puts "#{MAC_AUTOMATION_PREFIX} Let's try again..."
-        puts
+      log(:success, "Using: #{@user_name} <#{@user_email}>")
+    else
+      log(:info, "📝 Getting user details...")
+      loop do
+        print "Email: "; @user_email = gets.chomp
+        print "Name: "; @user_name = gets.chomp
+        puts "\nVerify:\n  Email: '#{@user_email}'\n  Name:  '#{@user_name}'\n"
+        print "Correct? (y/N): "
+        if gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
+          log(:success, "Confirmed!"); break
+        else
+          log(:info, "Try again..."); puts
+        end
       end
     end
-
-    mark_step_complete("user_config")
+    
+    complete_step("USER CONFIGURATION")
   end
 
   def setup_github_auth
     return unless run_step("GITHUB AUTHENTICATION")
-
-    if github_authenticated?
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ Already authenticated with GitHub"
-      run_command("gh auth status", "✅ Verifying GitHub authentication...")
-      return
-    end
-
-    puts "#{MAC_AUTOMATION_PREFIX} 🔑 Authenticating with GitHub CLI..."
-    puts "#{MAC_AUTOMATION_PREFIX} GitHub offers multiple modern authentication methods:"
-    puts "#{MAC_AUTOMATION_PREFIX}   • Passkeys (synced via iCloud Keychain) - RECOMMENDED"
-    puts "#{MAC_AUTOMATION_PREFIX}   • Sign in with Google"
-    puts "#{MAC_AUTOMATION_PREFIX}   • Traditional password + 2FA"
-    puts
-    puts "#{MAC_AUTOMATION_PREFIX} ✨ RECOMMENDED: Test your authentication first!"
-    puts "#{MAC_AUTOMATION_PREFIX} Before continuing, try logging into GitHub.com in your browser."
-    puts "#{MAC_AUTOMATION_PREFIX} If you have passkeys from another device, they should sync via iCloud."
-    puts
-
-    print "#{MAC_AUTOMATION_PREFIX} Would you like to open GitHub.com now to test login? (y/N): "
-    open_github = gets.chomp
     
-    if open_github.match?(/^[Yy]([Ee][Ss])?$/)
-      puts "#{MAC_AUTOMATION_PREFIX} Opening GitHub.com in your browser..."
-      system("open 'https://github.com/login'")
-      puts "#{MAC_AUTOMATION_PREFIX} Please test your login, then return here."
-      puts
+    if system("gh auth status > /dev/null 2>&1")
+      log(:success, "GitHub already authenticated")
+      run_command("gh auth status", "✅ Verifying...")
+    else
+      # Instructions
+      [
+        "🔑 Authenticating with GitHub CLI...",
+        "Methods: Passkeys (recommended), Google, or password+2FA",
+        "✨ Test login at GitHub.com first if possible"
+      ].each { |msg| log(:info, msg) }
+      
+      print "#{PREFIX} Open GitHub.com to test? (y/N): "
+      if gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
+        log(:info, "Opening browser...")
+        system("open 'https://github.com/login'")
+      end
+      
+      puts "\nFlow: device code → https://github.com/login/device → choose auth method\n"
+      run_command("gh auth login --hostname github.com --git-protocol ssh --web", "🔑 Authenticating...")
+      run_command("gh auth status", "✅ Verifying...")
     end
-
-    print "#{MAC_AUTOMATION_PREFIX} Have you verified you can log into GitHub.com? (y/N): "
-    github_verified = gets.chomp
     
-    puts
-    puts "#{MAC_AUTOMATION_PREFIX} Authentication flow:"
-    puts "#{MAC_AUTOMATION_PREFIX}   1. A device code will be displayed (e.g., ABCD-1234)"
-    puts "#{MAC_AUTOMATION_PREFIX}   2. Visit https://github.com/login/device in your browser"
-    puts "#{MAC_AUTOMATION_PREFIX}   3. Choose your preferred authentication method:"
-    puts "#{MAC_AUTOMATION_PREFIX}      • 'Sign in with Passkey' (if available)"
-    puts "#{MAC_AUTOMATION_PREFIX}      • 'Sign in with Google' (if you have Google account)"
-    puts "#{MAC_AUTOMATION_PREFIX}      • Enter password + 2FA (traditional method)"
-    puts "#{MAC_AUTOMATION_PREFIX}   4. GitHub CLI will ask about SSH key generation (answer 'y')"
-    puts
-
-    run_command("gh auth login --hostname github.com --git-protocol ssh --web",
-               "🔑 Authenticating with GitHub CLI...")
-
-    unless github_verified.match?(/^[Yy]([Ee][Ss])?$/)
-      puts "#{MAC_AUTOMATION_PREFIX} ⚠️  If authentication failed, try these steps:"
-      puts "#{MAC_AUTOMATION_PREFIX}   1. iCloud Keychain sync: Go to System Settings → Apple ID → iCloud → Passwords & Keychain"
-      puts "#{MAC_AUTOMATION_PREFIX}   2. Approve this Mac from another device if prompted"
-      puts "#{MAC_AUTOMATION_PREFIX}   3. Wait a few minutes for passkey sync to complete"
-      puts "#{MAC_AUTOMATION_PREFIX}   4. Use 'Sign in with Google' as alternative"
-      puts "#{MAC_AUTOMATION_PREFIX}   5. Fallback: Retrieve password from Bitwarden manually"
-      puts
-    end
-
-    run_command("gh auth status", "✅ Verifying GitHub authentication...")
-
-    mark_step_complete("github_auth")
+    complete_step("GITHUB AUTHENTICATION")
   end
 
   def setup_repository
     return unless run_step("REPOSITORY SETUP")
-
+    
     FileUtils.mkdir_p(PRIORITY_DIR)
-
+    
     if Dir.exist?(REPO_PATH)
-      puts "#{MAC_AUTOMATION_PREFIX} Repository already exists, validating..."
-      
+      log(:info, "Repository exists, validating...")
       Dir.chdir(REPO_PATH) do
         if Dir.exist?('.git')
-          puts "#{MAC_AUTOMATION_PREFIX} ✅ Valid git repository found"
-          # Could add git pull here if needed
+          log(:success, "Valid git repository")
         else
-          puts "#{MAC_AUTOMATION_PREFIX} ⚠️  Directory exists but is not a git repository"
+          log(:warning, "Not a git repo, recreating...")
           FileUtils.rm_rf(REPO_PATH)
-          clone_repository
+          run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
         end
       end
     else
-      clone_repository
+      run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
     end
-
+    
     Dir.chdir(REPO_PATH)
-    mark_step_complete("repository_setup")
-  end
-
-  def clone_repository
-    puts "#{MAC_AUTOMATION_PREFIX} 📥 Cloning mac-automation repository..."
-    run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}",
-               "📥 Cloning mac-automation repository...")
+    complete_step("REPOSITORY SETUP")  
   end
 
   def update_config
     return unless run_step("CONFIGURATION UPDATE")
-
+    
     unless File.exist?(CONFIG_PATH)
-      puts "#{MAC_AUTOMATION_PREFIX} ❌ Configuration file not found: #{CONFIG_PATH}"
+      log(:error, "Config not found: #{CONFIG_PATH}")
       exit(1)
     end
-
+    
     config = YAML.load_file(CONFIG_PATH)
     updated = false
-
+    
     if config['user_email'] != @user_email
-      puts "#{MAC_AUTOMATION_PREFIX} 📝 Updating email: #{config['user_email']} → #{@user_email}"
+      log(:info, "📝 Email: #{config['user_email']} → #{@user_email}")
       config['user_email'] = @user_email
       updated = true
     end
-
+    
     if config['user_name'] != @user_name
-      puts "#{MAC_AUTOMATION_PREFIX} 📝 Updating name: #{config['user_name']} → #{@user_name}"
+      log(:info, "📝 Name: #{config['user_name']} → #{@user_name}")  
       config['user_name'] = @user_name
       updated = true
     end
-
+    
     if updated
       File.write(CONFIG_PATH, YAML.dump(config))
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ Configuration updated successfully"
+      log(:success, "Configuration updated")
     else
-      puts "#{MAC_AUTOMATION_PREFIX} ✅ Configuration already up to date"
+      log(:success, "Configuration current")
     end
-
-    mark_step_complete("config_update")
-  end
-
-  def command_exists?(command)
-    system("which #{command} > /dev/null 2>&1")
-  end
-
-  def homebrew_package_installed?(package)
-    system("brew list #{package} > /dev/null 2>&1")
-  end
-
-  def github_authenticated?
-    system("gh auth status > /dev/null 2>&1")
-  end
-
-  def config_already_set?
-    return false unless File.exist?(CONFIG_PATH)
     
+    complete_step("CONFIGURATION UPDATE")
+  end
+
+  def config_set?
+    return false unless File.exist?(CONFIG_PATH)
     config = YAML.load_file(CONFIG_PATH)
     config['user_email'] != 'your@email.com' && 
     config['user_name'] != 'Your Name' &&
-    !config['user_email'].nil? && 
-    !config['user_name'].nil?
-  rescue
-    false
-  end
+    !config['user_email'].nil? && !config['user_name'].nil?
+  rescue; false; end
 
-  def load_existing_config
-    YAML.load_file(CONFIG_PATH)
-  rescue
-    {}
+  def show_completion_message
+    puts "\n#{'=' * 42}\n🎉 BOOTSTRAP COMPLETE!\n#{'=' * 42}"
+    log(:info, "📁 Repository: #{REPO_PATH}")
+    puts "\nNext: cd #{REPO_PATH}\nThen: uv run ./playbook.yml\n"
+    log(:info, "🔄 Starting fresh shell...")
   end
 end
 
-# Run the bootstrap if this file is executed directly
+# Run bootstrap
 if __FILE__ == $0
   begin
-    bootstrap = MacBootstrap.new
-    bootstrap.run
+    MacBootstrap.new.run
   rescue Interrupt
-    puts "\n#{MacBootstrap::MAC_AUTOMATION_PREFIX} ❌ Bootstrap interrupted by user"
+    puts "\n#{MacBootstrap::PREFIX} ❌ Interrupted"
     exit(1)
   rescue => e
-    puts "\n#{MacBootstrap::MAC_AUTOMATION_PREFIX} ❌ Bootstrap failed: #{e.message}"
-    puts e.backtrace.join("\n") if ENV['DEBUG']
+    puts "\n#{MacBootstrap::PREFIX} ❌ Failed: #{e.message}"
     exit(1)
   end
 end
