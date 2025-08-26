@@ -117,9 +117,9 @@ homebrew_cask_packages:
 homebrew_cask_packages_test:
   - visual-studio-code
   - iterm2
-  - google-chrome
-  - raycast
-  - rectangle
+  #- google-chrome
+  #- raycast
+  #- rectangle
 
 # Runtime version configuration
 node_version: "24"
