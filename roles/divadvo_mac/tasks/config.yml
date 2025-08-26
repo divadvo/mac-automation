@@ -3,13 +3,8 @@
     path: '~/.{{ item }}'
     state: directory
   loop:
-  - innotop
-  - ipython/profile_default/startup
-  - config/atuin
   - config/gh
   - config/git
-  - config/pip
-  - config/zed
   tags:
   - dotfiles
 
@@ -25,7 +20,6 @@
   - config/git/ignore
   - ssh/config
   - zprofile
-  - p10k.zsh
   tags:
   - dotfiles
 
@@ -45,22 +39,19 @@
   tags:
   - dotfiles
 
-# Configure iTerm2 to use custom preferences from David.json
-# This loads color schemes, profiles, and other iTerm2 settings
-- name: Configure iTerm2 to use custom preferences folder
-  osx_defaults:
-    domain: com.googlecode.iterm2
-    key: PrefsCustomFolder
-    type: string
-    value: "{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/iterm2"
+# Download Catppuccin Frappé color scheme for iTerm2
+- name: Create iTerm2 color schemes directory
+  file:
+    path: ~/Downloads/iTerm2-Colors
+    state: directory
   tags:
   - iterm
 
-- name: Enable iTerm2 custom preferences loading
-  osx_defaults:
-    domain: com.googlecode.iterm2
-    key: LoadPrefsFromCustomFolder
-    type: boolean
-    value: true
+- name: Download Catppuccin Frappé iTerm2 color scheme
+  get_url:
+    url: https://raw.githubusercontent.com/catppuccin/iterm/main/colors/catppuccin-frappe.itermcolors
+    dest: ~/Downloads/iTerm2-Colors/catppuccin-frappe.itermcolors
+    mode: '0644'
   tags:
   - iterm
+

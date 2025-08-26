@@ -22,6 +22,37 @@ This document covers tasks that require manual intervention after running the au
    - Sign in with your Microsoft 365 account
    - Activate license and sync settings
 
+## Terminal and Shell Configuration
+
+### iTerm2 Setup
+1. **Import Catppuccin Frappé Color Scheme**
+   - Open iTerm2 → Preferences (⌘+,)
+   - Go to Profiles → Colors tab
+   - Click "Color Presets..." → Import...
+   - Navigate to `~/Downloads/iTerm2-Colors/catppuccin-frappe.itermcolors`
+   - Select the imported "Catppuccin Frappé" preset
+
+2. **Configure Scrollback Buffer**
+   - In Profiles → Terminal tab
+   - Set "Scrollback lines" to "Unlimited scrollback" or 50,000+ lines
+   - Enable "Unlimited scrollback" checkbox (recommended)
+
+3. **Set as Default Profile**
+   - In Profiles tab, click "Other Actions..." → "Set as Default"
+
+### Powerlevel10k Configuration
+1. **Run Interactive Configuration**
+   - Open iTerm2 and start a new terminal session
+   - Run: `p10k configure`
+   - This will automatically download and install MesloLGS NF fonts
+   - Follow the interactive prompts to customize your prompt appearance
+   - Your configuration will be saved to `~/.p10k.zsh`
+
+2. **Font Installation Verification**
+   - The fonts are automatically installed during `p10k configure`
+   - If needed, manually go to iTerm2 → Preferences → Profiles → Text
+   - Set Font to "MesloLGS NF" (should be auto-selected)
+
 ## System Services
 
 ### iCloud Synchronization
@@ -99,3 +130,7 @@ After automation completes, verify:
 - [ ] GitHub CLI authenticated
 - [ ] All development tools working
 - [ ] Manual Finder/Dock preferences set
+- [ ] iTerm2 Catppuccin Frappé color scheme imported
+- [ ] iTerm2 scrollback buffer configured
+- [ ] Powerlevel10k configured with `p10k configure`
+- [ ] MesloLGS NF fonts installed and applied
