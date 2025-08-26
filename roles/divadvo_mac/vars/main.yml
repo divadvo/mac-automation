@@ -154,7 +154,6 @@ use_ansible_macos_config: true
 # Repository configuration
 # Repositories that are always cloned to priority directory (format: "owner/repo")
 priority_repos:
-  - "divadvo/mac-automation"
   - "divadvo/divadvo-scripts"
   # Add your important repositories here
 
