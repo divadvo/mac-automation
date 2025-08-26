@@ -3,7 +3,6 @@
 # Idempotent, location-independent bootstrap for mac-automation
 
 require 'fileutils'
-require 'yaml'
 
 class MacBootstrap
   PRIORITY_DIR = File.expand_path("~/pr/priority").freeze
@@ -90,8 +89,9 @@ class MacBootstrap
   def get_user_config
     with_step("USER CONFIGURATION") do
       if config_set?
-        config = load_config
-        @user_email, @user_name = config['user_email'], config['user_name']
+        content = File.read(CONFIG_PATH)
+        @user_email = content[/^user_email:\s*["']?(.*)["']?$/, 1]
+        @user_name = content[/^user_name:\s*["']?(.*)["']?$/, 1]
         log("Using: #{@user_name} <#{@user_email}>", type: :success)
       else
         log("📝 Getting user details...")
@@ -153,15 +153,20 @@ class MacBootstrap
         exit(1)
       end
       
-      config = load_config
-      changes = {}
-      changes['user_email'] = @user_email if config['user_email'] != @user_email
-      changes['user_name'] = @user_name if config['user_name'] != @user_name
+      content = File.read(CONFIG_PATH)
+      original_content = content.dup
       
-      if changes.any?
-        changes.each { |key, value| log("📝 #{key.split('_').last.capitalize}: #{config[key]} → #{value}") }
-        config.merge!(changes)
-        File.write(CONFIG_PATH, YAML.dump(config))
+      # Update only the specific lines, preserving all formatting and comments
+      if content.gsub!(/^user_email:\s*["']?.*["']?$/, "user_email: \"#{@user_email}\"")
+        log("📝 Email: #{@user_email}")
+      end
+      
+      if content.gsub!(/^user_name:\s*["']?.*["']?$/, "user_name: \"#{@user_name}\"")
+        log("📝 Name: #{@user_name}")
+      end
+      
+      if content != original_content
+        File.write(CONFIG_PATH, content)
         log("Configuration updated", type: :success)
       else
         log("Configuration current", type: :success)
@@ -226,18 +231,11 @@ class MacBootstrap
     gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
   end
 
-  def load_config
-    YAML.load_file(CONFIG_PATH)
-  rescue
-    {}
-  end
-
   def config_set?
     return false unless File.exist?(CONFIG_PATH)
-    config = load_config
-    config['user_email'] != 'your@email.com' && 
-    config['user_name'] != 'Your Name' &&
-    !config['user_email'].nil? && !config['user_name'].nil?
+    content = File.read(CONFIG_PATH)
+    content.match?(/^user_email:\s*["']?(?!your@email\.com).*["']?$/) &&
+    content.match?(/^user_name:\s*["']?(?!Your Name).*["']?$/)
   rescue
     false
   end
