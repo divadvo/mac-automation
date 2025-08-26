@@ -246,8 +246,9 @@ class MacBootstrap
     full_cmd = base_cmd
     test_cmd = "#{base_cmd} -e testing_mode=true"
     
-    puts "\nCommands available:", "• Full mode: #{full_cmd}", "• Testing mode: #{test_cmd}"
-    puts
+    log("Commands available:")
+    log("• Full mode: #{full_cmd}")
+    log("• Testing mode: #{test_cmd}")
     
     cmd = ask_yes_no("Use testing mode? (fewer packages)") ? test_cmd : full_cmd
     run_command(cmd, "🚀 Phase 2: Running main playbook...")
