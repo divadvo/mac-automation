@@ -30,14 +30,10 @@ class MacBootstrap
     setup_repository
     update_config
     
-    if @changes_made
-      show_completion_message
-      exec("zsh")
-    else
-      log("All steps complete - no changes needed!", type: :success)
-      log("📁 Repository: #{REPO_PATH}")
-      log("Run: cd #{REPO_PATH} && uv run ./playbook.yml")
-    end
+    show_completion_status
+    Dir.chdir(REPO_PATH)
+    handle_next_phases
+    start_fresh_shell
   end
 
   private
@@ -226,9 +222,43 @@ class MacBootstrap
     system("brew list #{pkg}", out: File::NULL, err: File::NULL)
   end
 
-  def ask_yes_no(prompt)
-    print "#{PREFIX} #{prompt} (y/N): "
-    gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
+  def ask_yes_no(prompt, default: false)
+    suffix = default ? "(Y/n)" : "(y/N)"
+    print "#{PREFIX} #{prompt} #{suffix}: "
+    input = gets.chomp
+    return default if input.empty?
+    input.match?(/^[Yy]([Ee][Ss])?$/)
+  end
+
+  def show_completion_status
+    status = @changes_made ? "🎉 Bootstrap complete!" : "All steps complete - no changes needed!"
+    log(status, type: :success)
+    log("📁 Repository: #{REPO_PATH}")
+  end
+
+  def handle_next_phases
+    run_main_playbook if ask_yes_no("Run Phase 2 (main playbook)?")
+    open_manual_setup if ask_yes_no("Open Phase 3 manual setup guide?", default: true)
+  end
+
+  def run_main_playbook
+    testing_flag = ask_yes_no("Use testing mode? (fewer packages)") ? " -e testing_mode=true" : ""
+    run_command("uv run ./playbook.yml#{testing_flag}", "🚀 Phase 2: Running main playbook...")
+  end
+
+  def open_manual_setup
+    manual_file = File.join(REPO_PATH, "docs/MANUAL_SETUP.md")
+    if File.exist?(manual_file)
+      system("open '#{manual_file}'")
+      log("📖 Phase 3: Manual setup guide opened", type: :success)
+    else
+      log("Manual setup file not found", type: :warning)
+    end
+  end
+
+  def start_fresh_shell
+    log("🔄 Starting fresh shell...")
+    exec("zsh")
   end
 
   def config_set?
@@ -248,12 +278,6 @@ class MacBootstrap
     run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
   end
 
-  def show_completion_message
-    puts "\n#{'=' * 42}\n🎉 BOOTSTRAP COMPLETE!\n#{'=' * 42}"
-    log("📁 Repository: #{REPO_PATH}")
-    puts "\nNext: cd #{REPO_PATH}\nThen: uv run ./playbook.yml\n"
-    log("🔄 Starting fresh shell...")
-  end
 end
 
 # Run bootstrap
