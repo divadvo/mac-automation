@@ -11,6 +11,9 @@ class MacBootstrap
   STATE_DIR = File.expand_path("~/.mac-bootstrap").freeze
   REPO_PATH = File.join(PRIORITY_DIR, "mac-automation").freeze
   CONFIG_PATH = File.join(REPO_PATH, "roles/divadvo_mac/vars/main.yml").freeze
+  BREW_PATH = "/opt/homebrew/bin:/opt/homebrew/sbin".freeze
+  BREW_INIT = 'eval "$(/opt/homebrew/bin/brew shellenv)"'.freeze
+  SHELL_FILES = %w[~/.zprofile ~/.zshrc].map { |f| File.expand_path(f) }.freeze
   
   def initialize
     @changes_made = false
@@ -43,172 +46,139 @@ class MacBootstrap
   # Main step methods (following execution order)
   
   def install_homebrew
-    return unless run_step("HOMEBREW SETUP")
-    
-    if system("which brew", out: File::NULL, err: File::NULL)
-      log("Homebrew already installed", type: :success)
-    else
-      log("📦 Installing Homebrew...")
-      ENV['NONINTERACTIVE'] = '1'
-      run_command('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', "📦 Installing Homebrew...")
-      
-      # Setup PATH
-      brew_line = 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-      [File.expand_path("~/.zprofile"), File.expand_path("~/.zshrc")].each do |file|
-        next if File.exist?(file) && File.read(file).include?(brew_line)
-        log("Adding Homebrew PATH to #{File.basename(file)}")
-        File.open(file, 'a') { |f| f.puts(brew_line) }
+    with_step("HOMEBREW SETUP") do
+      if command_exists?("brew")
+        log("Homebrew already installed", type: :success)
+      else
+        log("📦 Installing Homebrew...")
+        ENV['NONINTERACTIVE'] = '1'
+        run_command('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', "📦 Installing Homebrew...")
+        
+        # Setup PATH in shell files
+        SHELL_FILES.each do |file|
+          next if File.exist?(file) && File.read(file).include?(BREW_INIT)
+          log("Adding Homebrew PATH to #{File.basename(file)}")
+          File.open(file, 'a') { |f| f.puts(BREW_INIT) }
+        end
       end
+      run_command(BREW_INIT)
     end
-    
-    run_command('eval "$(/opt/homebrew/bin/brew shellenv)"')
-    complete_step("HOMEBREW SETUP")
   end
 
   def setup_tools
-    return unless run_step("ESSENTIAL TOOLS")
-    
-    # Ensure brew accessible
-    unless system("which brew", out: File::NULL, err: File::NULL)
-      ENV['PATH'] = "/opt/homebrew/bin:/opt/homebrew/sbin:#{ENV['PATH']}"
-    end
-    
-    # Install missing tools
-    missing_tools = []
-    %w[uv gh git].each do |tool|
-      if system("brew list #{tool}", out: File::NULL, err: File::NULL)
-        log("#{tool}: Already installed", type: :success)
-      else
-        missing_tools << tool
-        log("#{tool}: Missing")
+    with_step("ESSENTIAL TOOLS") do
+      ENV['PATH'] = "#{BREW_PATH}:#{ENV['PATH']}" unless command_exists?("brew")
+      
+      missing = %w[uv gh git].reject do |tool|
+        if brew_installed?(tool)
+          log("#{tool}: Already installed", type: :success)
+          true
+        else
+          log("#{tool}: Missing")
+          false
+        end
+      end
+      
+      unless missing.empty?
+        log("🛠️ Installing: #{missing.join(', ')}")
+        brew_cmd = command_exists?("brew") ? "brew" : "/opt/homebrew/bin/brew"
+        run_command("#{brew_cmd} install #{missing.join(' ')}", "🛠️ Installing tools...")
       end
     end
-    
-    unless missing_tools.empty?
-      log("🛠️ Installing: #{missing_tools.join(', ')}")
-      brew_cmd = system("which brew", out: File::NULL, err: File::NULL) ? "brew" : "/opt/homebrew/bin/brew"
-      run_command("#{brew_cmd} install #{missing_tools.join(' ')}", "🛠️ Installing tools...")
-    end
-    
-    complete_step("ESSENTIAL TOOLS")
   end
 
   def get_user_config
-    return unless run_step("USER CONFIGURATION")
-    
-    if config_set?
-      config = YAML.load_file(CONFIG_PATH) rescue {}
-      @user_email = config['user_email']
-      @user_name = config['user_name']
-      log("Using: #{@user_name} <#{@user_email}>", type: :success)
-    else
-      log("📝 Getting user details...")
-      loop do
-        print "Email: "; @user_email = gets.chomp
-        print "Name: "; @user_name = gets.chomp
-        puts "\nVerify:\n  Email: '#{@user_email}'\n  Name:  '#{@user_name}'\n"
-        print "Correct? (y/N): "
-        if gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
-          log("Confirmed!", type: :success); break
-        else
+    with_step("USER CONFIGURATION") do
+      if config_set?
+        config = load_config
+        @user_email, @user_name = config['user_email'], config['user_name']
+        log("Using: #{@user_name} <#{@user_email}>", type: :success)
+      else
+        log("📝 Getting user details...")
+        loop do
+          print "Email: "; @user_email = gets.chomp
+          print "Name: "; @user_name = gets.chomp
+          puts "\nVerify:\n  Email: '#{@user_email}'\n  Name:  '#{@user_name}'\n"
+          break log("Confirmed!", type: :success) if ask_yes_no("Correct?")
           log("Try again..."); puts
         end
       end
     end
-    
-    complete_step("USER CONFIGURATION")
   end
 
   def setup_github_auth
-    return unless run_step("GITHUB AUTHENTICATION")
-    
-    if system("gh auth status", out: File::NULL, err: File::NULL)
-      log("GitHub already authenticated", type: :success)
-      run_command("gh auth status", "✅ Verifying...")
-    else
-      # Instructions
-      [
-        "🔑 Authenticating with GitHub CLI...",
-        "Methods: Passkeys (recommended), Google, or password+2FA",
-        "✨ Test login at GitHub.com first if possible"
-      ].each { |message| log(message) }
-      
-      print "#{PREFIX} Open GitHub.com to test? (y/N): "
-      if gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
-        log("Opening browser...")
-        system("open 'https://github.com/login'")
+    with_step("GITHUB AUTHENTICATION") do
+      if command_exists?("gh") && system("gh auth status", out: File::NULL, err: File::NULL)
+        log("GitHub already authenticated", type: :success)
+        run_command("gh auth status", "✅ Verifying...")
+      else
+        %w[
+          🔑\ Authenticating\ with\ GitHub\ CLI...
+          Methods:\ Passkeys\ (recommended),\ Google,\ or\ password+2FA
+          ✨\ Test\ login\ at\ GitHub.com\ first\ if\ possible
+        ].each { |msg| log(msg.gsub('\ ', ' ')) }
+        
+        if ask_yes_no("Open GitHub.com to test?")
+          log("Opening browser...")
+          system("open 'https://github.com/login'")
+        end
+        
+        puts "\nFlow: device code → https://github.com/login/device → choose auth method\n"
+        run_command("gh auth login --hostname github.com --git-protocol ssh --web", "🔑 Authenticating...")
+        run_command("gh auth status", "✅ Verifying...")
       end
-      
-      puts "\nFlow: device code → https://github.com/login/device → choose auth method\n"
-      run_command("gh auth login --hostname github.com --git-protocol ssh --web", "🔑 Authenticating...")
-      run_command("gh auth status", "✅ Verifying...")
     end
-    
-    complete_step("GITHUB AUTHENTICATION")
   end
 
   def setup_repository
-    return unless run_step("REPOSITORY SETUP")
-    
-    FileUtils.mkdir_p(PRIORITY_DIR)
-    
-    if Dir.exist?(REPO_PATH)
-      log("Repository exists, validating...")
-      Dir.chdir(REPO_PATH) do
-        if Dir.exist?('.git')
-          log("Valid git repository", type: :success)
-        else
-          log("Not a git repo, recreating...", type: :warning)
-          FileUtils.rm_rf(REPO_PATH)
-          run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
-        end
+    with_step("REPOSITORY SETUP") do
+      FileUtils.mkdir_p(PRIORITY_DIR)
+      
+      if Dir.exist?(REPO_PATH) && Dir.chdir(REPO_PATH) { Dir.exist?('.git') }
+        log("Valid git repository", type: :success)
+      else
+        log("Repository missing or invalid, cloning...", type: :warning) if Dir.exist?(REPO_PATH)
+        FileUtils.rm_rf(REPO_PATH) if Dir.exist?(REPO_PATH)
+        clone_repo
       end
-    else
-      run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
+      
+      Dir.chdir(REPO_PATH)
     end
-    
-    Dir.chdir(REPO_PATH)
-    complete_step("REPOSITORY SETUP")  
   end
 
   def update_config
-    return unless run_step("CONFIGURATION UPDATE")
-    
-    unless File.exist?(CONFIG_PATH)
-      log("Config not found: #{CONFIG_PATH}", type: :error)
-      exit(1)
+    with_step("CONFIGURATION UPDATE") do
+      unless File.exist?(CONFIG_PATH)
+        log("Config not found: #{CONFIG_PATH}", type: :error)
+        exit(1)
+      end
+      
+      config = load_config
+      changes = {}
+      changes['user_email'] = @user_email if config['user_email'] != @user_email
+      changes['user_name'] = @user_name if config['user_name'] != @user_name
+      
+      if changes.any?
+        changes.each { |key, value| log("📝 #{key.split('_').last.capitalize}: #{config[key]} → #{value}") }
+        config.merge!(changes)
+        File.write(CONFIG_PATH, YAML.dump(config))
+        log("Configuration updated", type: :success)
+      else
+        log("Configuration current", type: :success)
+      end
     end
-    
-    config = YAML.load_file(CONFIG_PATH)
-    updated = false
-    
-    if config['user_email'] != @user_email
-      log("📝 Email: #{config['user_email']} → #{@user_email}")
-      config['user_email'] = @user_email
-      updated = true
-    end
-    
-    if config['user_name'] != @user_name
-      log("📝 Name: #{config['user_name']} → #{@user_name}")  
-      config['user_name'] = @user_name
-      updated = true
-    end
-    
-    if updated
-      File.write(CONFIG_PATH, YAML.dump(config))
-      log("Configuration updated", type: :success)
-    else
-      log("Configuration current", type: :success)
-    end
-    
-    complete_step("CONFIGURATION UPDATE")
   end
 
-  # Step management utilities
+  # Utilities
+
+  def with_step(step_name)
+    return unless run_step(step_name)
+    yield
+    complete_step(step_name)
+  end
 
   def run_step(step_name)
-    step_file = File.join(STATE_DIR, step_name.downcase.gsub(' ', '_'))
-    if File.exist?(step_file)
+    if File.exist?(step_file(step_name))
       log("#{step_name} already completed", type: :success)
       return false
     end
@@ -217,7 +187,7 @@ class MacBootstrap
   end
 
   def complete_step(step_name)
-    FileUtils.touch(File.join(STATE_DIR, step_name.downcase.gsub(' ', '_')))
+    FileUtils.touch(step_file(step_name))
     @changes_made = true
   end
 
@@ -231,35 +201,53 @@ class MacBootstrap
     puts "--- End Command Output ---" if description
   end
 
-  # Helper methods
+  # Helpers
 
   def log(message, type: :info)
-    icon = case type
-    when :success then "✅"
-    when :error then "❌" 
-    when :warning then "⚠️"
-    when :step then ""
-    when :command then ""
-    else ""
-    end
+    icon = { success: "✅", error: "❌", warning: "⚠️" }[type] || ""
     
-    if type == :step
-      puts "\n=== #{message.upcase} ===\n"
-    elsif type == :command
-      puts "#{PREFIX} #{message}\n--- Command Output ---"
-    else
-      puts "#{PREFIX} #{icon}#{icon.empty? ? '' : ' '}#{message}"
+    case type
+    when :step then puts "\n=== #{message.upcase} ===\n"
+    when :command then puts "#{PREFIX} #{message}\n--- Command Output ---"
+    else puts "#{PREFIX} #{icon}#{icon.empty? ? '' : ' '}#{message}"
     end
+  end
+
+  def command_exists?(cmd)
+    system("which #{cmd}", out: File::NULL, err: File::NULL)
+  end
+
+  def brew_installed?(pkg)
+    system("brew list #{pkg}", out: File::NULL, err: File::NULL)
+  end
+
+  def ask_yes_no(prompt)
+    print "#{PREFIX} #{prompt} (y/N): "
+    gets.chomp.match?(/^[Yy]([Ee][Ss])?$/)
+  end
+
+  def load_config
+    YAML.load_file(CONFIG_PATH)
+  rescue
+    {}
   end
 
   def config_set?
     return false unless File.exist?(CONFIG_PATH)
-    config = YAML.load_file(CONFIG_PATH)
+    config = load_config
     config['user_email'] != 'your@email.com' && 
     config['user_name'] != 'Your Name' &&
     !config['user_email'].nil? && !config['user_name'].nil?
   rescue
     false
+  end
+
+  def step_file(name)
+    File.join(STATE_DIR, name.downcase.gsub(' ', '_'))
+  end
+
+  def clone_repo
+    run_command("gh repo clone divadvo/mac-automation #{REPO_PATH}", "📥 Cloning...")
   end
 
   def show_completion_message
