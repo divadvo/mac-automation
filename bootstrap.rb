@@ -84,10 +84,13 @@ class MacBootstrap
     
     success = system(command)
     
-    puts "--- End Command Output ---" if description
-    
-    unless success
+    if success
+      puts "--- End Command Output ---" if description
+    else
+      puts "--- Command Failed ---"
       puts "#{MAC_AUTOMATION_PREFIX} ❌ Command failed: #{command}"
+      puts "#{MAC_AUTOMATION_PREFIX} Exit status: #{$?.exitstatus}"
+      puts "#{MAC_AUTOMATION_PREFIX} Current PATH: #{ENV['PATH']}"
       exit(1)
     end
   end
@@ -126,6 +129,19 @@ class MacBootstrap
   def setup_tools
     return unless run_step("ESSENTIAL TOOLS")
 
+    # Ensure Homebrew is accessible in current session
+    unless command_exists?("brew")
+      puts "#{MAC_AUTOMATION_PREFIX} 🔧 Setting up Homebrew environment..."
+      ENV['PATH'] = "/opt/homebrew/bin:/opt/homebrew/sbin:#{ENV['PATH']}"
+    end
+    
+    # Verify brew is now accessible
+    unless command_exists?("brew")
+      puts "#{MAC_AUTOMATION_PREFIX} ❌ Homebrew not found in PATH after setup"
+      puts "#{MAC_AUTOMATION_PREFIX} PATH: #{ENV['PATH']}"
+      exit(1)
+    end
+
     tools_to_install = []
     
     %w[uv gh git].each do |tool|
@@ -141,7 +157,8 @@ class MacBootstrap
       puts "#{MAC_AUTOMATION_PREFIX} ✅ All essential tools already installed via Homebrew"
     else
       puts "#{MAC_AUTOMATION_PREFIX} 🛠️  Installing missing tools: #{tools_to_install.join(', ')}"
-      run_command("brew install #{tools_to_install.join(' ')}", "🛠️  Installing essential tools...")
+      brew_command = command_exists?("brew") ? "brew" : "/opt/homebrew/bin/brew"
+      run_command("#{brew_command} install #{tools_to_install.join(' ')}", "🛠️  Installing essential tools...")
     end
 
     mark_step_complete("tools_setup")
