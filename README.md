@@ -25,11 +25,6 @@ chmod +x bootstrap.rb
 ./bootstrap.rb
 ```
 
-**Legacy bash version (still available):**
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.sh)"
-```
-
 The bootstrap script will automatically:
 - Install Homebrew and essential tools (uv, gh, git)
 - Prompt for your email and name with verification
