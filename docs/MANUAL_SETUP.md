@@ -22,6 +22,52 @@ This document covers tasks that require manual intervention after running the au
    - Sign in with your Microsoft 365 account
    - Activate license and sync settings
 
+### Raycast
+1. **Initial Setup**
+   - Open Raycast (installed via automation)
+   - Grant accessibility permissions when prompted
+   - Set hotkey (default: ⌘ + Space, or change if conflicts with Spotlight)
+
+2. **Essential Extensions**
+   - Install GitHub extension for repository management
+   - Install System Preferences extension for quick settings access
+   - Install Calculator and Unit Converter for productivity
+
+3. **Configure Search Providers**
+   - Add Google, Stack Overflow, and documentation sites
+   - Customize default search engines for development
+
+### Rectangle
+1. **Window Management Setup**
+   - Open Rectangle (installed via automation)
+   - Grant accessibility permissions when prompted
+   - Review and customize keyboard shortcuts:
+     - Left Half: ⌘ + ← (default)
+     - Right Half: ⌘ + → (default)
+     - Maximize: ⌘ + ↑ (default)
+     - Center: ⌘ + ↓ (customize if needed)
+
+2. **Additional Configuration**
+   - Enable "Launch on login" for persistent window management
+   - Adjust gap sizes between windows if desired
+
+### Visual Studio Code
+1. **Settings Sync**
+   - Open VS Code (installed via automation)
+   - Sign in with GitHub/Microsoft account
+   - Enable Settings Sync to restore extensions and preferences
+
+2. **Essential Extensions** (if not synced)
+   - Prettier for code formatting
+   - Language-specific extensions for your development stack
+
+### OrbStack
+1. **Docker Alternative Setup**
+   - Open OrbStack (installed via automation)
+   - Complete initial setup and resource allocation
+   - Configure Docker CLI integration if migrating from Docker Desktop
+   - Set up Linux VMs if needed for development
+
 ## Terminal and Shell Configuration
 
 ### iTerm2 Setup
@@ -76,6 +122,47 @@ This document covers tasks that require manual intervention after running the au
    - Click "+" and add iTerm2 from Applications folder
    - This allows iTerm2 to access all files and folders
 
+## System Utilities Configuration
+
+### BetterDisplay
+1. **Display Management Setup**
+   - Open BetterDisplay (installed via automation)
+   - Grant screen recording permissions when prompted
+   - Configure custom resolutions for external displays if needed
+   - Set up display switching shortcuts for multiple monitor setups
+
+### UnnaturalScrollWheels
+1. **Mouse Scroll Configuration**
+   - Open UnnaturalScrollWheels (installed via automation)
+   - Configure scroll direction preferences (natural vs. traditional)
+   - Set per-device scroll settings if using multiple input devices
+   - Enable "Launch on login" for persistent settings
+
+### CleanShot
+1. **Screenshot Tool Setup**
+   - Open CleanShot (installed via automation)
+   - Grant screen recording permissions when prompted
+   - Configure capture shortcuts:
+     - Area screenshot: ⌘ + Shift + 4 (or customize)
+     - Window screenshot: ⌘ + Shift + 5 (or customize)
+   - Set default save location and file format preferences
+   - Configure annotation tools and cloud sync if desired
+
+## Web Browsers and Communication
+
+### Web Browsers (Chrome, Brave, Firefox)
+1. **Profile Sync**
+   - Sign in to browser account (Google, Brave, Mozilla)
+   - Enable bookmark and settings sync
+   - Set as default browser if preferred (System Preferences → General → Default web browser)
+
+### Communication Apps (WhatsApp, Discord, Zoom)
+1. **Account Setup**
+   - WhatsApp: Scan QR code with phone app
+   - Discord: Sign in with existing account
+   - Zoom: Sign in and configure audio/video preferences
+   - TeamViewer: Create account or sign in for remote access
+
 ### Network Services
 
 #### Tailscale VPN
@@ -120,17 +207,35 @@ After automation completes, verify:
 
 ## Verification Checklist
 
+### Application Configuration
 - [ ] Adobe Creative Cloud signed in and apps installed
 - [ ] JetBrains Toolbox signed in and IDEs installed  
 - [ ] Microsoft Office signed in and activated
-- [ ] iCloud Photos sync configured
-- [ ] Apple Music sync configured
-- [ ] Tailscale connected
-- [ ] Printer added and configured
-- [ ] GitHub CLI authenticated
-- [ ] All development tools working
-- [ ] Manual Finder/Dock preferences set
+- [ ] Raycast configured with hotkey and essential extensions
+- [ ] Rectangle window management shortcuts configured
+- [ ] VS Code settings synced and extensions installed
+- [ ] OrbStack Docker integration configured
+
+### System Utilities
+- [ ] BetterDisplay permissions granted and displays configured
+- [ ] UnnaturalScrollWheels scroll preferences set
+- [ ] CleanShot permissions granted and shortcuts configured
+
+### Web and Communication
+- [ ] Default web browser set and synced
+- [ ] WhatsApp, Discord, Zoom accounts configured
+- [ ] Tailscale VPN connected
+
+### Terminal and Development
 - [ ] iTerm2 Catppuccin Frappé color scheme imported
 - [ ] iTerm2 scrollback buffer configured
 - [ ] Powerlevel10k configured with `p10k configure`
 - [ ] MesloLGS NF fonts installed and applied
+- [ ] GitHub CLI authenticated
+- [ ] All development tools working
+
+### System Configuration
+- [ ] iCloud Photos sync configured
+- [ ] Apple Music sync configured
+- [ ] Printer added and configured
+- [ ] Manual Finder/Dock preferences set
