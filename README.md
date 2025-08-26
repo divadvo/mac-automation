@@ -14,7 +14,11 @@ Run the Ruby bootstrap script to automatically set up everything (idempotent and
 
 **One-liner (Recommended):**
 ```bash
+# Standard bootstrap
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap.rb)"
+
+# Interactive TUI bootstrap
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/divadvo/mac-automation/main/bootstrap_tui.rb)"
 ```
 
 **Or step-by-step:**
