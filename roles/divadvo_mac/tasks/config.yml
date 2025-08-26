@@ -3,7 +3,6 @@
     path: '~/.{{ item }}'
     state: directory
   loop:
-  - config/gh
   - config/git
   tags:
   - dotfiles
