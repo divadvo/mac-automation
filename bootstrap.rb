@@ -6,7 +6,7 @@ require 'fileutils'
 
 class MacBootstrap
   PRIORITY_DIR = File.expand_path("~/pr/priority").freeze
-  PREFIX = "[BOOTSTRAP]".freeze
+  PREFIX = "[MAC-AUTOMATION]".freeze
   STATE_DIR = File.expand_path("~/.mac-bootstrap").freeze
   REPO_PATH = File.join(PRIORITY_DIR, "mac-automation").freeze
   CONFIG_PATH = File.join(REPO_PATH, "roles/divadvo_mac/vars/main.yml").freeze
