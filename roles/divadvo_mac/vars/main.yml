@@ -97,6 +97,9 @@ homebrew_cask_packages:
   - unnaturalscrollwheels
   - tailscale-app
   
+  # Security
+  - bitwarden
+  
   # Creative & Design
   - bambu-studio
   - adobe-creative-cloud

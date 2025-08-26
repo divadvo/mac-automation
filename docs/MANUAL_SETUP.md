@@ -148,6 +148,17 @@ This document covers tasks that require manual intervention after running the au
    - Set default save location and file format preferences
    - Configure annotation tools and cloud sync if desired
 
+## Security Applications
+
+### Bitwarden
+1. **Password Manager Setup**
+   - Open Bitwarden (installed via automation)
+   - Sign in with your existing Bitwarden account or create new account
+   - Configure browser extension integration (download from web store)
+   - Enable biometric unlock (Touch ID/Face ID) for quick access
+   - Set up autofill preferences in System Preferences → Passwords → AutoFill Passwords
+   - Configure desktop app to start on login for persistent access
+
 ## Web Browsers and Communication
 
 ### Web Browsers (Chrome, Brave, Firefox)
@@ -220,6 +231,10 @@ After automation completes, verify:
 - [ ] BetterDisplay permissions granted and displays configured
 - [ ] UnnaturalScrollWheels scroll preferences set
 - [ ] CleanShot permissions granted and shortcuts configured
+
+### Security
+- [ ] Bitwarden signed in and browser extensions installed
+- [ ] Bitwarden biometric unlock configured
 
 ### Web and Communication
 - [ ] Default web browser set and synced
