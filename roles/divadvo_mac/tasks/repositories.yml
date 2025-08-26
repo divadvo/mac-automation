@@ -21,35 +21,27 @@
     - "{{ recent_dir }}"
 
 - name: Clone high-priority repositories to {{ priority_dir }}/
-  git:
-    repo: "git@github.com:{{ item }}.git"
-    dest: "{{ priority_dir }}/{{ item.split('/')[1] }}"
-    accept_hostkey: yes
+  command: gh repo clone {{ item }} {{ priority_dir }}/{{ item.split('/')[1] }}
   loop: "{{ priority_repos }}"
-  retries: 3
-  delay: 10
   register: priority_clone_result
-  failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.msg | default("")
+  changed_when: priority_clone_result.rc == 0 and "already exists" not in priority_clone_result.stderr
+  failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.stderr
 
 - name: Fetch list of recent repositories from GitHub
-  shell: gh repo list --limit {{ max_recent_repos }} --json name,sshUrl --jq '.[] | .sshUrl'
+  shell: gh repo list --limit {{ max_recent_repos }} --json nameWithOwner --jq '.[] | .nameWithOwner'
   register: recent_repos_result
 
 # Priority repositories are excluded from recent cloning.
 - name: Clone recent repositories to {{ recent_dir }}/ (excluding priority repos)
-  git:
-    repo: "{{ item }}"
-    dest: "{{ recent_dir }}/{{ item.split('/')[-1].replace('.git', '') }}"
-    accept_hostkey: yes
+  command: gh repo clone {{ item }} {{ recent_dir }}/{{ item.split('/')[1] }}
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
   when: 
     - recent_repos_result is defined 
     - recent_repos_result.stdout_lines is defined
-    - item.split('/')[-1].replace('.git', '') not in (priority_repos | map('split', '/') | map('last'))
-  retries: 3
-  delay: 10
+    - item not in priority_repos
   register: recent_clone_result
-  failed_when: recent_clone_result.rc != 0 and "already exists" not in recent_clone_result.msg | default("")
+  changed_when: recent_clone_result.rc == 0 and "already exists" not in recent_clone_result.stderr
+  failed_when: recent_clone_result.rc != 0 and "already exists" not in recent_clone_result.stderr
 
 - name: Show summary of cloned repositories
   debug:
