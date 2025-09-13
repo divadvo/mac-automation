@@ -54,14 +54,14 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **setup.yml**: SSH key generation and initial system setup
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
 - **config.yml**: Dotfiles linking and shell configuration
-- **repositories.yml**: GitHub repository cloning (priority and recent repos)
+- **repositories.yml**: GitHub repository cloning to organized directory structure
 - **macos.yml**: macOS system settings and defaults (tagged as "never")
 
 ### Configuration Files
 - **roles/divadvo_mac/vars/main.yml**: Main configuration file containing:
   - Package lists (homebrew_packages, homebrew_cask_packages, uv_tools, npm_tools)
   - User credentials (user_email, user_name)
-  - Directory structure (projects_dir, priority_dir, recent_dir)
+  - Directory structure (projects_dir, github_dir, github_other_dir, sandbox_dir)
   - Runtime versions (node_version, ruby_version, python_versions)
   - Repository configuration (priority_repos, max_recent_repos)
   - Testing mode toggle (testing_mode)
@@ -73,8 +73,9 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 4. **Manual Setup**: Application configuration (documented in docs/MANUAL_SETUP.md)
 
 ### Directory Structure Philosophy
-- `~/pr/priority/`: Important repositories (defined in priority_repos)
-- `~/pr/recent/`: Recent GitHub repositories (max_recent_repos limit)
+- `~/pr/github/`: Your personal repositories (both priority and recent)
+- `~/pr/github-other/`: External repositories for contributions
+- `~/pr/sandbox/`: Experimental projects and testing
 - Uses GitHub CLI for repository operations
 
 ### Key Design Patterns
@@ -97,8 +98,9 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - Requires logout/login after macOS settings changes
 
 ### Repository Management
-- Priority repos are always cloned to priority directory
-- Recent repos are fetched from GitHub API and cloned to recent directory
+- Your repositories are cloned to github directory (priority repos first, then recent repos)
+- External repositories can be manually cloned to github-other directory
+- Sandbox directory provides space for experimental projects
 - Repository cloning can fail if local modifications exist (force=no)
 
 ### Testing and Development

@@ -29,7 +29,7 @@ The bootstrap script will automatically:
 - Install Homebrew and essential tools (uv, gh, git)
 - Prompt for your email and name with verification
 - Authenticate with GitHub CLI
-- Clone this repository to `~/pr/priority/mac-automation`
+- Clone this repository to `~/pr/github/mac-automation`
 - Update configuration with your details
 
 ### Phase 2: Automated Setup
@@ -43,7 +43,7 @@ This will automatically:
 - Generate SSH keys and upload them to GitHub
 - Install all packages (homebrew, mise, uv tools, npm tools)
 - Configure dotfiles and shell enhancements
-- Clone your priority and recent GitHub repositories
+- Clone your GitHub repositories to organized directory structure
 
 ### Phase 3: macOS System Configuration
 
@@ -65,9 +65,9 @@ After logging back in:
 Edit `roles/divadvo_mac/vars/main.yml` to customize:
 
 - `user_email`: Your email for SSH key generation and git configuration
-- `priority_repos`: Important repositories to always clone to priority directory
-- `max_recent_repos`: Number of recent repositories to clone to recent directory
-- `projects_dir`, `priority_dir`, `recent_dir`: Directory paths for project organization
+- `priority_repos`: Important repositories to always clone
+- `max_recent_repos`: Number of recent repositories to clone
+- `projects_dir`, `github_dir`, `github_other_dir`, `sandbox_dir`: Directory paths for project organization
 - `homebrew_packages`: Command-line tools to install via Homebrew
 - `homebrew_cask_packages`: GUI applications to install via Homebrew Cask
 - `uv_tools`: Python tools to install globally via uv

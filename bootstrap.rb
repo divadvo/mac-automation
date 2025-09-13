@@ -5,10 +5,10 @@
 require 'fileutils'
 
 class MacBootstrap
-  PRIORITY_DIR = File.expand_path("~/pr/priority").freeze
+  GITHUB_DIR = File.expand_path("~/pr/github").freeze
   PREFIX = "[MAC-AUTOMATION]".freeze
   STATE_DIR = File.expand_path("~/.mac-bootstrap").freeze
-  REPO_PATH = File.join(PRIORITY_DIR, "mac-automation").freeze
+  REPO_PATH = File.join(GITHUB_DIR, "mac-automation").freeze
   CONFIG_PATH = File.join(REPO_PATH, "roles/divadvo_mac/vars/main.yml").freeze
   BREW_PATH = "/opt/homebrew/bin:/opt/homebrew/sbin".freeze
   BREW_INIT = 'eval "$(/opt/homebrew/bin/brew shellenv)"'.freeze
@@ -128,7 +128,7 @@ class MacBootstrap
 
   def setup_repository
     with_step("REPOSITORY SETUP") do
-      FileUtils.mkdir_p(PRIORITY_DIR)
+      FileUtils.mkdir_p(GITHUB_DIR)
       
       if Dir.exist?(REPO_PATH) && Dir.chdir(REPO_PATH) { Dir.exist?('.git') }
         log("Valid git repository", type: :success)
