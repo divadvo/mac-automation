@@ -11,17 +11,18 @@
     mode: '0755'
   become: false
 
-- name: Create priority and recent repository directories
+- name: Create repository directories
   file:
     path: "{{ item }}"
     state: directory
     mode: '0755'
   loop:
-    - "{{ priority_dir }}"
-    - "{{ recent_dir }}"
+    - "{{ github_dir }}"
+    - "{{ github_other_dir }}"
+    - "{{ sandbox_dir }}"
 
-- name: Clone high-priority repositories to {{ priority_dir }}/
-  command: gh repo clone {{ item }} {{ priority_dir }}/{{ item.split('/')[1] }}
+- name: Clone priority repositories to {{ github_dir }}/
+  command: gh repo clone {{ item }} {{ github_dir }}/{{ item.split('/')[1] }}
   loop: "{{ priority_repos }}"
   register: priority_clone_result
   changed_when: priority_clone_result.rc == 0 and "already exists" not in priority_clone_result.stderr
@@ -31,9 +32,9 @@
   shell: gh repo list --limit {{ max_recent_repos }} --json nameWithOwner --jq '.[] | .nameWithOwner'
   register: recent_repos_result
 
-# Priority repositories are excluded from recent cloning.
-- name: Clone recent repositories to {{ recent_dir }}/ (excluding priority repos)
-  command: gh repo clone {{ item }} {{ recent_dir }}/{{ item.split('/')[1] }}
+# Clone remaining recent repositories (excluding already cloned priority repos)
+- name: Clone recent repositories to {{ github_dir }}/ (excluding priority repos)
+  command: gh repo clone {{ item }} {{ github_dir }}/{{ item.split('/')[1] }}
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
   when: 
     - recent_repos_result is defined 
@@ -48,7 +49,11 @@
     msg: |
       Repository cloning complete!
       
-      Priority repositories: {{ priority_repos | length }} repos cloned to {{ priority_dir }}/
-      Recent repositories: {{ (recent_repos_result.stdout_lines | default([])) | length }} repos cloned to {{ recent_dir }}/
+      Your repositories: {{ priority_repos | length }} priority + {{ (recent_repos_result.stdout_lines | default([]) | reject('in', priority_repos) | list) | length }} recent repos cloned to {{ github_dir }}/
+      
+      Directory structure:
+      - {{ github_dir }}/ - Your personal repositories
+      - {{ github_other_dir }}/ - External repositories (empty, ready for use)
+      - {{ sandbox_dir }}/ - Experimental projects (empty, ready for use)
       
       Check {{ projects_dir }}/ for all your development projects.

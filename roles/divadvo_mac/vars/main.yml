@@ -147,8 +147,9 @@ user_name: "Your Name"
 
 # Directory structure for projects and repositories
 projects_dir: "~/pr"
-priority_dir: "~/pr/priority"
-recent_dir: "~/pr/recent"
+github_dir: "~/pr/github"
+github_other_dir: "~/pr/github-other"
+sandbox_dir: "~/pr/sandbox"
 
 # macOS Configuration Method
 # Set to true to use Ansible osx_defaults tasks, false to use shell script
