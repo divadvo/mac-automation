@@ -40,7 +40,7 @@ The bootstrap script will automatically:
 
 Run the main playbook for complete automated setup:
 ```bash
-uv run ./playbook.yml --ask-become-pass
+uv run ./playbook.yml --ask-become-pass -v
 ```
 
 This will automatically:
