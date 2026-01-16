@@ -1,0 +1,5 @@
+# Local configuration - copy to local.yml and fill in your values
+# This file is gitignored and won't be tracked
+
+user_email: "your@email.com"
+user_name: "Your Name"

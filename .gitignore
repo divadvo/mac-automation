@@ -321,3 +321,6 @@ pyrightconfig.json
 
 
 tasks.md
+
+# User-specific local configuration
+roles/divadvo_mac/vars/local.yml

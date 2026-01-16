@@ -1,3 +1,10 @@
+- name: Load local configuration overrides
+  include_vars:
+    file: local.yml
+  failed_when: false
+  tags:
+    - always
+
 - name: Check if running on macOS
   fail:
     msg: "This playbook is designed for macOS only"
@@ -69,7 +76,7 @@
 
 - name: Check if user_email is configured
   fail:
-    msg: "user_email must be configured. Please edit roles/divadvo_mac/vars/main.yml and change 'your@email.com' to your actual email address"
+    msg: "user_email must be configured. Please run bootstrap.rb or create roles/divadvo_mac/vars/local.yml with your email"
   when: user_email is not defined or user_email == "" or user_email == "your@email.com"
   tags:
   - validate

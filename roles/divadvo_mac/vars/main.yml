@@ -140,8 +140,8 @@ npm_tools:
   - yarn
   - "@anthropic-ai/claude-code"
 
-# Email address for SSH key generation and git configuration
-# CHANGE THIS to your email address before running
+# User Configuration - Override these in local.yml (gitignored)
+# The bootstrap script creates local.yml automatically
 user_email: "your@email.com"
 user_name: "Your Name"
 
