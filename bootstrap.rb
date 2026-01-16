@@ -46,6 +46,8 @@ class MacBootstrap
         log("Homebrew already installed", type: :success)
       else
         log("📦 Installing Homebrew...")
+        log("🔐 Homebrew needs sudo access - enter your password if prompted")
+        system("sudo -v") || (log("Failed to get sudo access", type: :error); exit(1))
         ENV['NONINTERACTIVE'] = '1'
         run_command('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', "📦 Installing Homebrew...")
         
