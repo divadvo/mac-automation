@@ -123,12 +123,12 @@ homebrew_cask_packages_test:
 
 # Runtime version configuration
 node_version: "24"
-ruby_version: "3"
+ruby_version: "4"
 bun_version: "1"
 python_versions:
   - "3.13"
   - "3.14"
-postgresql_version: "17"
+postgresql_version: "18"
 
 # Python tools to install via uv tool install
 uv_tools:
