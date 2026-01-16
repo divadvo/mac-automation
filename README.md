@@ -86,7 +86,7 @@ Edit `roles/divadvo_mac/vars/main.yml` to customize:
 To install additional packages after initial setup: edit `roles/divadvo_mac/vars/main.yml` to add packages, then run:
 
 ```bash
-uv run ./playbook.yml --tags packages
+uv run ./playbook.yml --tags packages --ask-become-pass
 ```
 
 ## Troubleshooting
