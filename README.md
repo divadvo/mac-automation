@@ -8,6 +8,10 @@ That way I can set up a new MacBook quickly with all my preferred software and s
 
 This setup uses a streamlined **multi-phase approach** with GitHub CLI integration:
 
+### Phase 0: Pre-Bootstrap Setup
+
+Complete the [New Mac Setup](./docs/PREPARATION.md#new-mac-setup-phase-0) steps before running the bootstrap script.
+
 ### Phase 1: Bootstrap Setup
 
 Run the Ruby bootstrap script to automatically set up everything (idempotent and can be safely re-run):
