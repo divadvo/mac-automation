@@ -8,13 +8,28 @@
   tags:
   - brew
 
+- name: Get installed homebrew formulae
+  command: brew list --formula -1
+  register: brew_installed_formulae
+  changed_when: false
+  tags:
+  - brew
+
 - name: Install command line tools via homebrew (with progress)
   homebrew:
     name: "{{ item }}"
     state: latest
   loop: "{{ homebrew_packages }}"
+  when: item not in brew_installed_formulae.stdout_lines
   retries: 3
   delay: 10
+  tags:
+  - brew
+
+- name: Get installed homebrew casks
+  command: brew list --cask -1
+  register: brew_installed_casks
+  changed_when: false
   tags:
   - brew
 
@@ -23,6 +38,7 @@
     name: "{{ item }}"
     state: present
   loop: "{{ homebrew_cask_packages_test if testing_mode else homebrew_cask_packages }}"
+  when: item not in brew_installed_casks.stdout_lines
   retries: 3
   delay: 10
   tags:
