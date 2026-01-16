@@ -554,6 +554,7 @@
     key: reduceTransparency
     type: bool
     value: true
+  become: true
   # Original: defaults write com.apple.universalaccess reduceTransparency -bool true
 
 # Hot corners
