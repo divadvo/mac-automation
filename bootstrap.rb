@@ -244,7 +244,7 @@ class MacBootstrap
   end
 
   def run_main_playbook
-    base_cmd = "uv run ./playbook.yml"
+    base_cmd = "uv run ./playbook.yml --ask-become-pass"
     full_cmd = base_cmd
     test_cmd = "#{base_cmd} -e testing_mode=true"
     
