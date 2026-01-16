@@ -49,7 +49,7 @@ This will automatically:
 
 Apply macOS system settings and preferences:
 ```bash
-uv run ./playbook.yml --tags macos
+uv run ./playbook.yml --tags macos --ask-become-pass
 ```
 
 **Important**: Log out and log back in after this step to ensure all macOS system settings take effect properly.

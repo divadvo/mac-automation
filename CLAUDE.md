@@ -16,8 +16,8 @@ uv run ./playbook.yml
 # Install packages only
 uv run ./playbook.yml --tags packages
 
-# Configure macOS system settings
-uv run ./playbook.yml --tags macos
+# Configure macOS system settings (requires sudo password)
+uv run ./playbook.yml --tags macos --ask-become-pass
 
 # Configure dotfiles only
 uv run ./playbook.yml --tags dotfiles
@@ -69,7 +69,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 ### Multi-Phase Setup Process
 1. **Bootstrap**: Run bootstrap.rb for Homebrew, GitHub CLI auth, repository cloning
 2. **Automated Setup**: Main playbook for packages, dotfiles, repositories
-3. **macOS Configuration**: System settings with `--tags macos`
+3. **macOS Configuration**: System settings with `--tags macos --ask-become-pass`
 4. **Manual Setup**: Application configuration (documented in docs/MANUAL_SETUP.md)
 
 ### Directory Structure Philosophy
