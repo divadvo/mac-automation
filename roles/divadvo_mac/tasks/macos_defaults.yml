@@ -624,28 +624,27 @@
 # Safari & WebKit                                                            #
 ###############################################################################
 
+# Note: Safari tasks may fail due to macOS sandbox/TCC restrictions.
+# To enable these settings manually: Safari > Settings > Advanced > Show Develop menu
 - name: Enable Safari Develop menu
-  osx_defaults:
-    domain: com.apple.Safari
-    key: IncludeDevelopMenu
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari IncludeDevelopMenu -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari IncludeDevelopMenu -bool true
 
 - name: Enable Safari Web Inspector
-  osx_defaults:
-    domain: com.apple.Safari
-    key: WebKitDeveloperExtrasEnabledPreferenceKey
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
 
 - name: Enable Safari WebKit2 developer extras
-  osx_defaults:
-    domain: com.apple.Safari
-    key: com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
 
 - name: Add Web Inspector context menu item globally
@@ -779,28 +778,26 @@
     value: false
   # Original: defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
 
+# Note: Safari tasks may fail due to macOS sandbox/TCC restrictions
 - name: Show full website address in Safari
-  osx_defaults:
-    domain: com.apple.Safari
-    key: ShowFullURLInSmartSearchField
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari ShowFullURLInSmartSearchField -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 
 - name: Show Status Bar in Safari
-  osx_defaults:
-    domain: com.apple.Safari
-    key: ShowStatusBar
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari ShowStatusBar -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari ShowStatusBar -bool true
 
 - name: Show features for web developers in Safari
-  osx_defaults:
-    domain: com.apple.Safari
-    key: IncludeInternalDebugMenu
-    type: bool
-    value: true
+  ansible.builtin.shell: |
+    defaults write ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari IncludeInternalDebugMenu -bool true
+  changed_when: true
+  ignore_errors: true
   # Original: defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
 
 ###############################################################################
