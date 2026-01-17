@@ -7,3 +7,11 @@
     - macos
     - system
     - never
+
+- name: Apply optional macOS system defaults
+  import_tasks: macos_defaults_optional.yml
+  tags:
+    - macos-optional
+    - never
+  # Additional settings from macos-defaults.com
+  # Run with: uv run ./playbook.yml --tags macos-optional --ask-become-pass

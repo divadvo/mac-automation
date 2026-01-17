@@ -19,6 +19,9 @@ uv run ./playbook.yml --tags packages
 # Configure macOS system settings (requires sudo password)
 uv run ./playbook.yml --tags macos --ask-become-pass
 
+# Configure optional macOS system settings (additional defaults from macos-defaults.com)
+uv run ./playbook.yml --tags macos-optional --ask-become-pass
+
 # Configure dotfiles only
 uv run ./playbook.yml --tags dotfiles
 
@@ -95,6 +98,10 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 ### macOS Settings
 - macOS configuration tasks are tagged as "never" - must be explicitly run
 - Uses Ansible osx_defaults module for idempotent system settings
+- Two configuration files:
+  - **macos_defaults.yml**: Core settings (tag: `macos`)
+  - **macos_defaults_optional.yml**: Additional settings from macos-defaults.com (tag: `macos-optional`)
+- See `docs/MACOS_DEFAULTS_ANALYSIS.md` for complete list of available settings
 - Requires logout/login after macOS settings changes
 
 ### Repository Management

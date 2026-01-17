@@ -1,0 +1,474 @@
+#############################################################################
+# macOS Optional System Defaults Configuration                             #
+# Additional settings from macos-defaults.com not in main config           #
+# Reference: docs/MACOS_DEFAULTS_ANALYSIS.md                               #
+#############################################################################
+
+###############################################################################
+# Activity Monitor - Extended Settings                                       #
+###############################################################################
+
+- name: Set Activity Monitor dock icon type
+  osx_defaults:
+    domain: com.apple.ActivityMonitor
+    key: IconType
+    type: int
+    value: 5
+  # Values: 0=CPU History, 1=CPU Usage, 2=Network, 3=Disk, 4=Memory, 5=CPU History (Graph)
+  # Original: defaults write com.apple.ActivityMonitor IconType -int 5
+
+- name: Set Activity Monitor update period
+  osx_defaults:
+    domain: com.apple.ActivityMonitor
+    key: UpdatePeriod
+    type: int
+    value: 2
+  # Values: 1=Very often (1s), 2=Often (2s), 5=Normally (5s)
+  # Original: defaults write com.apple.ActivityMonitor UpdatePeriod -int 2
+
+###############################################################################
+# Desktop - Icon Management                                                  #
+###############################################################################
+
+- name: Keep desktop icons visible
+  osx_defaults:
+    domain: com.apple.finder
+    key: CreateDesktop
+    type: bool
+    value: true
+  # Set to false to hide all desktop icons
+  # Original: defaults write com.apple.finder CreateDesktop -bool true
+
+- name: Sort folders first on desktop
+  osx_defaults:
+    domain: com.apple.finder
+    key: _FXSortFoldersFirstOnDesktop
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder _FXSortFoldersFirstOnDesktop -bool true
+
+###############################################################################
+# Dock - Extended Settings                                                   #
+###############################################################################
+
+- name: Disable Dock autohide
+  osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: false
+  # Set to true to auto-hide the Dock
+  # Original: defaults write com.apple.dock autohide -bool false
+
+- name: Set Dock autohide delay
+  osx_defaults:
+    domain: com.apple.dock
+    key: autohide-delay
+    type: float
+    value: 0.2
+  # Time in seconds before Dock appears when mouse hovers
+  # Original: defaults write com.apple.dock autohide-delay -float 0.2
+
+- name: Set Dock autohide animation speed
+  osx_defaults:
+    domain: com.apple.dock
+    key: autohide-time-modifier
+    type: float
+    value: 0.5
+  # Animation duration for show/hide
+  # Original: defaults write com.apple.dock autohide-time-modifier -float 0.5
+
+- name: Set minimize/maximize window effect
+  osx_defaults:
+    domain: com.apple.dock
+    key: mineffect
+    type: string
+    value: scale
+  # Values: "genie" (default) or "scale"
+  # Original: defaults write com.apple.dock mineffect -string "scale"
+
+- name: Disable scroll-to-open on Dock icons
+  osx_defaults:
+    domain: com.apple.dock
+    key: scroll-to-open
+    type: bool
+    value: false
+  # Set to true to scroll on Dock icon to reveal app windows
+  # Original: defaults write com.apple.dock scroll-to-open -bool false
+
+- name: Show all apps in Dock (not just active)
+  osx_defaults:
+    domain: com.apple.dock
+    key: static-only
+    type: bool
+    value: false
+  # Set to true to show only active apps
+  # Original: defaults write com.apple.dock static-only -bool false
+
+- name: Disable spring loading for all Dock items
+  osx_defaults:
+    domain: com.apple.dock
+    key: enable-spring-load-actions-on-all-items
+    type: bool
+    value: false
+  # Original: defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool false
+
+###############################################################################
+# Finder - Extended Settings                                                 #
+###############################################################################
+
+- name: Show path bar in Finder
+  osx_defaults:
+    domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder ShowPathbar -bool true
+
+- name: Sort folders first in all Finder views
+  osx_defaults:
+    domain: com.apple.finder
+    key: _FXSortFoldersFirst
+    type: bool
+    value: true
+  # Original: defaults write com.apple.finder _FXSortFoldersFirst -bool true
+
+- name: Open folders in tabs instead of new windows
+  osx_defaults:
+    domain: com.apple.finder
+    key: FinderSpawnTab
+    type: bool
+    value: false
+  # Set to true to prefer tabs over new windows
+  # Original: defaults write com.apple.finder FinderSpawnTab -bool false
+
+- name: Auto-remove items from trash after 30 days
+  osx_defaults:
+    domain: com.apple.finder
+    key: FXRemoveOldTrashItems
+    type: bool
+    value: false
+  # Set to true to enable auto-cleanup
+  # Original: defaults write com.apple.finder FXRemoveOldTrashItems -bool false
+
+- name: Disable Quit Finder menu item
+  osx_defaults:
+    domain: com.apple.finder
+    key: QuitMenuItem
+    type: bool
+    value: false
+  # Set to true to allow quitting Finder via Cmd+Q
+  # Original: defaults write com.apple.finder QuitMenuItem -bool false
+
+- name: Set Finder sidebar icon size
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSTableViewDefaultSizeMode
+    type: int
+    value: 2
+  # Values: 1=Small, 2=Medium, 3=Large
+  # Original: defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
+
+- name: Set toolbar title view rollover delay
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSToolbarTitleViewRolloverDelay
+    type: float
+    value: 0.5
+  # Delay before showing full path when hovering over title
+  # Original: defaults write NSGlobalDomain NSToolbarTitleViewRolloverDelay -float 0.5
+
+- name: Show file icons in window title bars
+  osx_defaults:
+    domain: com.apple.universalaccess
+    key: showWindowTitlebarIcons
+    type: bool
+    value: true
+  # Original: defaults write com.apple.universalaccess showWindowTitlebarIcons -bool true
+
+###############################################################################
+# Keyboard - Extended Settings                                               #
+###############################################################################
+
+- name: Set full keyboard access mode
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: AppleKeyboardUIMode
+    type: int
+    value: 3
+  # Values: 0=Text boxes and lists only, 3=All controls
+  # Original: defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+
+- name: Set Fn key behavior
+  osx_defaults:
+    domain: com.apple.HIToolbox
+    key: AppleFnUsageType
+    type: int
+    value: 0
+  # Values: 0=Do Nothing, 1=Change Input Source, 2=Show Emoji
+  # Original: defaults write com.apple.HIToolbox AppleFnUsageType -int 0
+
+- name: Use F1, F2, etc. keys as standard function keys
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.keyboard.fnState
+    type: bool
+    value: false
+  # Set to true to require Fn key for special features
+  # Original: defaults write NSGlobalDomain com.apple.keyboard.fnState -bool false
+
+- name: Show input menu in menu bar
+  shell: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled -bool true
+  changed_when: false
+  # Note: Uses special domain kCFPreferencesAnyApplication
+  # Original: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled -bool true
+
+###############################################################################
+# Menu Bar - Clock Settings                                                  #
+###############################################################################
+
+- name: Set menu bar clock date format
+  osx_defaults:
+    domain: com.apple.menuextra.clock
+    key: DateFormat
+    type: string
+    value: "EEE d MMM HH:mm"
+  # Example formats: "EEE d MMM HH:mm:ss", "h:mm a", etc.
+  # Original: defaults write com.apple.menuextra.clock DateFormat -string "EEE d MMM HH:mm"
+
+- name: Disable flashing date separators
+  osx_defaults:
+    domain: com.apple.menuextra.clock
+    key: FlashDateSeparators
+    type: bool
+    value: false
+  # Original: defaults write com.apple.menuextra.clock FlashDateSeparators -bool false
+
+###############################################################################
+# Messages                                                                    #
+###############################################################################
+
+- name: Hide subject field in Messages
+  osx_defaults:
+    domain: com.apple.MobileSMS
+    key: MMSShowSubject
+    type: bool
+    value: false
+  # Set to true to show subject field
+  # Original: defaults write com.apple.MobileSMS MMSShowSubject -bool false
+
+###############################################################################
+# Mission Control                                                            #
+###############################################################################
+
+- name: Disable automatic Space rearrangement
+  osx_defaults:
+    domain: com.apple.dock
+    key: mru-spaces
+    type: bool
+    value: false
+  # Set to false to keep Spaces in fixed order
+  # Original: defaults write com.apple.dock mru-spaces -bool false
+
+- name: Group windows by application in Mission Control
+  osx_defaults:
+    domain: com.apple.dock
+    key: expose-group-apps
+    type: bool
+    value: true
+  # Original: defaults write com.apple.dock expose-group-apps -bool true
+
+- name: Switch to Space with open windows for app
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: AppleSpacesSwitchOnActivate
+    type: bool
+    value: true
+  # Original: defaults write NSGlobalDomain AppleSpacesSwitchOnActivate -bool true
+
+- name: Displays have separate Spaces
+  osx_defaults:
+    domain: com.apple.spaces
+    key: spans-displays
+    type: bool
+    value: false
+  # Set to true for unified Spaces across displays
+  # Original: defaults write com.apple.spaces spans-displays -bool false
+
+###############################################################################
+# Mouse                                                                       #
+###############################################################################
+
+- name: Disable mouse acceleration (linear scaling)
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.mouse.linear
+    type: bool
+    value: true
+  # Set to true for 1:1 mouse movement
+  # Original: defaults write NSGlobalDomain com.apple.mouse.linear -bool true
+
+- name: Disable Terminal focus follows mouse
+  osx_defaults:
+    domain: com.apple.Terminal
+    key: FocusFollowsMouse
+    type: bool
+    value: false
+  # Set to true for X11-style focus behavior
+  # Original: defaults write com.apple.Terminal FocusFollowsMouse -bool false
+
+###############################################################################
+# Screenshots - Extended Settings                                            #
+###############################################################################
+
+- name: Include date in screenshot filename
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: include-date
+    type: bool
+    value: true
+  # Original: defaults write com.apple.screencapture include-date -bool true
+
+- name: Show thumbnail after taking screenshot
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: show-thumbnail
+    type: bool
+    value: true
+  # Original: defaults write com.apple.screencapture show-thumbnail -bool true
+
+###############################################################################
+# TextEdit                                                                    #
+###############################################################################
+
+- name: Use plain text mode by default in TextEdit
+  osx_defaults:
+    domain: com.apple.TextEdit
+    key: RichText
+    type: bool
+    value: false
+  # Set to false for plain text, true for rich text
+  # Original: defaults write com.apple.TextEdit RichText -bool false
+
+- name: Disable smart quotes in TextEdit
+  osx_defaults:
+    domain: com.apple.TextEdit
+    key: SmartQuotes
+    type: bool
+    value: false
+  # Original: defaults write com.apple.TextEdit SmartQuotes -bool false
+
+###############################################################################
+# Trackpad - Extended Settings                                               #
+###############################################################################
+
+- name: Disable trackpad tap to drag
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: Dragging
+    type: bool
+    value: false
+  # Set to true to enable tap-to-drag
+  # Original: defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
+
+- name: Disable trackpad drag lock
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: DragLock
+    type: bool
+    value: false
+  # Set to true to enable drag lock
+  # Original: defaults write com.apple.AppleMultitouchTrackpad DragLock -bool false
+
+- name: Enable trackpad three-finger drag
+  osx_defaults:
+    domain: com.apple.AppleMultitouchTrackpad
+    key: TrackpadThreeFingerDrag
+    type: bool
+    value: true
+  # Popular accessibility feature
+  # Original: defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+
+###############################################################################
+# Time Machine                                                               #
+###############################################################################
+
+- name: Prevent Time Machine from prompting for new disks
+  osx_defaults:
+    domain: com.apple.TimeMachine
+    key: DoNotOfferNewDisksForBackup
+    type: bool
+    value: true
+  # Set to true to disable prompts
+  # Original: defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+###############################################################################
+# Xcode (Developer Tools)                                                    #
+###############################################################################
+
+- name: Show build duration in Xcode
+  osx_defaults:
+    domain: com.apple.dt.Xcode
+    key: ShowBuildOperationDuration
+    type: bool
+    value: true
+  # Original: defaults write com.apple.dt.Xcode ShowBuildOperationDuration -bool true
+
+###############################################################################
+# Miscellaneous System Settings                                              #
+###############################################################################
+
+- name: Disable Help Viewer developer mode
+  osx_defaults:
+    domain: com.apple.helpviewer
+    key: DevMode
+    type: bool
+    value: false
+  # Original: defaults write com.apple.helpviewer DevMode -bool false
+
+- name: Restore windows when re-opening apps
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSQuitAlwaysKeepsWindows
+    type: bool
+    value: true
+  # Set to true for window restoration
+  # Original: defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool true
+
+- name: Enable Gatekeeper quarantine
+  osx_defaults:
+    domain: com.apple.LaunchServices
+    key: LSQuarantine
+    type: bool
+    value: true
+  # Keep enabled for security
+  # Original: defaults write com.apple.LaunchServices LSQuarantine -bool true
+
+- name: Disable Music playback notifications
+  osx_defaults:
+    domain: com.apple.Music
+    key: userWantsPlaybackNotifications
+    type: bool
+    value: false
+  # Original: defaults write com.apple.Music userWantsPlaybackNotifications -bool false
+
+- name: Disable close confirmation dialog
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSCloseAlwaysConfirmsChanges
+    type: bool
+    value: false
+  # Set to true to always ask to save changes
+  # Original: defaults write NSGlobalDomain NSCloseAlwaysConfirmsChanges -bool false
+
+###############################################################################
+# iOS Simulator (Developer Tools)                                            #
+###############################################################################
+
+- name: Set iOS Simulator screenshot save location
+  osx_defaults:
+    domain: com.apple.iphonesimulator
+    key: ScreenShotSaveLocation
+    type: string
+    value: "{{ ansible_env.HOME }}/Desktop"
+  # Original: defaults write com.apple.iphonesimulator ScreenShotSaveLocation -string "~/Desktop"
