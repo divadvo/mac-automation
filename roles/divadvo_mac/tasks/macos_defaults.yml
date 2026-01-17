@@ -68,16 +68,16 @@
     value: false
   # Original: defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
-- name: Check current desktop background
-  shell: osascript -e 'tell application "Finder" to get desktop picture as string'
-  register: current_desktop_bg
-  changed_when: false
-  failed_when: false
+# - name: Check current desktop background
+#   shell: osascript -e 'tell application "Finder" to get desktop picture as string'
+#   register: current_desktop_bg
+#   changed_when: false
+#   failed_when: false
 
-- name: Set desktop background to dark-grey stone color
-  shell: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
-  when: "'Stone.png' not in current_desktop_bg.stdout"
-  # Original: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
+# - name: Set desktop background to dark-grey stone color
+#   shell: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
+#   when: "'Stone.png' not in current_desktop_bg.stdout"
+#   # Original: osascript -e 'tell application "Finder" to set desktop picture to POSIX file "/System/Library/Desktop Pictures/Solid Colors/Stone.png"'
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                #
@@ -195,21 +195,21 @@
 # Finder                                                                      #
 ###############################################################################
 
-- name: Set Desktop as default location for new Finder windows
+- name: Set home directory as default location for new Finder windows
   osx_defaults:
     domain: com.apple.finder
     key: NewWindowTarget
     type: string
-    value: PfDe
+    value: PfHm
   # Original: defaults write com.apple.finder NewWindowTarget -string "PfDe"
 
-- name: Set Desktop path for new Finder windows
+- name: Set home directory path for new Finder windows
   osx_defaults:
     domain: com.apple.finder
     key: NewWindowTargetPath
     type: string
-    value: "file://{{ ansible_env.HOME }}/Desktop/"
-  # Original: defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/Desktop/"
+    value: "file://{{ ansible_env.HOME }}/"
+  # Original: defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
 - name: Show external hard drives on desktop
   osx_defaults:
