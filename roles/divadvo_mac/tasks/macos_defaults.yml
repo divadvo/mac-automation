@@ -248,7 +248,7 @@
     domain: com.apple.finder
     key: AppleShowAllFiles
     type: bool
-    value: true
+    value: false
   # Original: defaults write com.apple.finder AppleShowAllFiles -bool true
 
 - name: Show all filename extensions in Finder
