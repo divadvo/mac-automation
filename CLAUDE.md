@@ -94,7 +94,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 
 ### macOS Settings
 - macOS configuration tasks are tagged as "never" - must be explicitly run
-- Uses both Ansible osx_defaults and shell script approaches
+- Uses Ansible osx_defaults module for idempotent system settings
 - Requires logout/login after macOS settings changes
 
 ### Repository Management

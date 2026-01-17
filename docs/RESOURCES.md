@@ -31,8 +31,8 @@ This document contains useful external links and resources referenced from the o
   - Reference implementation for automated Mac setup
 
 - [Jeff Geerling's Dotfiles (.osx)](https://github.com/geerlingguy/dotfiles/blob/master/.osx)
-  - Extensive macOS defaults configuration script
-  - Source of many settings used in this project
+  - Source of many settings adapted for this project's Ansible implementation
+  - Original extensive macOS defaults configuration script
 
 - [Adam Johnson's mac-ansible](https://github.com/adamchainz/mac-ansible)
   - Another Ansible-based macOS configuration project

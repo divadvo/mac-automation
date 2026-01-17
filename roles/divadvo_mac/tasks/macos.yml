@@ -1,20 +1,9 @@
-## Run configs for mac stuff https://github.com/geerlingguy/dotfiles/blob/master/.osx
-## --no-restart
+## macOS system defaults configuration
+## Based on https://github.com/geerlingguy/dotfiles/blob/master/.osx
 
-- name: Apply macOS system defaults via Ansible tasks
+- name: Apply macOS system defaults
   import_tasks: macos_defaults.yml
-  when: use_ansible_macos_config | default(false)
   tags:
-  - macos
-  - ansible_config
-  - never
-
-- name: Apply macOS system defaults via shell script
-  command: "{{ role_path }}/files/dotfiles/osx"
-  changed_when: false
-  become: false
-  when: not (use_ansible_macos_config | default(false))
-  tags:
-  - macos
-  - shell_config
-  - never
+    - macos
+    - system
+    - never

@@ -79,7 +79,6 @@ Edit `roles/divadvo_mac/vars/main.yml` to customize:
 - `node_version`, `ruby_version`, `bun_version`: Runtime versions managed by mise
 - `python_versions`: Python versions to install via uv
 - `postgresql_version`: PostgreSQL version to install
-- `use_ansible_macos_config`: Use Ansible tasks (true) or shell script (false) for macOS defaults
 
 ## Adding New Packages
 
