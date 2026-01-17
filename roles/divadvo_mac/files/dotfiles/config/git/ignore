@@ -42,3 +42,5 @@ venv
 
 # Zed
 .zed/
+
+**/.claude/settings.local.json
