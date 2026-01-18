@@ -4,6 +4,7 @@
     state: directory
   loop:
   - config/git
+  - claude
   tags:
   - dotfiles
 
@@ -19,6 +20,7 @@
   - config/git/ignore
   - ssh/config
   - zprofile
+  - claude/settings.json
   tags:
   - dotfiles
 

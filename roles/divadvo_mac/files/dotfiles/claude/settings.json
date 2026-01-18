@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git stash list:*)",
+      "Bash(ls:*)",
+      "Bash(pwd:*)",
+      "Bash(which:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(file:*)",
+      "Bash(find:*)",
+      "Bash(npm list:*)",
+      "Bash(npm outdated:*)",
+      "Bash(uv pip list:*)",
+      "Bash(brew list:*)",
+      "Bash(brew info:*)",
+      "Bash(npm test:*)",
+      "WebSearch"
+    ]
+  },
+  "autoUpdatesChannel": "stable",
+  "cleanupPeriodDays": 30,
+  "showTurnDuration": true,
+  "respectGitignore": true,
+}
