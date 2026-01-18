@@ -141,6 +141,7 @@ uv_tools:
 # Global npm tools to install
 npm_tools:
   - yarn
+  - pnpm
   - "@anthropic-ai/claude-code"
 
 # User Configuration - Override these in local.yml (gitignored)
