@@ -472,3 +472,21 @@
     type: string
     value: "{{ ansible_env.HOME }}/Desktop"
   # Original: defaults write com.apple.iphonesimulator ScreenShotSaveLocation -string "~/Desktop"
+
+###############################################################################
+# Kill/restart affected applications                                         #
+###############################################################################
+
+- name: Restart affected applications
+  shell: killall "{{ item }}" > /dev/null 2>&1
+  failed_when: false
+  loop:
+    - cfprefsd
+    - Finder
+    - Mail
+    - SystemUIServer
+    - mds
+    # Terminal excluded to prevent killing Ansible session
+    # Dock excluded as it's handled specifically in dock tasks
+  # Original: killall "${app}" > /dev/null 2>&1 for each app
+
