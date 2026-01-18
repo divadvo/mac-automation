@@ -125,6 +125,7 @@
     value: true
   # Original: defaults write com.apple.finder ShowPathbar -bool true
 
+# TODO: Maybe set to false
 - name: Sort folders first in all Finder views
   osx_defaults:
     domain: com.apple.finder
@@ -169,6 +170,7 @@
   # Values: 1=Small, 2=Medium, 3=Large
   # Original: defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
 
+# TODO: maybe set to 0
 - name: Set toolbar title view rollover delay
   osx_defaults:
     domain: NSGlobalDomain
@@ -204,7 +206,7 @@
     domain: com.apple.HIToolbox
     key: AppleFnUsageType
     type: int
-    value: 0
+    value: 1
   # Values: 0=Do Nothing, 1=Change Input Source, 2=Show Emoji
   # Original: defaults write com.apple.HIToolbox AppleFnUsageType -int 0
 
@@ -219,7 +221,7 @@
 
 - name: Show input menu in menu bar
   shell: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled -bool true
-  changed_when: false
+  changed_when: true
   # Note: Uses special domain kCFPreferencesAnyApplication
   # Original: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled -bool true
 
@@ -232,7 +234,7 @@
     domain: com.apple.menuextra.clock
     key: DateFormat
     type: string
-    value: "EEE d MMM HH:mm"
+    value: "EEE d MMM HH:mm:ss"
   # Example formats: "EEE d MMM HH:mm:ss", "h:mm a", etc.
   # Original: defaults write com.apple.menuextra.clock DateFormat -string "EEE d MMM HH:mm"
 
