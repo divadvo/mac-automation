@@ -255,6 +255,16 @@
   # Required on macOS Big Sur+ to display seconds
   # Original: defaults write com.apple.menuextra.clock ShowSeconds -bool true
 
+- name: Hide Spotlight icon in menu bar
+  osx_defaults:
+    domain: com.apple.Spotlight
+    host: currentHost
+    key: MenuItemHidden
+    type: int
+    value: 1
+  # Set to 0 to show Spotlight icon
+  # Original: defaults -currentHost write com.apple.Spotlight MenuItemHidden -int 1
+
 ###############################################################################
 # Messages                                                                    #
 ###############################################################################
