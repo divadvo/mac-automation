@@ -246,6 +246,15 @@
     value: false
   # Original: defaults write com.apple.menuextra.clock FlashDateSeparators -bool false
 
+- name: Show seconds in menu bar clock
+  osx_defaults:
+    domain: com.apple.menuextra.clock
+    key: ShowSeconds
+    type: bool
+    value: true
+  # Required on macOS Big Sur+ to display seconds
+  # Original: defaults write com.apple.menuextra.clock ShowSeconds -bool true
+
 ###############################################################################
 # Messages                                                                    #
 ###############################################################################
@@ -484,6 +493,7 @@
   failed_when: false
   loop:
     - cfprefsd
+    - ControlCenter  # Required for menu bar clock changes on Big Sur+
     - Finder
     - Mail
     - SystemUIServer

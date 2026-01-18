@@ -809,6 +809,7 @@
   failed_when: false
   loop:
     - cfprefsd
+    - ControlCenter
     - Finder
     - Mail
     - SystemUIServer
