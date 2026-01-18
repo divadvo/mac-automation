@@ -28,5 +28,5 @@
   "autoUpdatesChannel": "stable",
   "cleanupPeriodDays": 30,
   "showTurnDuration": true,
-  "respectGitignore": true,
+  "respectGitignore": true
 }
