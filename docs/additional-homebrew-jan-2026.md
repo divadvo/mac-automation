@@ -40,16 +40,17 @@ Packages installed on old computer but missing from main.yml.
 4. blackhole-2ch - Audio loopback
 5. blender - 3D modeling
 6. claude - Claude desktop app
-7. comfyui - AI image generation UI
-8. companion - Bitfocus Companion (stream deck software)
-9. dbngin - Database GUI
-10. digikam - Photo management
-11. gcloud-cli - Google Cloud CLI
-12. jdownloader - Download manager
-13. local - Local WordPress development
-14. macwhisper - Speech-to-text
-15. microsoft-auto-update - Microsoft auto-updater (usually auto-installed)
-16. open-eid - Estonian eID software
-17. remoteviewer - Remote desktop viewer
-18. stats - System monitor
-19. tableplus - Database GUI
+7. claude-usage-tracker - Claude API usage monitoring
+8. comfyui - AI image generation UI
+9. companion - Bitfocus Companion (stream deck software)
+10. dbngin - Database GUI
+11. digikam - Photo management
+12. gcloud-cli - Google Cloud CLI
+13. jdownloader - Download manager
+14. local - Local WordPress development
+15. macwhisper - Speech-to-text
+16. microsoft-auto-update - Microsoft auto-updater (usually auto-installed)
+17. open-eid - Estonian eID software
+18. remoteviewer - Remote desktop viewer
+19. stats - System monitor
+20. tableplus - Database GUI
