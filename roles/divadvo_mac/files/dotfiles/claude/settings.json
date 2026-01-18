@@ -65,5 +65,8 @@
   "cleanupPeriodDays": 30,
   "showTurnDuration": true,
   "respectGitignore": true,
-  "attribution": false
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }
