@@ -10,6 +10,7 @@ homebrew_packages:
   - neovim
   - uv
   - ruby-build
+  - just
   
   # Network Tools
   - wget
