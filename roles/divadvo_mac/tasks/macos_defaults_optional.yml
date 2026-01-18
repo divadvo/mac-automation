@@ -178,13 +178,13 @@
   # Delay before showing full path when hovering over title
   # Original: defaults write NSGlobalDomain NSToolbarTitleViewRolloverDelay -float 0.5
 
-- name: Show file icons in window title bars
-  osx_defaults:
-    domain: com.apple.universalaccess
-    key: showWindowTitlebarIcons
-    type: bool
-    value: true
-  # Original: defaults write com.apple.universalaccess showWindowTitlebarIcons -bool true
+# - name: Show file icons in window title bars
+#   osx_defaults:
+#     domain: com.apple.universalaccess
+#     key: showWindowTitlebarIcons
+#     type: bool
+#     value: true
+#   # Original: defaults write com.apple.universalaccess showWindowTitlebarIcons -bool true
 
 ###############################################################################
 # Keyboard - Extended Settings                                               #
@@ -248,14 +248,14 @@
 # Messages                                                                    #
 ###############################################################################
 
-- name: Hide subject field in Messages
-  osx_defaults:
-    domain: com.apple.MobileSMS
-    key: MMSShowSubject
-    type: bool
-    value: false
-  # Set to true to show subject field
-  # Original: defaults write com.apple.MobileSMS MMSShowSubject -bool false
+# - name: Hide subject field in Messages
+#   osx_defaults:
+#     domain: com.apple.MobileSMS
+#     key: MMSShowSubject
+#     type: bool
+#     value: false
+#   # Set to true to show subject field
+#   # Original: defaults write com.apple.MobileSMS MMSShowSubject -bool false
 
 ###############################################################################
 # Mission Control                                                            #
@@ -362,32 +362,32 @@
 # Trackpad - Extended Settings                                               #
 ###############################################################################
 
-- name: Disable trackpad tap to drag
-  osx_defaults:
-    domain: com.apple.AppleMultitouchTrackpad
-    key: Dragging
-    type: bool
-    value: false
-  # Set to true to enable tap-to-drag
-  # Original: defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
+# - name: Disable trackpad tap to drag
+#   osx_defaults:
+#     domain: com.apple.AppleMultitouchTrackpad
+#     key: Dragging
+#     type: bool
+#     value: false
+#   # Set to true to enable tap-to-drag
+#   # Original: defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
 
-- name: Disable trackpad drag lock
-  osx_defaults:
-    domain: com.apple.AppleMultitouchTrackpad
-    key: DragLock
-    type: bool
-    value: false
-  # Set to true to enable drag lock
-  # Original: defaults write com.apple.AppleMultitouchTrackpad DragLock -bool false
+# - name: Disable trackpad drag lock
+#   osx_defaults:
+#     domain: com.apple.AppleMultitouchTrackpad
+#     key: DragLock
+#     type: bool
+#     value: false
+#   # Set to true to enable drag lock
+#   # Original: defaults write com.apple.AppleMultitouchTrackpad DragLock -bool false
 
-- name: Enable trackpad three-finger drag
-  osx_defaults:
-    domain: com.apple.AppleMultitouchTrackpad
-    key: TrackpadThreeFingerDrag
-    type: bool
-    value: true
-  # Popular accessibility feature
-  # Original: defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+# - name: Enable trackpad three-finger drag
+#   osx_defaults:
+#     domain: com.apple.AppleMultitouchTrackpad
+#     key: TrackpadThreeFingerDrag
+#     type: bool
+#     value: true
+#   # Popular accessibility feature
+#   # Original: defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
 
 ###############################################################################
 # Time Machine                                                               #
