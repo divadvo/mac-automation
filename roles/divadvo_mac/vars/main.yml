@@ -49,9 +49,9 @@ homebrew_packages:
   # - cheat
   
   # # File Viewing & Management
-  # - lsd
-  # - tree
-  # - bat
+  - lsd
+  - tree
+  - bat
   # - micro
   
   # # Development Tools
@@ -59,9 +59,9 @@ homebrew_packages:
   # - jq
   
   # # System Monitoring
-  # - htop
+  - htop
   # - lnav
-  # - bottom
+  - bottom
 
 # GUI applications to install via Homebrew Cask
 homebrew_cask_packages:
@@ -110,6 +110,7 @@ homebrew_cask_packages:
   
   # AI Tools
   - chatgpt
+  - claude
   
   # Fonts
   #- font-meslo-lg-nerd-font
