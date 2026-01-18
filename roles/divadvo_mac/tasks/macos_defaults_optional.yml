@@ -51,12 +51,12 @@
 # Dock - Extended Settings                                                   #
 ###############################################################################
 
-- name: Disable Dock autohide
+- name: Dock autohide
   osx_defaults:
     domain: com.apple.dock
     key: autohide
     type: bool
-    value: false
+    value: true
   # Set to true to auto-hide the Dock
   # Original: defaults write com.apple.dock autohide -bool false
 
@@ -65,7 +65,7 @@
     domain: com.apple.dock
     key: autohide-delay
     type: float
-    value: 0.2
+    value: 0
   # Time in seconds before Dock appears when mouse hovers
   # Original: defaults write com.apple.dock autohide-delay -float 0.2
 
@@ -74,7 +74,7 @@
     domain: com.apple.dock
     key: autohide-time-modifier
     type: float
-    value: 0.5
+    value: 0
   # Animation duration for show/hide
   # Original: defaults write com.apple.dock autohide-time-modifier -float 0.5
 

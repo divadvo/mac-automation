@@ -470,7 +470,7 @@
     domain: com.apple.dock
     key: tilesize
     type: float
-    value: 30
+    value: 36
   # Original: defaults write com.apple.dock tilesize -int 30
 
 - name: Position dock on left side
@@ -659,13 +659,13 @@
 # Mail                                                                        #
 ###############################################################################
 
-- name: Copy email addresses as plain text in Mail.app
-  osx_defaults:
-    domain: com.apple.mail
-    key: AddressesIncludeNameOnPasteboard
-    type: bool
-    value: false
-  # Original: defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
+# - name: Copy email addresses as plain text in Mail.app
+#   osx_defaults:
+#     domain: com.apple.mail
+#     key: AddressesIncludeNameOnPasteboard
+#     type: bool
+#     value: false
+#   # Original: defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
 ###############################################################################
 # Spotlight                                                                  #
