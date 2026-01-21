@@ -60,6 +60,27 @@
   tags:
   - mise
 
+- name: Check for newer runtime versions available via mise
+  shell: |
+    outdated=""
+    for pair in "node:{{ node_version }}" "ruby:{{ ruby_version }}" "bun:{{ bun_version }}"; do
+      tool="${pair%%:*}"
+      configured="${pair#*:}"
+      latest=$(mise latest "$tool" 2>/dev/null || echo "unknown")
+      if [[ "$latest" != "unknown" && "$latest" != "$configured"* ]]; then
+        outdated="$outdated\n  - $tool: $configured -> $latest"
+      fi
+    done
+    if [[ -n "$outdated" ]]; then
+      echo "Newer versions available:$outdated"
+      echo "Update versions in roles/divadvo_mac/vars/main.yml"
+    fi
+  register: version_check
+  changed_when: "'Newer versions available' in version_check.stdout"
+  failed_when: false
+  tags:
+    - mise
+
 - name: Install and activate Node.js via mise (with verbose output)
   command: mise use -g --verbose node@{{ node_version }}
   environment:
