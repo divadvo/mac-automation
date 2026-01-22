@@ -447,12 +447,13 @@
     value: false
   # Original: defaults write com.apple.helpviewer DevMode -bool false
 
-- name: Restore windows when re-opening apps
+- name: Restore windows when re-opening apps?
   osx_defaults:
     domain: NSGlobalDomain
     key: NSQuitAlwaysKeepsWindows
     type: bool
-    value: true
+    value: false
+  # Don't restore windows (setting is set to =false): otherwise iTerm reopens old sessions
   # Set to true for window restoration
   # Original: defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool true
 
