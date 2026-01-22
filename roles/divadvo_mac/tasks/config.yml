@@ -21,6 +21,7 @@
   - ssh/config
   - zprofile
   - claude/settings.json
+  - hushlogin
   tags:
   - dotfiles
 
