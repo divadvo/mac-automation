@@ -112,6 +112,7 @@ homebrew_cask_packages:
   # AI Tools
   - chatgpt
   - claude
+  - claude-code
   
   # Fonts
   #- font-meslo-lg-nerd-font
@@ -142,7 +143,6 @@ uv_tools:
 npm_tools:
   - yarn
   - pnpm
-  - "@anthropic-ai/claude-code"
 
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically
