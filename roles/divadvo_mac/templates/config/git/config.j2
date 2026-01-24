@@ -7,9 +7,25 @@
 [user]
     name = {{ user_name }}
     email = {{ user_email }}
-    
+
 [web]
-  browser = google-chrome
+    browser = google-chrome
 
 [color]
     ui = true
+
+[init]
+    defaultBranch = main
+
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    dark = true
+
+[merge]
+    conflictStyle = zdiff3

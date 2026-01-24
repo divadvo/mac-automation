@@ -56,7 +56,7 @@ homebrew_packages:
   # - micro
   
   # # Development Tools
-  # - git-delta
+  - git-delta
   # - jq
   
   # # System Monitoring
