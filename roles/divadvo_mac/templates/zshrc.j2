@@ -228,4 +228,5 @@ rgcountsum() { rg --count "$@" | awk -F: '{sum += $2} END {print sum}'; }
 # uv
 export UV_COMPILE_BYTECODE=1
 
-eval "$(zoxide init zsh)"
+# Disabled:
+# eval "$(zoxide init zsh)"
