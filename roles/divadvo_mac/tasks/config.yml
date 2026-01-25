@@ -44,7 +44,7 @@
 # Download Catppuccin Frappé color scheme for iTerm2
 - name: Create iTerm2 color schemes directory
   file:
-    path: "{{ ansible_env.PWD }}/downloads/iTerm2-Colors"
+    path: "{{ playbook_dir }}/downloads/iTerm2-Colors"
     state: directory
   tags:
   - iterm
@@ -52,7 +52,7 @@
 - name: Download Catppuccin Frappé iTerm2 color scheme
   get_url:
     url: https://raw.githubusercontent.com/catppuccin/iterm/main/colors/catppuccin-frappe.itermcolors
-    dest: "{{ ansible_env.PWD }}/downloads/iTerm2-Colors/catppuccin-frappe.itermcolors"
+    dest: "{{ playbook_dir }}/downloads/iTerm2-Colors/catppuccin-frappe.itermcolors"
     mode: '0644'
   tags:
   - iterm
