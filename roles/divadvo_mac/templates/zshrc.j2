@@ -152,45 +152,45 @@ simple-prompt() {
 }
 
 # Wrapper for /usr/bin/trash that ignores rm-specific flags
-# Allows 'alias rm=_trash' to work with commands like 'rm -rf dir/'
-_trash() {
-  local files=() trash_flags=() verbose=false force=false show_help=false
-
-  # Parse all arguments
-  for arg in "$@"; do
-    case "$arg" in
-      --force) force=true ;;
-      --recursive|--dir|--interactive|--interactive=*|--one-file-system|--no-preserve-root|--preserve-root|--preserve-root=*|--version) ;;
-      -*)
-        [[ "$arg" == *v* ]] && verbose=true
-        [[ "$arg" == *s* ]] && trash_flags+=("-s")
-        [[ "$arg" == *h* ]] && show_help=true
-        [[ "$arg" == *f* ]] && force=true
-        ;;
-      *) files+=("$arg") ;;
-    esac
-  done
-
-  # Handle -h/--help
-  $show_help && { /usr/bin/trash -h; return; }
-
-  # Filter non-existent files if force mode (rm -f ignores missing files)
-  local final_files=()
-  for file in "${files[@]}"; do
-    if $force; then
-      [[ -e "$file" ]] && final_files+=("$file")
-    else
-      final_files+=("$file")
-    fi
-  done
-
-  # Only call trash if there are files
-  (( ${{ '{#' }}final_files[@]} == 0 )) && return 0
-
-  $verbose && trash_flags+=("-v")
-  /usr/bin/trash "${trash_flags[@]}" "${final_files[@]}"
-}
-compdef _files _trash
+# Commented out - use 'trash' and 'rm' explicitly instead
+# _trash() {
+#   local files=() trash_flags=() verbose=false force=false show_help=false
+#
+#   # Parse all arguments
+#   for arg in "$@"; do
+#     case "$arg" in
+#       --force) force=true ;;
+#       --recursive|--dir|--interactive|--interactive=*|--one-file-system|--no-preserve-root|--preserve-root|--preserve-root=*|--version) ;;
+#       -*)
+#         [[ "$arg" == *v* ]] && verbose=true
+#         [[ "$arg" == *s* ]] && trash_flags+=("-s")
+#         [[ "$arg" == *h* ]] && show_help=true
+#         [[ "$arg" == *f* ]] && force=true
+#         ;;
+#       *) files+=("$arg") ;;
+#     esac
+#   done
+#
+#   # Handle -h/--help
+#   $show_help && { /usr/bin/trash -h; return; }
+#
+#   # Filter non-existent files if force mode (rm -f ignores missing files)
+#   local final_files=()
+#   for file in "${files[@]}"; do
+#     if $force; then
+#       [[ -e "$file" ]] && final_files+=("$file")
+#     else
+#       final_files+=("$file")
+#     fi
+#   done
+#
+#   # Only call trash if there are files
+#   (( ${{ '{#' }}final_files[@]} == 0 )) && return 0
+#
+#   $verbose && trash_flags+=("-v")
+#   /usr/bin/trash "${trash_flags[@]}" "${final_files[@]}"
+# }
+# compdef _files _trash
 
 # Environment Variables
 
@@ -241,7 +241,7 @@ alias cp="cp -i"
 alias ln="ln -i"
 alias mv="mv -i"
 # rm
-alias rm='_trash'
+# alias rm='_trash'
 alias rrm='/bin/rm -i'
 
 # ripgrep
