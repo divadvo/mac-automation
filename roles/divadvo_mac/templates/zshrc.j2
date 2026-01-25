@@ -151,23 +151,38 @@ simple-prompt() {
   export RPROMPT=""
 }
 
-# Move a file to the trash
-function trash() {
-  local trash_dir="${HOME}/.Trash"
-  local temp_ifs=$IFS
-  IFS=$'\n'
-  for item in "$@"; do
-    if [[ -e "$item" ]]; then
-      item_name="$(basename $item)"
-      if [[ -e "${trash_dir}/${item_name}" ]]; then
-        mv -f "$item" "${trash_dir}/${item_name} $(date "+%H-%M-%S")"
-      else
-        mv -f "$item" "${trash_dir}/"
-      fi
-    fi
+# Wrapper for /usr/bin/trash that ignores rm-specific flags
+# Allows 'alias rm=_trash' to work with commands like 'rm -rf dir/'
+_trash() {
+  local args=() has_verbose=false
+  for arg in "$@"; do
+    case "$arg" in
+      # Long flags to ignore (rm-specific, not supported by trash)
+      --force|--recursive|--dir|--interactive|--interactive=*|--one-file-system|--no-preserve-root|--preserve-root|--preserve-root=*|--version)
+        ;;
+      # Short flags: parse each character, keep only what trash supports
+      -[a-zA-Z]*)
+        local i
+        for ((i=1; i<${{ '{#' }}arg}; i++)); do
+          case "${{ '{' }}arg:$i:1}" in
+            v) has_verbose=true ;;  # trash supports -v
+            s) args+=("-s") ;;      # trash supports -s (stopOnError)
+            h) args+=("-h") ;;      # trash supports -h (help)
+            [firdRI]) ;;            # ignore rm flags: force, interactive, recursive, dir
+            *) ;;                   # ignore unknown
+          esac
+        done
+        ;;
+      # Everything else (files/directories)
+      *)
+        args+=("$arg")
+        ;;
+    esac
   done
-  IFS=$temp_ifs
+  $has_verbose && args+=("-v")
+  /usr/bin/trash "${args[@]}"
 }
+compdef _files _trash
 
 # Environment Variables
 
@@ -218,7 +233,7 @@ alias cp="cp -i"
 alias ln="ln -i"
 alias mv="mv -i"
 # rm
-alias rm='trash'
+alias rm='_trash'
 alias rrm='/bin/rm -i'
 
 # ripgrep
