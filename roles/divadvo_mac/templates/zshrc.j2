@@ -154,33 +154,41 @@ simple-prompt() {
 # Wrapper for /usr/bin/trash that ignores rm-specific flags
 # Allows 'alias rm=_trash' to work with commands like 'rm -rf dir/'
 _trash() {
-  local args=() has_verbose=false
+  local files=() trash_flags=() verbose=false force=false show_help=false
+
+  # Parse all arguments
   for arg in "$@"; do
     case "$arg" in
-      # Long flags to ignore (rm-specific, not supported by trash)
-      --force|--recursive|--dir|--interactive|--interactive=*|--one-file-system|--no-preserve-root|--preserve-root|--preserve-root=*|--version)
+      --force) force=true ;;
+      --recursive|--dir|--interactive|--interactive=*|--one-file-system|--no-preserve-root|--preserve-root|--preserve-root=*|--version) ;;
+      -*)
+        [[ "$arg" == *v* ]] && verbose=true
+        [[ "$arg" == *s* ]] && trash_flags+=("-s")
+        [[ "$arg" == *h* ]] && show_help=true
+        [[ "$arg" == *f* ]] && force=true
         ;;
-      # Short flags: parse each character, keep only what trash supports
-      -[a-zA-Z]*)
-        local i
-        for ((i=1; i<${{ '{#' }}arg}; i++)); do
-          case "${{ '{' }}arg:$i:1}" in
-            v) has_verbose=true ;;  # trash supports -v
-            s) args+=("-s") ;;      # trash supports -s (stopOnError)
-            h) args+=("-h") ;;      # trash supports -h (help)
-            [firdRI]) ;;            # ignore rm flags: force, interactive, recursive, dir
-            *) ;;                   # ignore unknown
-          esac
-        done
-        ;;
-      # Everything else (files/directories)
-      *)
-        args+=("$arg")
-        ;;
+      *) files+=("$arg") ;;
     esac
   done
-  $has_verbose && args+=("-v")
-  /usr/bin/trash "${args[@]}"
+
+  # Handle -h/--help
+  $show_help && { /usr/bin/trash -h; return; }
+
+  # Filter non-existent files if force mode (rm -f ignores missing files)
+  local final_files=()
+  for file in "${files[@]}"; do
+    if $force; then
+      [[ -e "$file" ]] && final_files+=("$file")
+    else
+      final_files+=("$file")
+    fi
+  done
+
+  # Only call trash if there are files
+  (( ${{ '{#' }}final_files[@]} == 0 )) && return 0
+
+  $verbose && trash_flags+=("-v")
+  /usr/bin/trash "${trash_flags[@]}" "${final_files[@]}"
 }
 compdef _files _trash
 
