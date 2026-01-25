@@ -23,7 +23,7 @@ This document covers tasks that require manual intervention after running the au
    - Open iTerm2 → Preferences (⌘+,)
    - Go to Profiles → Colors tab
    - Click "Color Presets..." → Import...
-   - Navigate to `~/Downloads/iTerm2-Colors/catppuccin-frappe.itermcolors`
+   - Navigate to the `downloads/iTerm2-Colors/catppuccin-frappe.itermcolors` file in this repository
    - Select the imported "Catppuccin Frappé" preset
 
 2. **Configure Scrollback Buffer**
