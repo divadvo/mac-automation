@@ -6,66 +6,46 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
-
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-# Note: ~/.p10k.zsh will be created after running 'p10k configure'
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 eval "$(mise activate zsh)"
 
-
-# Uncomment the following line to enable command auto-correction.
-# zstyle :omz:plugins:iterm2 shell-integration yes
-
+# Environment
 export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
-
-# Functions
-
-# Run 'ls' after 'cd'
-function chpwd_ls {
-    ls
-}
-add-zsh-hook chpwd chpwd_ls
-
-# Set editor for SSH and local sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR=vim
 else
   export EDITOR='code --wait'
 fi
 
-# Extend Path
+# PATH
 export PATH=~/.local/bin:$PATH
 export PATH=~/pr/github/divadvo-scripts:$PATH
 export PATH=~/bin:$PATH
 export PATH=$(dirname "$(uv python find --directory / -q {{ python_versions[0] }})"):$PATH
 export PATH=/opt/homebrew/opt/postgresql@{{ postgresql_version }}/bin:$PATH
 
-# Aliases
+# Functions
+function chpwd_ls { ls }
+add-zsh-hook chpwd chpwd_ls
 
-# macOS
+rgd() { rg --json "$@" | delta; }
+rgcountsum() { rg --count "$@" | awk -F: '{sum += $2} END {print sum}'; }
+
+# Aliases
 alias o=open
 alias pbc=pbcopy
 alias pbp=pbpaste
 alias toggle-dark-mode='osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
-
-# POSIX
-alias e='${(z)VISUAL:-${(z)EDITOR}}'  # open default editor
+alias e='${(z)VISUAL:-${(z)EDITOR}}'
 alias p='${(z)PAGER}'
-# interactive modes
 alias cp="cp -i"
 alias ln="ln -i"
 alias mv="mv -i"
-# rm
-# alias rm='_trash'
 alias rrm='/bin/rm -i'
 
-# ripgrep
-rgd() { rg --json "$@" | delta; }
-rgcountsum() { rg --count "$@" | awk -F: '{sum += $2} END {print sum}'; }
-
-# Disabled:
+# Tool initialization
 source <(fzf --zsh)
 eval "$(zoxide init zsh --cmd cd)"
