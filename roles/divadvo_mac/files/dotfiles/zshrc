@@ -21,7 +21,7 @@ else
 fi
 
 # PATH
-export PATH=~/bin:~/pr/github/divadvo-scripts:~/.local/bin:/opt/homebrew/opt/postgresql@{{ postgresql_version }}/bin:$PATH
+export PATH=~/bin:~/pr/github/divadvo-scripts:~/.local/bin:/opt/homebrew/opt/postgresql@18/bin:$PATH
 
 # Functions
 function chpwd_ls { ls }

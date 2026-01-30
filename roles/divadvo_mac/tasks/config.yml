@@ -22,6 +22,7 @@
   - zprofile
   - claude/settings.json
   - hushlogin
+  - zshrc
   tags:
   - dotfiles
 
@@ -29,14 +30,6 @@
   template:
     src: config/git/config.j2
     dest: ~/.config/git/config
-    backup: yes
-  tags:
-  - dotfiles
-
-- name: Template zshrc configuration file
-  template:
-    src: zshrc.j2
-    dest: ~/.zshrc
     backup: yes
   tags:
   - dotfiles
