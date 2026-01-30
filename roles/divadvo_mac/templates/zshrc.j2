@@ -21,11 +21,7 @@ else
 fi
 
 # PATH
-export PATH=~/.local/bin:$PATH
-export PATH=~/pr/github/divadvo-scripts:$PATH
-export PATH=~/bin:$PATH
-export PATH=$(dirname "$(uv python find --directory / -q {{ python_versions[0] }})"):$PATH
-export PATH=/opt/homebrew/opt/postgresql@{{ postgresql_version }}/bin:$PATH
+export PATH=~/bin:~/pr/github/divadvo-scripts:~/.local/bin:/opt/homebrew/opt/postgresql@{{ postgresql_version }}/bin:$PATH
 
 # Functions
 function chpwd_ls { ls }
@@ -40,6 +36,3 @@ alias pbp=pbpaste
 alias toggle-dark-mode='osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
 alias o=open
 alias e='${(z)VISUAL:-${(z)EDITOR}}'
-alias p='${(z)PAGER}'
-alias ln="ln -i"
-alias rrm='/bin/rm -i'
