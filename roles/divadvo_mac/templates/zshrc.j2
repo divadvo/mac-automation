@@ -6,11 +6,11 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
-plugins=(git)
+ZOXIDE_CMD_OVERRIDE=cd
+plugins=(git fzf zoxide mise macos)
 source $ZSH/oh-my-zsh.sh
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-eval "$(mise activate zsh)"
 
 # Environment
 export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
@@ -35,7 +35,6 @@ rgd() { rg --json "$@" | delta; }
 rgcountsum() { rg --count "$@" | awk -F: '{sum += $2} END {print sum}'; }
 
 # Aliases
-alias o=open
 alias pbc=pbcopy
 alias pbp=pbpaste
 alias toggle-dark-mode='osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
@@ -45,7 +44,3 @@ alias cp="cp -i"
 alias ln="ln -i"
 alias mv="mv -i"
 alias rrm='/bin/rm -i'
-
-# Tool initialization
-source <(fzf --zsh)
-eval "$(zoxide init zsh --cmd cd)"
