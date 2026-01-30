@@ -27,9 +27,6 @@ export PATH=~/bin:~/pr/github/divadvo-scripts:~/.local/bin:/opt/homebrew/opt/pos
 function chpwd_ls { ls }
 add-zsh-hook chpwd chpwd_ls
 
-rgd() { rg --json "$@" | delta; }
-rgcountsum() { rg --count "$@" | awk -F: '{sum += $2} END {print sum}'; }
-
 # Aliases
 alias toggle-dark-mode='osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
 alias o=open
