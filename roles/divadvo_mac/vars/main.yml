@@ -144,6 +144,11 @@ npm_tools:
   - yarn
   - pnpm
 
+# Oh My Zsh custom plugins
+ohmyzsh_custom_plugins:
+  - { name: zsh-autosuggestions, repo: "https://github.com/zsh-users/zsh-autosuggestions.git" }
+  - { name: zsh-you-should-use, repo: "https://github.com/MichaelAquilina/zsh-you-should-use.git" }
+
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically
 user_email: "your@email.com"

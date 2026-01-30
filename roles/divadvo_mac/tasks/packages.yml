@@ -198,6 +198,16 @@
   delay: 10
   become: false
 
+- name: Install Oh My Zsh custom plugins
+  git:
+    repo: "{{ item.repo }}"
+    dest: "~/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    depth: 1
+  loop: "{{ ohmyzsh_custom_plugins }}"
+  retries: 3
+  delay: 10
+  become: false
+
 - name: Install NVChad Neovim configuration
   git:
     repo: https://github.com/NvChad/starter
