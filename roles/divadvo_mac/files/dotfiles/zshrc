@@ -7,7 +7,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
 ZOXIDE_CMD_OVERRIDE=cd
-plugins=(git fzf zoxide mise macos common-aliases cp docker uv zsh-autosuggestions zsh-you-should-use)
+plugins=(git fzf zoxide mise macos common-aliases cp docker uv zsh-you-should-use)
+# zsh-autosuggestions
 source $ZSH/oh-my-zsh.sh
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
