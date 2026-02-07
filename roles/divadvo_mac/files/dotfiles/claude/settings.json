@@ -50,7 +50,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:docs.anthropic.com)",
       "WebFetch(domain:pypi.org)",
-      "WebFetch(domain:npmjs.com)"
+      "WebFetch(domain:npmjs.com)",
+      "WebFetch",
+      "WebSearch"
     ],
     "deny": [
       "Read(.env)",
