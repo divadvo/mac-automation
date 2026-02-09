@@ -810,7 +810,6 @@
     creates: "{{ item }}/.metadata_never_index"
   loop:
     - "{{ ansible_env.HOME }}/h"
-    - "{{ ansible_env.HOME }}/x"
 
 ###############################################################################
 # Kill/restart affected applications                                         #
