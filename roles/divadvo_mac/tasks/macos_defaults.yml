@@ -801,6 +801,18 @@
   # Original: defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
 
 ###############################################################################
+# Spotlight - Excluded folders                                                #
+###############################################################################
+
+- name: Exclude folders from Spotlight indexing
+  shell: touch "{{ item }}/.metadata_never_index"
+  args:
+    creates: "{{ item }}/.metadata_never_index"
+  loop:
+    - "{{ ansible_env.HOME }}/h"
+    - "{{ ansible_env.HOME }}/x"
+
+###############################################################################
 # Kill/restart affected applications                                         #
 ###############################################################################
 
