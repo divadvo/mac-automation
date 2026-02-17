@@ -1,4 +1,10 @@
 {
+  "respectGitignore": true,
+  "cleanupPeriodDays": 30,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(git status:*)",
@@ -63,11 +69,5 @@
     ]
   },
   "autoUpdatesChannel": "stable",
-  "cleanupPeriodDays": 30,
-  "showTurnDuration": true,
-  "respectGitignore": true,
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  }
+  "showTurnDuration": true
 }
