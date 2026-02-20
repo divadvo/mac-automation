@@ -8,6 +8,12 @@ This is an Ansible-powered macOS automation project that configures a fresh MacB
 
 ## Essential Commands
 
+### Quick Re-run
+```bash
+# Re-run everything (bootstrap + full playbook, no prompts)
+./bootstrap.rb --quick --verbose
+```
+
 ### Running Playbooks
 ```bash
 # Main playbook for complete setup
