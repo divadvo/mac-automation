@@ -128,22 +128,10 @@
   tags:
   - mise
 
-- name: Check installed global npm tools
-  command: mise x -- npm list -g --depth=0 --json
-  register: npm_list
+- name: Enable corepack for yarn and pnpm
+  command: mise x -- corepack enable
+  register: corepack_enable
   changed_when: false
-  failed_when: false
-  tags:
-  - node
-
-- name: Install global npm tools (only missing ones)
-  command: >
-    mise x --
-    npm install -g {{ item }}
-  loop: "{{ npm_tools }}"
-  register: npm_install_result
-  changed_when: "'added' in npm_install_result.stdout or 'updated' in npm_install_result.stdout"
-  when: "item not in npm_list.stdout"
   tags:
   - node
 

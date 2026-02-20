@@ -140,11 +140,6 @@ uv_tools:
 - name: build
 - name: ruff
 
-# Global npm tools to install
-npm_tools:
-  - yarn
-  - pnpm
-
 # Oh My Zsh custom plugins
 ohmyzsh_custom_plugins:
   - { name: zsh-autosuggestions, repo: "https://github.com/zsh-users/zsh-autosuggestions.git" }
