@@ -130,7 +130,12 @@
 
 - name: Enable corepack for yarn and pnpm
   command: mise x -- corepack enable
-  register: corepack_enable
+  changed_when: false
+  tags:
+  - node
+
+- name: Pre-install yarn and pnpm via corepack
+  command: mise x -- corepack install -g pnpm@latest yarn@latest
   changed_when: false
   tags:
   - node
