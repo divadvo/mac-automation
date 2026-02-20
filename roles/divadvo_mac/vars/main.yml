@@ -129,6 +129,7 @@ homebrew_cask_packages_test:
 node_version: "24"
 ruby_version: "4"
 bun_version: "1"
+rust_version: "1"
 python_versions:
   - "3.13"
   - "3.14"

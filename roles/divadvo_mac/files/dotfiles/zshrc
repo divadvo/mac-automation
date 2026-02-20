@@ -7,7 +7,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
 #ZOXIDE_CMD_OVERRIDE=cd
-plugins=(git fzf zoxide mise macos common-aliases cp docker uv)
+plugins=(git fzf zoxide mise macos common-aliases cp docker uv rust)
 # zsh-you-should-use zsh-autosuggestions
 source $ZSH/oh-my-zsh.sh
 
@@ -22,7 +22,7 @@ else
 fi
 
 # PATH
-export PATH=~/bin:~/pr/github/divadvo-scripts/mac:~/.local/bin:/opt/homebrew/opt/postgresql@18/bin:$PATH
+export PATH=~/bin:~/pr/github/divadvo-scripts/mac:~/.local/bin:~/.cargo/bin:/opt/homebrew/opt/postgresql@18/bin:$PATH
 
 # Functions
 function chpwd_ls { ls }
