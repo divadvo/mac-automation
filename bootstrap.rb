@@ -17,6 +17,7 @@ class MacBootstrap
   
   def initialize
     @quick = ARGV.delete('--quick')
+    @verbose = ARGV.delete('--verbose')
     @changes_made = false
     FileUtils.mkdir_p(STATE_DIR)
     log("🚀 MacBook Automation Bootstrap Script (Ruby)")
@@ -245,10 +246,11 @@ class MacBootstrap
   end
 
   def run_main_playbook
-    base_cmd = "uv run ./playbook.yml --ask-become-pass -v"
+    base_cmd = "uv run ./playbook.yml --ask-become-pass"
+    base_cmd += " -v" if @verbose || ask_yes_no("Enable verbose output?")
     full_cmd = base_cmd
     test_cmd = "#{base_cmd} -e testing_mode=true"
-    
+
     log("Commands available:")
     log("• Full mode: #{full_cmd}")
     log("• Testing mode: #{test_cmd}")
