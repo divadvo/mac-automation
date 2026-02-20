@@ -62,21 +62,25 @@
 
 - name: Check for newer runtime versions available via mise
   shell: |
-    outdated=""
+    echo "Runtime versions:"
+    has_updates=false
     for pair in "node:{{ node_version }}" "ruby:{{ ruby_version }}" "bun:{{ bun_version }}" "rust:{{ rust_version }}"; do
       tool="${pair%%:*}"
       configured="${pair#*:}"
-      latest=$(mise latest "$tool" 2>/dev/null || echo "unknown")
-      if [[ "$latest" != "unknown" && "$latest" != "$configured"* ]]; then
-        outdated="$outdated\n  - $tool: $configured -> $latest"
+      installed=$(mise current "$tool" 2>/dev/null || echo "?")
+      latest=$(mise latest "$tool" 2>/dev/null || echo "?")
+      if [[ "$latest" != "?" && "$latest" != "$configured"* ]]; then
+        echo "  ⬆ $tool: $configured ($installed) -> $latest"
+        has_updates=true
+      else
+        echo "  ✓ $tool: $configured ($installed)"
       fi
     done
-    if [[ -n "$outdated" ]]; then
-      echo "Newer versions available:$outdated"
+    if $has_updates; then
       echo "Update versions in roles/divadvo_mac/vars/main.yml"
     fi
   register: version_check
-  changed_when: "'Newer versions available' in version_check.stdout"
+  changed_when: "'⬆' in version_check.stdout"
   failed_when: false
   tags:
     - mise
