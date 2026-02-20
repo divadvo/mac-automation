@@ -16,6 +16,7 @@ class MacBootstrap
   SHELL_FILES = %w[~/.zprofile ~/.zshrc].map { |f| File.expand_path(f) }.freeze
   
   def initialize
+    @quick = ARGV.delete('--quick')
     @changes_made = false
     FileUtils.mkdir_p(STATE_DIR)
     log("🚀 MacBook Automation Bootstrap Script (Ruby)")
@@ -224,6 +225,7 @@ class MacBootstrap
   end
 
   def ask_yes_no(prompt, default: false)
+    return false if @quick
     suffix = default ? "(Y/n)" : "(y/N)"
     print "#{PREFIX} #{prompt} #{suffix}: "
     input = gets.chomp
@@ -238,7 +240,7 @@ class MacBootstrap
   end
 
   def handle_next_phases
-    run_main_playbook if ask_yes_no("Run Phase 2 (main playbook)?")
+    run_main_playbook if @quick || ask_yes_no("Run Phase 2 (main playbook)?")
     open_manual_setup if ask_yes_no("Open Phase 4 manual setup guide?", default: true)
   end
 
