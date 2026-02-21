@@ -68,6 +68,10 @@
       "Bash(sudo:*)"
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); short_dir=\"${cwd/#$HOME/~}\"; git_info=\"\"; if git -C \"$cwd\" rev-parse --git-dir > /dev/null 2>&1; then branch=$(git -C \"$cwd\" -c core.useReplaceRefs=false -c gc.auto=0 branch --show-current 2>/dev/null); [ -z \"$branch\" ] && branch=$(git -C \"$cwd\" -c core.useReplaceRefs=false -c gc.auto=0 rev-parse --short HEAD 2>/dev/null); if [ -n \"$branch\" ]; then if ! git -C \"$cwd\" -c core.useReplaceRefs=false -c gc.auto=0 diff --quiet 2>/dev/null || ! git -C \"$cwd\" -c core.useReplaceRefs=false -c gc.auto=0 diff --cached --quiet 2>/dev/null; then git_info=\" [$branch *]\"; else git_info=\" [$branch]\"; fi; fi; fi; echo \"${short_dir}${git_info}\""
+  },
   "autoUpdatesChannel": "stable",
   "showTurnDuration": true
 }
