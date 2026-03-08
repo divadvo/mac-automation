@@ -68,6 +68,11 @@
       "Bash(sudo:*)"
     ]
   },
+  "model": "opus",
   "autoUpdatesChannel": "stable",
-  "showTurnDuration": true
+  "showTurnDuration": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
+  }
 }
