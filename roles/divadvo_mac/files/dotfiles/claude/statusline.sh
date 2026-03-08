@@ -1,48 +1,29 @@
 #!/bin/sh
-# Claude Code status line script
-# Inspired by p10k prompt style: user@host dir [git branch] | model | context%
+# Claude Code status line: model + context window usage
 
 input=$(cat)
 
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
+size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty')
 
-# Shorten home directory to ~
-home="$HOME"
-short_cwd=$(echo "$cwd" | sed "s|^$home|~|")
+# Format token counts as "15.2k" style
+fmt_tokens() {
+  if [ "$1" -ge 1000000 ] 2>/dev/null; then
+    printf "%.1fM" "$(echo "$1 / 1000000" | bc -l)"
+  elif [ "$1" -ge 1000 ] 2>/dev/null; then
+    printf "%.1fk" "$(echo "$1 / 1000" | bc -l)"
+  else
+    printf "%s" "${1:-0}"
+  fi
+}
 
-# Git branch (skip optional locks)
-branch=""
-if git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
-  branch=$(git -C "$cwd" -c gc.auto=0 symbolic-ref --short HEAD 2>/dev/null || git -C "$cwd" -c gc.auto=0 rev-parse --short HEAD 2>/dev/null)
+parts=""
+[ -n "$model" ] && parts="$model"
+
+if [ -n "$input_tokens" ] && [ -n "$size" ]; then
+  parts="$parts | $(fmt_tokens "$input_tokens")/$(fmt_tokens "$size") tokens (${used_pct:-0}%)"
 fi
 
-# Build prompt segments
-user_host="$(whoami)@$(hostname -s)"
-
-if [ -n "$branch" ]; then
-  dir_part="$short_cwd [$branch]"
-else
-  dir_part="$short_cwd"
-fi
-
-if [ -n "$used_pct" ]; then
-  ctx_part="ctx: ${used_pct}%"
-else
-  ctx_part=""
-fi
-
-# Assemble with colors using printf
-# Cyan for user@host, yellow for dir/branch, blue for model, dim for context
-printf "\033[36m%s\033[0m \033[33m%s\033[0m" "$user_host" "$dir_part"
-
-if [ -n "$model" ]; then
-  printf " \033[34m%s\033[0m" "$model"
-fi
-
-if [ -n "$ctx_part" ]; then
-  printf " \033[2m%s\033[0m" "$ctx_part"
-fi
-
-printf "\n"
+printf "%s\n" "$parts"
