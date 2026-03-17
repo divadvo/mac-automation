@@ -28,16 +28,16 @@
   changed_when: priority_clone_result.rc == 0 and "already exists" not in priority_clone_result.stderr
   failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.stderr
 
-- name: Fetch list of recent repositories from GitHub
-  shell: gh repo list --limit {{ max_recent_repos }} --json nameWithOwner --jq '.[] | .nameWithOwner'
+- name: Fetch all repositories pushed after {{ repos_pushed_after }}
+  shell: gh repo list --limit 200 --json nameWithOwner,pushedAt --jq '.[] | select(.pushedAt > "{{ repos_pushed_after }}") | .nameWithOwner'
   register: recent_repos_result
 
 # Clone remaining recent repositories (excluding already cloned priority repos)
 - name: Clone recent repositories to {{ github_dir }}/ (excluding priority repos)
   command: gh repo clone {{ item }} {{ github_dir }}/{{ item.split('/')[1] }}
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
-  when: 
-    - recent_repos_result is defined 
+  when:
+    - recent_repos_result is defined
     - recent_repos_result.stdout_lines is defined
     - item not in priority_repos
   register: recent_clone_result
@@ -49,7 +49,7 @@
     msg: |
       Repository cloning complete!
       
-      Your repositories: {{ priority_repos | length }} priority + {{ (recent_repos_result.stdout_lines | default([]) | reject('in', priority_repos) | list) | length }} recent repos cloned to {{ github_dir }}/
+      Your repositories: {{ priority_repos | length }} priority + {{ (recent_repos_result.stdout_lines | default([]) | reject('in', priority_repos) | list) | length }} recently pushed repos cloned to {{ github_dir }}/
       
       Directory structure:
       - {{ github_dir }}/ - Your personal repositories

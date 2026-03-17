@@ -162,8 +162,8 @@ priority_repos:
   - "divadvo/divadvo-scripts"
   # Add your important repositories here
 
-# Maximum number of recent repositories to clone to recent directory
-max_recent_repos: 10
+# Clone all personal repositories pushed after this date
+repos_pushed_after: "2022-01-01"
 
 # Set to true to install only essential casks for faster testing
 testing_mode: false
