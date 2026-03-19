@@ -1,0 +1,8 @@
+{
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "claudeCode.preferredLocation": "panel",
+    "claudeCode.useTerminal": true,
+    "terminal.integrated.scrollback": 50000,
+    "security.workspace.trust.untrustedFiles": "open",
+    "python.terminal.activateEnvironment": false
+}

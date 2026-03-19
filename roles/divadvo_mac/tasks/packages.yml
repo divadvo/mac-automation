@@ -52,6 +52,14 @@
   tags:
   - mise
 
+- name: Configure mise to disable Python venv auto-activation (using uv instead)
+  command: mise settings set python.uv_venv_auto false
+  register: mise_venv_setting
+  changed_when: "'Setting has been updated' in mise_venv_setting.stdout or 'Setting changed' in mise_venv_setting.stdout"
+  failed_when: false
+  tags:
+  - mise
+
 - name: Check currently installed mise tools
   command: mise list --current
   register: mise_current_tools

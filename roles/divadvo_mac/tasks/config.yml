@@ -27,6 +27,15 @@
   tags:
   - dotfiles
 
+- name: Create symlink for VSCode settings
+  file:
+    src: '{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/config/vscode/settings.json'
+    path: '{{ ansible_env.HOME }}/Library/Application Support/Code/User/settings.json'
+    state: link
+    force: yes
+  tags:
+  - dotfiles
+
 - name: Template git configuration file
   template:
     src: config/git/config.j2
