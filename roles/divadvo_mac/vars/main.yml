@@ -11,6 +11,9 @@ homebrew_packages:
   - uv
   - ruby-build
   - just
+
+  # Shells
+  - fish
   
   # Network Tools
   - wget

@@ -4,6 +4,7 @@
     state: directory
   loop:
   - config/git
+  - config/fish
   - claude
   tags:
   - dotfiles
@@ -18,6 +19,7 @@
   - config/ripgreprc
   - config/git/attributes
   - config/git/ignore
+  - config/fish/config.fish
   - ssh/config
   - zprofile
   - claude/settings.json
