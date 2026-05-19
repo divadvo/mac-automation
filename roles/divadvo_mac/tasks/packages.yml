@@ -239,9 +239,9 @@
   failed_when: false
   become: false
 
-- name: Start and enable PostgreSQL database service
-  shell: brew services start postgresql@{{ postgresql_version }}
-  register: postgres_start
-  changed_when: "'Successfully started' in postgres_start.stdout"
-  when: "'started' not in postgres_status.stdout"
-  become: false
+# - name: Start and enable PostgreSQL database service
+#   shell: brew services start postgresql@{{ postgresql_version }}
+#   register: postgres_start
+#   changed_when: "'Successfully started' in postgres_start.stdout"
+#   when: "'started' not in postgres_status.stdout"
+#   become: false
