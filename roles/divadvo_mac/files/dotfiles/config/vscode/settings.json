@@ -5,5 +5,6 @@
     "terminal.integrated.scrollback": 50000,
     "security.workspace.trust.untrustedFiles": "open",
     "python.terminal.activateEnvironment": false,
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+    "workbench.browser.openLocalhostLinks": false
 }
