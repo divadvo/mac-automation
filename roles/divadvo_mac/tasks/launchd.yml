@@ -1,0 +1,36 @@
+- name: Ensure ~/Library/LaunchAgents exists
+  file:
+    path: '{{ ansible_env.HOME }}/Library/LaunchAgents'
+    state: directory
+  tags:
+  - launchd
+
+- name: Ensure ~/Library/Logs exists
+  file:
+    path: '{{ ansible_env.HOME }}/Library/Logs'
+    state: directory
+  tags:
+  - launchd
+
+- name: Install d-mac-upgrade LaunchAgent
+  template:
+    src: launchd/com.divadvo.mac-upgrade.plist.j2
+    dest: '{{ ansible_env.HOME }}/Library/LaunchAgents/com.divadvo.mac-upgrade.plist'
+    mode: '0644'
+  register: mac_upgrade_plist
+  tags:
+  - launchd
+
+- name: Unload d-mac-upgrade LaunchAgent (if already loaded)
+  command: launchctl bootout gui/{{ ansible_user_uid }}/com.divadvo.mac-upgrade
+  when: mac_upgrade_plist.changed
+  failed_when: false
+  changed_when: false
+  tags:
+  - launchd
+
+- name: Load d-mac-upgrade LaunchAgent
+  command: launchctl bootstrap gui/{{ ansible_user_uid }} {{ ansible_env.HOME }}/Library/LaunchAgents/com.divadvo.mac-upgrade.plist
+  when: mac_upgrade_plist.changed
+  tags:
+  - launchd

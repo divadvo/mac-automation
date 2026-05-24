@@ -24,6 +24,12 @@
   - dotfiles
   - config
 
+- name: Install LaunchAgents
+  import_tasks: launchd.yml
+  tags:
+  - launchd
+  - config
+
 - name: Clone repositories
   import_tasks: repositories.yml
   tags:
