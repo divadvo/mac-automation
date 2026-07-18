@@ -116,6 +116,11 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - Sandbox directory provides space for experimental projects
 - Repository cloning can fail if local modifications exist (force=no)
 
+### Ubuntu VPS parity (`ubuntu-setup.sh`)
+- `ubuntu-setup.sh` (repo root) is a single self-contained bash script that reproduces this macOS setup on a fresh Ubuntu server (dev tools, mise runtimes, uv/Python, zsh + oh-my-zsh, dotfiles). It mirrors `packages.yml`, `config.yml`, `setup.yml`, and `repositories.yml`. GUI casks, `macos.yml` defaults, and LaunchAgents are intentionally omitted (no server equivalent).
+- **IMPORTANT: keep it in sync.** When you change packages, tool/runtime versions, `uv_tools`, `ohmyzsh_custom_plugins`, or the repo dotfiles (in `vars/main.yml`, `packages.yml`, `config.yml`, or `files/dotfiles/`), update `ubuntu-setup.sh` to match.
+- The `zshrc` and `zprofile` dotfiles are **OS-aware** (mac-only lines guarded behind `$OSTYPE == darwin*`, with Linux equivalents). They are the single source of truth for both platforms — any edit must keep working on both macOS and Ubuntu.
+
 ### Testing and Development
 - Step mode (`--step`) available for debugging task execution
 - IMPORTANT: Please don't write or execute tests unless explicitly asked. I'll test myself manually with my own setup.
