@@ -69,10 +69,35 @@
     ]
   },
   "model": "opus",
-  "autoUpdatesChannel": "stable",
-  "showTurnDuration": true,
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
-  }
+  },
+  "enabledPlugins": {
+    "cloudflare@cloudflare": true,
+    "caveman@caveman": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "juliusbrussee/caveman"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "autoUpdatesChannel": "stable",
+  "showTurnDuration": true
 }

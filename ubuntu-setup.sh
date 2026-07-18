@@ -88,9 +88,21 @@ try() {
   return 0
 }
 
-# Prompt for identity vars if unset. Interactive only; in non-interactive runs
-# (e.g. curl | bash) these must be provided via env, or we fall back / abort.
+# Resolve the git identity, in order of preference: explicit env vars, an
+# already-configured git identity (so reruns don't re-prompt), then an
+# interactive prompt. Non-interactive runs (e.g. curl | bash) must supply the
+# values via env or a prior config, otherwise we fall back / abort.
 prompt_identity() {
+  # Reuse an existing identity from a previous run (e.g. ~/.config/git/config).
+  if command -v git >/dev/null 2>&1; then
+    [[ -z "$GIT_USER_NAME"  ]] && GIT_USER_NAME="$(git config --get user.name 2>/dev/null || true)"
+    [[ -z "$GIT_USER_EMAIL" ]] && GIT_USER_EMAIL="$(git config --get user.email 2>/dev/null || true)"
+  fi
+  if [[ -n "$GIT_USER_NAME" && -n "$GIT_USER_EMAIL" ]]; then
+    ok "using existing git identity ($GIT_USER_NAME <$GIT_USER_EMAIL>)"
+    return 0
+  fi
+
   if [[ -z "$GIT_USER_NAME" ]]; then
     [[ -t 0 ]] && read -r -p "    Git user name: " GIT_USER_NAME || true
     [[ -z "$GIT_USER_NAME" ]] && GIT_USER_NAME="$(whoami)"
