@@ -1,0 +1,108 @@
+# Install Claude Code extensions user-wide (MCP servers, marketplace plugins,
+# and related global CLIs). Everything here targets --scope user so it is
+# available in every repository. Kept in sync with ubuntu-setup.sh.
+
+- name: Check that the Claude Code CLI is available
+  command: which claude
+  register: claude_bin
+  changed_when: false
+  failed_when: false
+  tags:
+  - claude
+
+- name: Warn if Claude Code CLI is missing (skipping extensions)
+  debug:
+    msg: "claude CLI not found on PATH - skipping Claude Code extension setup"
+  when: claude_bin.rc != 0
+  tags:
+  - claude
+
+# --- MCP servers -------------------------------------------------------------
+
+- name: List currently configured MCP servers
+  command: claude mcp list
+  register: claude_mcp_list
+  changed_when: false
+  failed_when: false
+  when: claude_bin.rc == 0
+  tags:
+  - claude
+
+- name: Add MCP servers (user scope)
+  # HTTP servers -> "... --transport http <name> <url>"
+  # stdio servers -> "... <name> -- <command argv...>"
+  command:
+    argv: "{{ ['claude', 'mcp', 'add', '--scope', 'user'] + ((['--transport', item.transport, item.name, item.url]) if item.transport == 'http' else ([item.name, '--'] + (item.command | default([])))) }}"
+  loop: "{{ claude_mcp_servers }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - claude_bin.rc == 0
+    - item.name not in (claude_mcp_list.stdout | default(''))
+  register: claude_mcp_add
+  changed_when: claude_mcp_add.rc == 0
+  failed_when: false
+  tags:
+  - claude
+
+# --- Marketplace plugins -----------------------------------------------------
+
+- name: List configured plugin marketplaces
+  command: claude plugin marketplace list
+  register: claude_marketplace_list
+  changed_when: false
+  failed_when: false
+  when: claude_bin.rc == 0
+  tags:
+  - claude
+
+- name: Register plugin marketplaces
+  command: claude plugin marketplace add {{ item.source }}
+  loop: "{{ claude_plugins }}"
+  loop_control:
+    label: "{{ item.marketplace }}"
+  when:
+    - claude_bin.rc == 0
+    - item.marketplace not in (claude_marketplace_list.stdout | default(''))
+  register: claude_marketplace_add
+  changed_when: claude_marketplace_add.rc == 0
+  failed_when: false
+  tags:
+  - claude
+
+- name: List installed plugins
+  command: claude plugin list
+  register: claude_plugin_list
+  changed_when: false
+  failed_when: false
+  when: claude_bin.rc == 0
+  tags:
+  - claude
+
+- name: Install plugins (user scope)
+  command: claude plugin install {{ item.name }}@{{ item.marketplace }} --scope user
+  loop: "{{ claude_plugins }}"
+  loop_control:
+    label: "{{ item.name }}@{{ item.marketplace }}"
+  when:
+    - claude_bin.rc == 0
+    - item.name not in (claude_plugin_list.stdout | default(''))
+  register: claude_plugin_install
+  changed_when: claude_plugin_install.rc == 0
+  failed_when: false
+  tags:
+  - claude
+
+# --- Global npm CLIs (openspec, etc.) ----------------------------------------
+
+- name: Install Claude-workflow global npm CLIs (via mise node)
+  command: mise x -- npm install -g {{ item }}
+  loop: "{{ claude_global_npm_tools }}"
+  loop_control:
+    label: "{{ item }}"
+  when: claude_bin.rc == 0
+  register: claude_npm_install
+  changed_when: "'added' in claude_npm_install.stdout or 'changed' in claude_npm_install.stdout or 'updated' in claude_npm_install.stdout"
+  failed_when: false
+  tags:
+  - claude

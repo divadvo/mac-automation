@@ -24,6 +24,11 @@
   - dotfiles
   - config
 
+- name: Install Claude Code extensions (MCP, plugins, skills)
+  import_tasks: claude.yml
+  tags:
+  - claude
+
 - name: Install LaunchAgents
   import_tasks: launchd.yml
   tags:

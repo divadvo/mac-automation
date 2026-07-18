@@ -149,6 +149,28 @@ ohmyzsh_custom_plugins:
   - { name: zsh-you-should-use, repo: "https://github.com/MichaelAquilina/zsh-you-should-use.git" }
   - { name: pnpm, repo: "https://github.com/ntnyq/omz-plugin-pnpm.git" }
 
+# Claude Code extensions — installed user-wide (available in every repo).
+# See roles/divadvo_mac/tasks/claude.yml. Keep in sync with ubuntu-setup.sh.
+#
+# MCP servers. HTTP servers set `url:`; stdio servers set `command:` (argv list).
+claude_mcp_servers:
+  - { name: context7, transport: http, url: "https://mcp.context7.com/mcp" }
+  - { name: turbostarter, transport: http, url: "https://www.turbostarter.dev/mcp" }
+  - { name: playwright, transport: stdio, command: ["npx", "-y", "@playwright/mcp@latest"] }
+  - { name: chrome-devtools, transport: stdio, command: ["npx", "-y", "chrome-devtools-mcp@latest"] }
+  - { name: shadcn, transport: stdio, command: ["npx", "-y", "shadcn@latest", "mcp"] }
+
+# Plugins installed from marketplaces. `source` is the marketplace to register
+# (github repo / url); `marketplace` is its declared name for the install id.
+claude_plugins:
+  - { name: cloudflare, marketplace: cloudflare, source: "cloudflare/skills" }
+  - { name: caveman, marketplace: caveman, source: "juliusbrussee/caveman" }
+  - { name: ponytail, marketplace: ponytail, source: "DietrichGebert/ponytail" }
+
+# Global npm CLIs related to the Claude workflow (installed via mise's node/npm).
+claude_global_npm_tools:
+  - "@fission-ai/openspec@latest"
+
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically
 user_email: "your@email.com"
