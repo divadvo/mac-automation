@@ -60,6 +60,14 @@
   tags:
   - mise
 
+- name: Configure mise to use precompiled Ruby binaries (skip source compilation)
+  command: mise settings set ruby.compile false
+  register: mise_ruby_compile_setting
+  changed_when: "'Setting has been updated' in mise_ruby_compile_setting.stdout or 'Setting changed' in mise_ruby_compile_setting.stdout"
+  failed_when: false
+  tags:
+  - mise
+
 - name: Check currently installed mise tools
   command: mise list --current
   register: mise_current_tools

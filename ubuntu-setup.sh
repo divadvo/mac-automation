@@ -49,6 +49,24 @@ OMZ_PLUGINS=(
   "pnpm|https://github.com/ntnyq/omz-plugin-pnpm.git"
 )
 
+# Claude Code extensions, installed user-wide (mirrors tasks/claude.yml).
+# MCP servers: "name|http|<url>"  OR  "name|stdio|<command with args>"
+CLAUDE_MCP_SERVERS=(
+  "context7|http|https://mcp.context7.com/mcp"
+  "turbostarter|http|https://www.turbostarter.dev/mcp"
+  "playwright|stdio|npx -y @playwright/mcp@latest"
+  "chrome-devtools|stdio|npx -y chrome-devtools-mcp@latest"
+  "shadcn|stdio|npx -y shadcn@latest mcp"
+)
+# Marketplace plugins: "plugin@marketplace|marketplace-source"
+CLAUDE_PLUGINS=(
+  "cloudflare@cloudflare|cloudflare/skills"
+  "caveman@caveman|juliusbrussee/caveman"
+  "ponytail@ponytail|DietrichGebert/ponytail"
+)
+# Global npm CLIs for the Claude workflow (installed via mise node).
+CLAUDE_NPM_TOOLS=(@fission-ai/openspec@latest)
+
 # Repositories (mirrors repositories.yml)
 PRIORITY_REPOS=(divadvo/divadvo-scripts)
 REPOS_PUSHED_AFTER="2022-01-01"
@@ -100,6 +118,8 @@ user_phase() {
   install_uv
   install_ohmyzsh
   install_nvchad
+  install_claude_cli
+  install_claude_extensions
   fetch_repo
   link_dotfiles
   setup_ssh_key
@@ -120,6 +140,9 @@ install_mise() {
   # mise manages node/ruby/bun/rust; uv manages Python (mise Python disabled).
   try mise settings set disable_tools python
   try mise settings set python.uv_venv_auto false
+  # Download precompiled Ruby instead of compiling from source (falls back to
+  # source build if no binary is available). Becomes mise's default in 2026.8.0.
+  try mise settings set ruby.compile false
 }
 
 install_runtimes() {
@@ -183,6 +206,67 @@ install_ohmyzsh() {
 install_nvchad() {
   log "Installing NVChad (Neovim config)"
   clone_if_missing https://github.com/NvChad/starter "$HOME/.config/nvim"
+}
+
+# The claude-code CLI (macOS installs it via the claude-code cask; here we use
+# the official install script). Required before install_claude_extensions.
+install_claude_cli() {
+  log "Installing Claude Code CLI"
+  if command -v claude >/dev/null 2>&1; then
+    ok "claude already installed"
+  else
+    curl -fsSL https://claude.ai/install.sh | bash
+  fi
+  export PATH="$HOME/.local/bin:$PATH"
+}
+
+# Install Claude Code extensions user-wide: MCP servers, marketplace plugins,
+# and related global npm CLIs. Mirrors roles/divadvo_mac/tasks/claude.yml.
+install_claude_extensions() {
+  if ! command -v claude >/dev/null 2>&1; then
+    warn "claude CLI not found; skipping Claude Code extensions"
+    return
+  fi
+  log "Configuring Claude Code extensions (user scope)"
+
+  # --- MCP servers (name|http|<url>  OR  name|stdio|<command with args>) ---
+  local existing entry name transport rest
+  existing="$(claude mcp list 2>/dev/null || true)"
+  for entry in "${CLAUDE_MCP_SERVERS[@]}"; do
+    name="${entry%%|*}"; rest="${entry#*|}"
+    transport="${rest%%|*}"; rest="${rest#*|}"
+    if grep -qF "$name" <<<"$existing"; then
+      ok "mcp $name already configured"; continue
+    fi
+    if [[ "$transport" == "http" ]]; then
+      try claude mcp add --scope user --transport http "$name" "$rest"
+    else
+      # stdio: split the command line into argv on whitespace (intentional).
+      # shellcheck disable=SC2086
+      try claude mcp add --scope user "$name" -- $rest
+    fi
+  done
+
+  # --- Marketplace plugins (plugin@marketplace|marketplace-source) ---
+  local marketplaces installed spec plugin_id source pname mkt
+  marketplaces="$(claude plugin marketplace list 2>/dev/null || true)"
+  installed="$(claude plugin list 2>/dev/null || true)"
+  for spec in "${CLAUDE_PLUGINS[@]}"; do
+    plugin_id="${spec%%|*}"; source="${spec#*|}"
+    pname="${plugin_id%@*}"; mkt="${plugin_id#*@}"
+    grep -qF "$mkt" <<<"$marketplaces" || try claude plugin marketplace add "$source"
+    if grep -qF "$pname" <<<"$installed"; then
+      ok "plugin $plugin_id already installed"
+    else
+      try claude plugin install "$plugin_id" --scope user
+    fi
+  done
+
+  # --- Global npm CLIs (openspec, etc.) via mise node ---
+  local tool
+  for tool in "${CLAUDE_NPM_TOOLS[@]}"; do
+    try mise x -- npm install -g "$tool"
+  done
 }
 
 # Ensure this repo is available locally so we can symlink its dotfiles.
