@@ -25,17 +25,18 @@ set -euo pipefail
 # Config (edit these, or override via env vars) — mirrors roles/divadvo_mac/vars/main.yml
 # ----------------------------------------------------------------------------
 REPO_URL="${REPO_URL:-https://github.com/divadvo/mac-automation.git}"
+REPO_BRANCH="${REPO_BRANCH:-main}"
 REPO_DIR="${REPO_DIR:-$HOME/pr/github/mac-automation}"
 
+# Identity — leave blank to be prompted at runtime (or pass via env).
 GIT_USER_NAME="${GIT_USER_NAME:-}"
-GIT_USER_EMAIL="${GIT_USER_EMAIL:-claude.ai@davidstepanov.com}"
+GIT_USER_EMAIL="${GIT_USER_EMAIL:-}"
 
 NODE_VERSION="${NODE_VERSION:-24}"
 RUBY_VERSION="${RUBY_VERSION:-4}"
 BUN_VERSION="${BUN_VERSION:-1}"
 RUST_VERSION="${RUST_VERSION:-1}"
 PYTHON_VERSIONS=(3.13 3.14)
-POSTGRES_VERSION="${POSTGRES_VERSION:-18}"
 UV_TOOLS=(build ruff)
 
 # Modern CLI tools not (reliably) in apt — installed via the mise registry.
@@ -67,6 +68,19 @@ try() {
   if "$@"; then return 0; fi
   warn "step failed (continuing): $*"
   return 0
+}
+
+# Prompt for identity vars if unset. Interactive only; in non-interactive runs
+# (e.g. curl | bash) these must be provided via env, or we fall back / abort.
+prompt_identity() {
+  if [[ -z "$GIT_USER_NAME" ]]; then
+    [[ -t 0 ]] && read -r -p "    Git user name: " GIT_USER_NAME || true
+    [[ -z "$GIT_USER_NAME" ]] && GIT_USER_NAME="$(whoami)"
+  fi
+  if [[ -z "$GIT_USER_EMAIL" ]]; then
+    [[ -t 0 ]] && read -r -p "    Git email (used for git config + SSH key): " GIT_USER_EMAIL || true
+    [[ -z "$GIT_USER_EMAIL" ]] && die "GIT_USER_EMAIL is required — set it at the top of this script or pass GIT_USER_EMAIL=... "
+  fi
 }
 
 # ----------------------------------------------------------------------------
@@ -180,8 +194,12 @@ fetch_repo() {
     ok "using repo checkout at $REPO_DIR"
     return
   fi
-  log "Cloning $REPO_URL"
-  clone_if_missing "$REPO_URL" "$REPO_DIR"
+  log "Cloning $REPO_URL ($REPO_BRANCH)"
+  if [[ -d "$REPO_DIR/.git" ]]; then
+    ok "repo already cloned at $REPO_DIR"
+  else
+    git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_DIR"
+  fi
 }
 
 link_dotfiles() {
@@ -320,7 +338,6 @@ system_phase() {
   try_apt_install just
 
   install_github_cli
-  install_postgres
 
   # Match macOS binary names for apt tools that ship under different names.
   make_bin_shims
@@ -346,22 +363,6 @@ install_github_cli() {
     | $SUDO tee /etc/apt/sources.list.d/github-cli.list >/dev/null
   $SUDO apt-get update -y
   $SUDO apt-get install -y gh
-}
-
-install_postgres() {
-  if command -v psql >/dev/null 2>&1; then ok "postgresql already installed"; return; fi
-  log "Installing PostgreSQL ${POSTGRES_VERSION} (PGDG). Service is NOT auto-started (matches macOS)."
-  local keyring=/etc/apt/keyrings/pgdg.gpg
-  $SUDO mkdir -p /etc/apt/keyrings
-  if curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | $SUDO gpg --dearmor -o "$keyring" 2>/dev/null; then
-    echo "deb [signed-by=$keyring] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" \
-      | $SUDO tee /etc/apt/sources.list.d/pgdg.list >/dev/null
-    $SUDO apt-get update -y || true
-    try_apt_install "postgresql-${POSTGRES_VERSION}"
-  else
-    warn "could not add PGDG repo; falling back to distro postgresql"
-    try_apt_install postgresql
-  fi
 }
 
 make_bin_shims() {
@@ -426,6 +427,7 @@ main() {
   command -v curl >/dev/null 2>&1 || die "curl is required (apt-get install -y curl)"
   command -v git  >/dev/null 2>&1 || true  # git installed in system_phase
 
+  prompt_identity
   determine_target_user
   log "System: $TARGET_USER will own the dev environment (home: $TARGET_HOME)"
 
@@ -449,11 +451,10 @@ main() {
     install -o "$TARGET_USER" -g "$TARGET_USER" -m 0755 "$script_path" "$user_copy"
     # Copy config-relevant env through the sudo boundary.
     sudo -u "$TARGET_USER" -H env _USER_PHASE=1 \
-      REPO_URL="$REPO_URL" \
+      REPO_URL="$REPO_URL" REPO_BRANCH="$REPO_BRANCH" \
       GIT_USER_NAME="$GIT_USER_NAME" GIT_USER_EMAIL="$GIT_USER_EMAIL" \
       NODE_VERSION="$NODE_VERSION" RUBY_VERSION="$RUBY_VERSION" \
       BUN_VERSION="$BUN_VERSION" RUST_VERSION="$RUST_VERSION" \
-      POSTGRES_VERSION="$POSTGRES_VERSION" \
       bash "$user_copy"
   else
     user_phase
