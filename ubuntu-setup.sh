@@ -81,6 +81,7 @@ prompt_identity() {
     [[ -t 0 ]] && read -r -p "    Git email (used for git config + SSH key): " GIT_USER_EMAIL || true
     [[ -z "$GIT_USER_EMAIL" ]] && die "GIT_USER_EMAIL is required — set it at the top of this script or pass GIT_USER_EMAIL=... "
   fi
+  return 0  # don't let a false [[ ]] test above make the function return non-zero under `set -e`
 }
 
 # ----------------------------------------------------------------------------
