@@ -45,7 +45,7 @@ homebrew_packages:
   - zoxide
   
   # # Terminal Multiplexers
-  # - tmux
+  - tmux
   # - zellij
   
   # # Help & Documentation

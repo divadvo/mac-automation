@@ -318,11 +318,12 @@ link_dotfiles() {
     claude/settings.json \
     claude/statusline.sh \
     hushlogin \
-    zshrc
+    zshrc \
+    tmux.conf
   do
     ln -sfn "$df/$rel" "$HOME/.$rel"
   done
-  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin"
+  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin, tmux.conf"
 
   # Git config is templated in Ansible (config.j2). Render name/email here.
   render_git_config
@@ -421,6 +422,7 @@ system_phase() {
     git git-lfs zsh fish
     neovim
     ripgrep fd-find bat lsd git-delta tree fzf zoxide
+    tmux
     htop
     wget curl rsync jq
     redis-server
