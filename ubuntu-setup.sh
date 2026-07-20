@@ -40,7 +40,7 @@ PYTHON_VERSIONS=(3.13 3.14)
 UV_TOOLS=(build ruff)
 
 # Modern CLI tools not (reliably) in apt — installed via the mise registry.
-MISE_EXTRA_TOOLS=(xh bottom tlrc cheat yt-dlp)
+MISE_EXTRA_TOOLS=(xh bottom tlrc cheat yt-dlp zellij)
 
 # oh-my-zsh custom plugins (name|repo)
 OMZ_PLUGINS=(
