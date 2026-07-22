@@ -27,9 +27,9 @@ def render(value, scalars):
 
 
 def brew(*args):
-    out = subprocess.run(["brew", "list", *args], capture_output=True, text=True)
+    out = subprocess.run(["brew", *args], capture_output=True, text=True)
     if out.returncode != 0:
-        sys.exit(f"brew list {' '.join(args)} failed:\n{out.stderr}")
+        sys.exit(f"brew {' '.join(args)} failed:\n{out.stderr}")
     return set(out.stdout.split())
 
 
@@ -53,9 +53,9 @@ def main():
     formulae = {render(p, scalars) for p in data["homebrew_packages"]}
     casks = {render(p, scalars) for p in data["homebrew_cask_packages"]}
 
-    report("FORMULAE", formulae, brew("--formula"),
-           footer="Note: 'Extra' formulae include auto-installed dependencies (expected).")
-    report("CASKS", casks, brew("--cask"))
+    # leaves --installed-on-request: only user-requested formulae, no dependencies
+    report("FORMULAE", formulae, brew("leaves", "--installed-on-request"))
+    report("CASKS", casks, brew("list", "--cask"))
 
 
 if __name__ == "__main__":
