@@ -115,7 +115,7 @@ homebrew_cask_packages:
   # AI Tools
   - chatgpt
   - claude
-  - claude-code
+  - claude-code@latest
   
   # Fonts
   #- font-meslo-lg-nerd-font
