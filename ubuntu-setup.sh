@@ -10,7 +10,8 @@
 #
 # It installs CLI packages, mise runtimes (node/ruby/bun/rust), uv + Python,
 # corepack (pnpm/yarn), oh-my-zsh + Powerlevel10k + plugins, NVChad, clones this
-# repo and symlinks its dotfiles, generates an SSH key, and clones your repos.
+# repo and symlinks its dotfiles, generates an SSH key, and optionally clones
+# your personal repos.
 #
 # GUI apps, macOS `defaults`, LaunchAgents, iTerm2 colors etc. are intentionally
 # skipped — they have no server equivalent.
@@ -37,10 +38,10 @@ RUBY_VERSION="${RUBY_VERSION:-4}"
 BUN_VERSION="${BUN_VERSION:-1}"
 RUST_VERSION="${RUST_VERSION:-1}"
 PYTHON_VERSIONS=(3.13 3.14)
-UV_TOOLS=(build ruff)
+UV_TOOLS=(build ruff b2)
 
 # Modern CLI tools not (reliably) in apt — installed via the mise registry.
-MISE_EXTRA_TOOLS=(xh bottom tlrc cheat yt-dlp zellij)
+MISE_EXTRA_TOOLS=(xh bottom tlrc cheat yt-dlp zellij opencode flyctl gum hcloud miniserve rclone typst)
 
 # oh-my-zsh custom plugins (name|repo)
 OMZ_PLUGINS=(
@@ -88,30 +89,44 @@ try() {
   return 0
 }
 
-# Resolve the git identity, in order of preference: explicit env vars, an
-# already-configured git identity (so reruns don't re-prompt), then an
-# interactive prompt. Non-interactive runs (e.g. curl | bash) must supply the
-# values via env or a prior config, otherwise we fall back / abort.
-prompt_identity() {
-  # Reuse an existing identity from a previous run (e.g. ~/.config/git/config).
-  if command -v git >/dev/null 2>&1; then
-    [[ -z "$GIT_USER_NAME"  ]] && GIT_USER_NAME="$(git config --get user.name 2>/dev/null || true)"
-    [[ -z "$GIT_USER_EMAIL" ]] && GIT_USER_EMAIL="$(git config --get user.email 2>/dev/null || true)"
+tty_available() {
+  [[ -r /dev/tty && -w /dev/tty ]] && (: </dev/tty) 2>/dev/null
+}
+
+# Ask a yes/no question using the controlling terminal. Enter and
+# non-interactive runs both safely default to No.
+confirm_no() {
+  local prompt="$1" reply=""
+  if ! tty_available; then
+    info "$prompt [y/N] (no terminal; defaulting to No)"
+    return 1
   fi
-  if [[ -n "$GIT_USER_NAME" && -n "$GIT_USER_EMAIL" ]]; then
-    ok "using existing git identity ($GIT_USER_NAME <$GIT_USER_EMAIL>)"
-    return 0
+  read -r -p "    $prompt [y/N] " reply </dev/tty || return 1
+  [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
+}
+
+prompt_required() {
+  local var_name="$1" label="$2" value=""
+  while [[ -z "$value" ]]; do
+    read -r -p "    $label: " value </dev/tty || die "could not read $var_name from the terminal"
+    [[ -n "$value" ]] || warn "$label cannot be empty"
+  done
+  printf -v "$var_name" '%s' "$value"
+}
+
+# Explicit env vars bypass prompts. Every missing value must be entered on the
+# controlling terminal, including when the script itself is piped to bash.
+prompt_identity() {
+  local missing=()
+  [[ -z "$GIT_USER_NAME" ]] && missing+=(GIT_USER_NAME)
+  [[ -z "$GIT_USER_EMAIL" ]] && missing+=(GIT_USER_EMAIL)
+  if (( ${#missing[@]} > 0 )) && ! tty_available; then
+    die "missing required identity: ${missing[*]}. Run interactively or provide the missing environment variable(s)."
   fi
 
-  if [[ -z "$GIT_USER_NAME" ]]; then
-    [[ -t 0 ]] && read -r -p "    Git user name: " GIT_USER_NAME || true
-    [[ -z "$GIT_USER_NAME" ]] && GIT_USER_NAME="$(whoami)"
-  fi
-  if [[ -z "$GIT_USER_EMAIL" ]]; then
-    [[ -t 0 ]] && read -r -p "    Git email (used for git config + SSH key): " GIT_USER_EMAIL || true
-    [[ -z "$GIT_USER_EMAIL" ]] && die "GIT_USER_EMAIL is required — set it at the top of this script or pass GIT_USER_EMAIL=... "
-  fi
-  return 0  # don't let a false [[ ]] test above make the function return non-zero under `set -e`
+  [[ -n "$GIT_USER_NAME" ]] || prompt_required GIT_USER_NAME "Git user name"
+  [[ -n "$GIT_USER_EMAIL" ]] || prompt_required GIT_USER_EMAIL "Git email (used for git config + SSH key)"
+  ok "using git identity ($GIT_USER_NAME <$GIT_USER_EMAIL>)"
 }
 
 # ----------------------------------------------------------------------------
@@ -127,6 +142,7 @@ user_phase() {
   install_mise
   install_runtimes
   install_extra_tools
+  install_render_cli
   install_uv
   install_ohmyzsh
   install_nvchad
@@ -134,7 +150,9 @@ user_phase() {
   install_claude_extensions
   fetch_repo
   link_dotfiles
-  setup_ssh_key
+  ensure_ssh_key
+  configure_github_auth
+  upload_ssh_key
   clone_repositories
 
   log "User setup complete for $(whoami)"
@@ -173,6 +191,21 @@ install_extra_tools() {
     try mise use -g "$t"
   done
   mise reshim || true
+}
+
+install_render_cli() {
+  log "Installing Render CLI"
+  local render_bin="$HOME/.render/bin/render"
+  if command -v render >/dev/null 2>&1; then
+    ok "render already installed"
+    return
+  fi
+  if [[ ! -x "$render_bin" ]]; then
+    curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh
+  fi
+  [[ -x "$render_bin" ]] || { warn "Render CLI installer did not create $render_bin"; return; }
+  ln -sfn "$render_bin" "$HOME/.local/bin/render"
+  ok "render linked into ~/.local/bin"
 }
 
 install_uv() {
@@ -332,14 +365,13 @@ link_dotfiles() {
 render_git_config() {
   local tpl="$REPO_DIR/roles/divadvo_mac/templates/config/git/config.j2"
   [[ -f "$tpl" ]] || { warn "git config template missing, skipping"; return; }
-  [[ -n "$GIT_USER_NAME" ]] || GIT_USER_NAME="$(whoami)"
   sed -e "s/{{ user_name }}/${GIT_USER_NAME}/g" \
       -e "s/{{ user_email }}/${GIT_USER_EMAIL}/g" \
       "$tpl" > "$HOME/.config/git/config"
   ok "wrote ~/.config/git/config ($GIT_USER_NAME <$GIT_USER_EMAIL>)"
 }
 
-setup_ssh_key() {
+ensure_ssh_key() {
   log "Setting up SSH key"
   local key="$HOME/.ssh/id_ed25519"
   if [[ ! -f "$key" ]]; then
@@ -349,7 +381,34 @@ setup_ssh_key() {
   else
     ok "SSH key already exists"
   fi
+}
 
+configure_github_auth() {
+  if ! command -v gh >/dev/null 2>&1; then
+    warn "gh is not installed — skipping GitHub authentication"
+    return
+  fi
+  if gh auth status >/dev/null 2>&1; then
+    ok "GitHub CLI already authenticated"
+    return
+  fi
+
+  if ! confirm_no "Log in to GitHub CLI now?"; then
+    warn "GitHub CLI login skipped"
+    return
+  fi
+
+  log "Authenticating GitHub CLI"
+  if gh auth login --hostname github.com --git-protocol ssh --web </dev/tty \
+      && gh auth status >/dev/null 2>&1; then
+    ok "GitHub CLI authenticated"
+  else
+    warn "GitHub CLI authentication failed; continuing without GitHub access"
+  fi
+}
+
+upload_ssh_key() {
+  local key="$HOME/.ssh/id_ed25519"
   if gh auth status >/dev/null 2>&1; then
     local title; title="VPS - $(hostname) - $(date '+%Y-%m-%d')"
     if gh ssh-key add "$key.pub" --title "$title" 2>/tmp/gh_ssh_err; then
@@ -363,17 +422,22 @@ setup_ssh_key() {
   else
     warn "gh not authenticated — add this public key to GitHub manually:"
     printf '%s\n' "${BOLD}$(cat "$key.pub")${RST}"
-    info "then run: gh auth login   (and re-run this script to clone repos)"
+    info "then run: gh auth login"
   fi
 }
 
 clone_repositories() {
-  log "Setting up ~/pr and cloning repositories"
+  log "Setting up project directories"
   mkdir -p "$HOME/pr/github" "$HOME/pr/github-other" "$HOME/pr/sandbox"
 
+  if ! confirm_no "Clone personal repositories now?"; then
+    info "personal repository cloning skipped"
+    return
+  fi
+
   if ! gh auth status >/dev/null 2>&1; then
-    warn "gh not authenticated — created ~/pr dirs only."
-    info "run 'gh auth login', then re-run this script to clone repositories."
+    warn "gh not authenticated — cannot clone personal repositories."
+    info "run 'gh auth login', then re-run this script and opt in to repository cloning."
     return
   fi
 
@@ -419,12 +483,14 @@ system_phase() {
 
   # Core CLI tools available in apt (mirrors homebrew_packages that exist there).
   local pkgs=(
-    git git-lfs zsh fish
+    git git-lfs git-filter-repo zsh fish bash
+    ansible
     neovim
     ripgrep fd-find bat lsd git-delta tree fzf zoxide
     tmux
     htop
     wget curl rsync jq
+    ffmpeg nmap qpdf
     redis-server
     build-essential
     # Ruby build dependencies (mise compiles ruby via ruby-build)
@@ -519,6 +585,7 @@ determine_target_user() {
 main() {
   # Re-entry: this invocation is the per-user phase spawned by root.
   if [[ "${_USER_PHASE:-}" == "1" ]]; then
+    prompt_identity
     user_phase
     exit 0
   fi

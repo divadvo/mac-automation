@@ -3,24 +3,34 @@ homebrew_packages:
   # Version Control
   - git
   - git-lfs
+  - git-filter-repo
   - gh
   
   # Development Tools
+  - ansible
+  - anomalyco/tap/opencode
   - mise
   - neovim
   - uv
   - ruby-build
   - just
+  - xcodegen
 
   # Shells
+  - bash
   - fish
   
   # Network Tools
   - wget
   - curl
+  - flyctl
+  - hcloud
+  - miniserve
+  - render
   - xh
   
   # Media Tools
+  - ffmpeg
   - yt-dlp
   
   # Search & File Tools
@@ -37,6 +47,7 @@ homebrew_packages:
   - dockutil
   
   # Security Tools
+  - b2-tools
   - bitwarden-cli
   
   # Optional Tools (can be commented out for minimal install)
@@ -60,12 +71,19 @@ homebrew_packages:
   
   # # Development Tools
   - git-delta
-  # - jq
+  - gum
+  - jq
+  - typst
   
   # # System Monitoring
   - htop
   # - lnav
   - bottom
+
+  # # System and Network Diagnostics
+  - nmap
+  - qpdf
+  - rclone
 
 # GUI applications to install via Homebrew Cask
 homebrew_cask_packages:
@@ -73,6 +91,8 @@ homebrew_cask_packages:
   - visual-studio-code
   - jetbrains-toolbox
   - iterm2
+  - ngrok
+  - t3-code
   
   # Web Browsers
   - google-chrome
@@ -103,6 +123,7 @@ homebrew_cask_packages:
   - tailscale-app
   
   # Security
+  - 1password
   - bitwarden
   
   # Creative & Design
@@ -116,6 +137,8 @@ homebrew_cask_packages:
   - chatgpt
   - claude
   - claude-code@latest
+  - codex
+  - macwhisper
   
   # Fonts
   #- font-meslo-lg-nerd-font
