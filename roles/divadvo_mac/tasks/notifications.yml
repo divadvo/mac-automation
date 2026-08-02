@@ -1,0 +1,77 @@
+---
+- name: Create the Claude configuration directory
+  file:
+    path: "{{ ansible_env.HOME }}/.claude"
+    state: directory
+
+- name: Link the metadata-only Claude Pushover hook
+  file:
+    src: "{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/claude/pushover-notify.sh"
+    path: "{{ ansible_env.HOME }}/.claude/pushover-notify.sh"
+    state: link
+    force: true
+
+- name: Ensure the Claude Pushover hook is executable
+  file:
+    path: "{{ ansible_env.HOME }}/.claude/pushover-notify.sh"
+    mode: '0755'
+
+- name: Validate opted-in Pushover secret references
+  assert:
+    that:
+    - pushover_app_token_ref | length > 0
+    - pushover_user_key_ref | length > 0
+    fail_msg: >-
+      Set pushover_app_token_ref and pushover_user_key_ref to 1Password secret
+      references before enabling notifications.
+  when: pushover_notifications_enabled | bool
+
+- name: Read the Pushover application token from 1Password
+  command:
+    argv:
+    - op
+    - read
+    - "{{ pushover_app_token_ref }}"
+  register: pushover_app_token_read
+  changed_when: false
+  no_log: true
+  when: pushover_notifications_enabled | bool
+
+- name: Read the Pushover user key from 1Password
+  command:
+    argv:
+    - op
+    - read
+    - "{{ pushover_user_key_ref }}"
+  register: pushover_user_key_read
+  changed_when: false
+  no_log: true
+  when: pushover_notifications_enabled | bool
+
+- name: Validate resolved Pushover credentials
+  assert:
+    that:
+    - pushover_app_token_read.stdout is match('^[A-Za-z0-9]{30}$')
+    - pushover_user_key_read.stdout is match('^[A-Za-z0-9]{30}$')
+    fail_msg: 1Password returned invalid Pushover credentials; the existing cache was preserved.
+  no_log: true
+  when: pushover_notifications_enabled | bool
+
+- name: Create the protected notification configuration directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/ai-notify"
+    state: directory
+    mode: '0700'
+  when: pushover_notifications_enabled | bool
+
+- name: Atomically refresh the protected Pushover credential cache
+  copy:
+    content: |
+      PUSHOVER_APP_TOKEN={{ pushover_app_token_read.stdout | quote }}
+      PUSHOVER_USER_KEY={{ pushover_user_key_read.stdout | quote }}
+      PUSHOVER_DEVICE={{ pushover_device | quote }}
+    dest: "{{ ansible_env.HOME }}/.config/ai-notify/pushover.env"
+    mode: '0600'
+    backup: false
+  no_log: true
+  when: pushover_notifications_enabled | bool

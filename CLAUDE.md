@@ -64,6 +64,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
 - **config.yml**: Dotfiles linking and shell configuration
 - **claude.yml**: Claude Code extensions (user-scope MCP servers, marketplace plugins, global npm CLIs)
+- **notifications.yml**: Opt-in 1Password-backed Claude Pushover credential cache
 - **repositories.yml**: GitHub repository cloning to organized directory structure
 - **macos.yml**: macOS system settings and defaults (tagged as "never")
 
@@ -125,6 +126,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - MCP servers, marketplace plugins, and Claude-workflow global npm CLIs are installed **user-wide** (`--scope user`, available in every repo) and enabled by default. Configured via `claude_mcp_servers` / `claude_plugins` / `claude_global_npm_tools` in `vars/main.yml` (macOS) and the `CLAUDE_MCP_SERVERS` / `CLAUDE_PLUGINS` / `CLAUDE_NPM_TOOLS` arrays in `ubuntu-setup.sh`.
 - To add an extension, append to those lists on **both** platforms. All steps are idempotent (existing MCP servers/plugins are detected and skipped). Ubuntu also installs the `claude` CLI itself (macOS gets it from the `claude-code` cask).
 - `openspec` is a global npm CLI, not a plugin — its slash commands still require a per-project `openspec init`.
+- Claude Pushover hooks must remain metadata-only and Claude-only. macOS reads secrets from 1Password into a protected cache; Ubuntu uses a protected local cache.
 - The `zshrc` and `zprofile` dotfiles are **OS-aware** (mac-only lines guarded behind `$OSTYPE == darwin*`, with Linux equivalents). They are the single source of truth for both platforms — any edit must keep working on both macOS and Ubuntu.
 
 ### Testing and Development

@@ -3,3 +3,9 @@
 
 user_email: "your@email.com"
 user_name: "Your Name"
+
+# 1Password secret references, not resolved values.
+pushover_notifications_enabled: false
+pushover_app_token_ref: ""
+pushover_user_key_ref: ""
+pushover_device: ""

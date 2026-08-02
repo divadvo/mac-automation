@@ -73,6 +73,40 @@
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
   },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/pushover-notify.sh PreToolUse"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/pushover-notify.sh Notification"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/pushover-notify.sh Stop"
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "cloudflare@cloudflare": true,
     "caveman@caveman": true,

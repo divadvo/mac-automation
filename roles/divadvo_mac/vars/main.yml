@@ -124,6 +124,7 @@ homebrew_cask_packages:
   
   # Security
   - 1password
+  - 1password-cli
   - bitwarden
   
   # Creative & Design
@@ -193,6 +194,12 @@ claude_plugins:
 # Global npm CLIs related to the Claude workflow (installed via mise's node/npm).
 claude_global_npm_tools:
   - "@fission-ai/openspec@latest"
+
+# Claude-only Pushover notifications. Store references, never resolved secrets.
+pushover_notifications_enabled: false
+pushover_app_token_ref: ""
+pushover_user_key_ref: ""
+pushover_device: ""
 
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically

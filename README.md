@@ -79,6 +79,7 @@ Edit `roles/divadvo_mac/vars/main.yml` to customize:
 - `node_version`, `ruby_version`, `bun_version`: Runtime versions managed by mise
 - `python_versions`: Python versions to install via uv
 - `postgresql_version`: PostgreSQL version to install
+- Pushover variables: See [CLAUDE_PUSHOVER.md](./docs/CLAUDE_PUSHOVER.md)
 
 ## Adding New Packages
 
@@ -104,4 +105,3 @@ uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 - [TESTING.md](./docs/TESTING.md) - VM-based testing instructions
 - [RESOURCES.md](./docs/RESOURCES.md) - External links and references
 - [CLAUDE.md](./CLAUDE.md) - Development commands and project architecture
-

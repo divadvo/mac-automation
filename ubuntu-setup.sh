@@ -68,6 +68,11 @@ CLAUDE_PLUGINS=(
 # Global npm CLIs for the Claude workflow (installed via mise node).
 CLAUDE_NPM_TOOLS=(@fission-ai/openspec@latest)
 
+ENABLE_PUSHOVER="${ENABLE_PUSHOVER:-0}"
+PUSHOVER_APP_TOKEN="${PUSHOVER_APP_TOKEN:-}"
+PUSHOVER_USER_KEY="${PUSHOVER_USER_KEY:-}"
+PUSHOVER_DEVICE="${PUSHOVER_DEVICE:-}"
+
 # Repositories (mirrors repositories.yml)
 PRIORITY_REPOS=(divadvo/divadvo-scripts)
 REPOS_PUSHED_AFTER="2022-01-01"
@@ -114,6 +119,21 @@ prompt_required() {
   printf -v "$var_name" '%s' "$value"
 }
 
+prompt_secret() {
+  local var_name="$1" label="$2" value=""
+  read -r -s -p "    $label: " value </dev/tty || die "could not read $var_name from the terminal"
+  printf '\n' >/dev/tty
+  [[ -n "$value" ]] || die "$label cannot be empty"
+  printf -v "$var_name" '%s' "$value"
+}
+
+pushover_flag_enabled() {
+  case "${1,,}" in
+    1|true|yes|on) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # Explicit env vars bypass prompts. Every missing value must be entered on the
 # controlling terminal, including when the script itself is piped to bash.
 prompt_identity() {
@@ -150,6 +170,8 @@ user_phase() {
   install_claude_extensions
   fetch_repo
   link_dotfiles
+  link_notification_hook
+  configure_pushover
   ensure_ssh_key
   configure_github_auth
   upload_ssh_key
@@ -360,6 +382,49 @@ link_dotfiles() {
 
   # Git config is templated in Ansible (config.j2). Render name/email here.
   render_git_config
+}
+
+link_notification_hook() {
+  local hook="$REPO_DIR/roles/divadvo_mac/files/dotfiles/claude/pushover-notify.sh"
+  mkdir -p "$HOME/.claude"
+  ln -sfn "$hook" "$HOME/.claude/pushover-notify.sh"
+  chmod 0755 "$hook"
+}
+
+configure_pushover() {
+  pushover_flag_enabled "$ENABLE_PUSHOVER" || return 0
+  log "Configuring Claude Pushover notifications"
+  local config_dir="$HOME/.config/ai-notify" config_file="$HOME/.config/ai-notify/pushover.env"
+  local supplied_token="$PUSHOVER_APP_TOKEN" supplied_user="$PUSHOVER_USER_KEY" supplied_device="$PUSHOVER_DEVICE"
+  local cached_token="" cached_user="" cached_device=""
+  if [[ -r "$config_file" ]]; then
+    source "$config_file"
+    cached_token="${PUSHOVER_APP_TOKEN:-}"
+    cached_user="${PUSHOVER_USER_KEY:-}"
+    cached_device="${PUSHOVER_DEVICE:-}"
+  fi
+  PUSHOVER_APP_TOKEN="${supplied_token:-$cached_token}"
+  PUSHOVER_USER_KEY="${supplied_user:-$cached_user}"
+  PUSHOVER_DEVICE="${supplied_device:-$cached_device}"
+  if [[ -z "$PUSHOVER_APP_TOKEN" || -z "$PUSHOVER_USER_KEY" ]]; then
+    tty_available || die "non-interactive Pushover setup requires both credentials"
+    [[ -n "$PUSHOVER_APP_TOKEN" ]] || prompt_secret PUSHOVER_APP_TOKEN "Pushover application token"
+    [[ -n "$PUSHOVER_USER_KEY" ]] || prompt_secret PUSHOVER_USER_KEY "Pushover user key"
+  fi
+  [[ "$PUSHOVER_APP_TOKEN" =~ ^[A-Za-z0-9]{30}$ ]] || die "invalid Pushover application token"
+  [[ "$PUSHOVER_USER_KEY" =~ ^[A-Za-z0-9]{30}$ ]] || die "invalid Pushover user key"
+  mkdir -p "$config_dir"
+  chmod 0700 "$config_dir"
+  local temp_file
+  temp_file="$(mktemp "$config_dir/pushover.env.XXXXXX")"
+  chmod 0600 "$temp_file"
+  {
+    printf 'PUSHOVER_APP_TOKEN=%q\n' "$PUSHOVER_APP_TOKEN"
+    printf 'PUSHOVER_USER_KEY=%q\n' "$PUSHOVER_USER_KEY"
+    printf 'PUSHOVER_DEVICE=%q\n' "$PUSHOVER_DEVICE"
+  } > "$temp_file"
+  mv -f "$temp_file" "$config_file"
+  chmod 0600 "$config_file"
 }
 
 render_git_config() {
@@ -621,6 +686,10 @@ main() {
       GIT_USER_NAME="$GIT_USER_NAME" GIT_USER_EMAIL="$GIT_USER_EMAIL" \
       NODE_VERSION="$NODE_VERSION" RUBY_VERSION="$RUBY_VERSION" \
       BUN_VERSION="$BUN_VERSION" RUST_VERSION="$RUST_VERSION" \
+      ENABLE_PUSHOVER="$ENABLE_PUSHOVER" \
+      PUSHOVER_APP_TOKEN="$PUSHOVER_APP_TOKEN" \
+      PUSHOVER_USER_KEY="$PUSHOVER_USER_KEY" \
+      PUSHOVER_DEVICE="$PUSHOVER_DEVICE" \
       bash "$user_copy"
   else
     user_phase
