@@ -24,6 +24,24 @@
   - dotfiles
   - config
 
+- name: Configure mobile-oriented Zellij
+  import_tasks: zellij.yml
+  tags:
+  - zellij
+  - dotfiles
+
+- name: Configure guarded mobile remote access
+  import_tasks: remote-access.yml
+  tags:
+  - remote-access
+  - ssh
+
+- name: Configure Claude Pushover notifications
+  import_tasks: notifications.yml
+  tags:
+  - notifications
+  - claude
+
 - name: Install Claude Code extensions (MCP, plugins, skills)
   import_tasks: claude.yml
   tags:
@@ -48,4 +66,3 @@
   - macos
   - system
   - never
-

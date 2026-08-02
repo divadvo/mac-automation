@@ -3,3 +3,19 @@
 
 user_email: "your@email.com"
 user_name: "Your Name"
+
+# Mobile remote access is disabled until explicitly enabled. Verify SSH-ID
+# login from a second Termius session before enabling key-only authentication.
+remote_access_enabled: false
+sshid_handle: ""
+ssh_key_only_auth: false
+remote_access_allowed_users:
+  - "your-macos-short-name"
+remote_access_configure_firewall: false
+
+# Claude-only Pushover notifications. These are 1Password secret references;
+# never put resolved secrets in this file.
+pushover_notifications_enabled: false
+pushover_app_token_ref: ""
+pushover_user_key_ref: ""
+pushover_device: ""

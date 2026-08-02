@@ -1,0 +1,31 @@
+---
+- name: Create Zellij configuration and helper directories
+  file:
+    path: "{{ ansible_env.HOME }}/.{{ item }}"
+    state: directory
+  loop:
+  - config/zellij/layouts
+  - local/bin
+
+- name: Link the repository-managed Zellij configuration
+  file:
+    src: "{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/{{ item }}"
+    path: "{{ ansible_env.HOME }}/.{{ item }}"
+    state: link
+    force: true
+  loop:
+  - config/zellij/config.kdl
+  - config/zellij/layouts/claude.kdl
+  - config/zellij/layouts/codex.kdl
+  - config/zellij/layouts/opencode.kdl
+  - config/zellij/layouts/project.kdl
+  - local/bin/zj
+  - local/bin/zj-agent-launcher
+
+- name: Ensure Zellij helper scripts are executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/{{ item }}"
+    mode: '0755'
+  loop:
+  - zj
+  - zj-agent-launcher

@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  zj agent {claude|codex|opencode} [--name NAME] [--new] [--awake]
+  zj attach [SESSION]
+  zj mirror SESSION
+  zj list
+  zj delete SESSION
+  zj clean-exited
+
+Agent sessions default to <agent>-<current-project>. --new appends a timestamp.
+--awake uses macOS caffeinate for the lifetime of a newly launched agent.
+EOF
+}
+
+require_zellij() {
+  command -v zellij >/dev/null 2>&1 || {
+    printf 'zj: zellij is not installed or is not on PATH\n' >&2
+    exit 127
+  }
+}
+
+slugify() {
+  printf '%s' "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9_-]+/-/g; s/^-+//; s/-+$//'
+}
+
+session_exists() {
+  zellij list-sessions --short 2>/dev/null | grep -Fxq -- "$1"
+}
+
+start_agent() {
+  local agent="${1:-}" name="" create_new=0 awake=0 project session
+  shift || true
+
+  case "$agent" in
+    claude|codex|opencode) ;;
+    *) printf 'zj: unsupported agent: %s\n' "$agent" >&2; usage; exit 64 ;;
+  esac
+
+  while (( $# > 0 )); do
+    case "$1" in
+      --name)
+        (( $# >= 2 )) || { printf 'zj: --name requires a value\n' >&2; exit 64; }
+        name="$2"
+        shift 2
+        ;;
+      --new) create_new=1; shift ;;
+      --awake) awake=1; shift ;;
+      -h|--help) usage; exit 0 ;;
+      *) printf 'zj: unknown option: %s\n' "$1" >&2; usage; exit 64 ;;
+    esac
+  done
+
+  project="$(slugify "$(basename "$PWD")")"
+  [[ -n "$project" ]] || project="project"
+  if [[ -z "$name" ]]; then
+    name="${agent}-${project}"
+  else
+    name="$(slugify "$name")"
+    [[ -n "$name" ]] || { printf 'zj: session name is empty after sanitizing\n' >&2; exit 64; }
+  fi
+  if (( create_new )); then
+    name="${name}-$(date +%m%d-%H%M%S)"
+  fi
+  session="$name"
+  export ZJ_AGENT_AWAKE="$awake"
+
+  if session_exists "$session"; then
+    exec zellij attach --force-run-commands "$session"
+  fi
+
+  exec zellij --session "$session" --layout "$agent"
+}
+
+clean_exited() {
+  local exited reply name
+  exited="$(zellij list-sessions --no-formatting 2>/dev/null | awk '/EXITED/ { print $1 }')"
+  if [[ -z "$exited" ]]; then
+    printf 'No exited Zellij sessions.\n'
+    return 0
+  fi
+
+  printf 'Exited sessions:\n%s\n' "$exited"
+  if [[ ! -t 0 ]]; then
+    printf 'zj: refusing cleanup without an interactive confirmation\n' >&2
+    return 1
+  fi
+  read -r -p 'Delete all exited sessions? [y/N] ' reply
+  [[ "$reply" == [yY] || "$reply" == [yY][eE][sS] ]] || return 0
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] && zellij delete-session "$name"
+  done <<< "$exited"
+}
+
+require_zellij
+command="${1:-}"
+case "$command" in
+  agent)
+    shift
+    start_agent "$@"
+    ;;
+  attach)
+    shift
+    if (( $# > 1 )); then usage; exit 64; fi
+    exec zellij attach --force-run-commands "$@"
+    ;;
+  mirror)
+    (( $# == 2 )) || { usage; exit 64; }
+    exec zellij attach --force-run-commands "$2" options --mirror-session true
+    ;;
+  list)
+    (( $# == 1 )) || { usage; exit 64; }
+    exec zellij list-sessions
+    ;;
+  delete)
+    (( $# == 2 )) || { usage; exit 64; }
+    exec zellij delete-session "$2"
+    ;;
+  clean-exited)
+    (( $# == 1 )) || { usage; exit 64; }
+    clean_exited
+    ;;
+  -h|--help|help) usage ;;
+  *) usage; exit 64 ;;
+esac

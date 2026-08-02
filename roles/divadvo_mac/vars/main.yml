@@ -28,6 +28,7 @@ homebrew_packages:
   - miniserve
   - render
   - xh
+  - mosh
   
   # Media Tools
   - ffmpeg
@@ -124,6 +125,7 @@ homebrew_cask_packages:
   
   # Security
   - 1password
+  - 1password-cli
   - bitwarden
   
   # Creative & Design
@@ -216,3 +218,18 @@ repos_pushed_after: "2022-01-01"
 
 # Set to true to install only essential casks for faster testing
 testing_mode: false
+
+# Mobile remote access (all inbound-access changes are opt-in).
+remote_access_enabled: false
+sshid_handle: ""
+ssh_key_only_auth: false
+remote_access_allowed_users:
+  - "{{ ansible_user_id }}"
+remote_access_configure_firewall: false
+
+# Claude-only Pushover notifications. Store 1Password secret references here,
+# never the resolved token or user key.
+pushover_notifications_enabled: false
+pushover_app_token_ref: ""
+pushover_user_key_ref: ""
+pushover_device: ""

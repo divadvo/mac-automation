@@ -1,0 +1,109 @@
+---
+- name: Create the remote-access helper directory
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+  when: remote_access_enabled | bool
+
+- name: Link the SSH-ID synchronization helper
+  file:
+    src: "{{ ansible_env.PWD }}/roles/divadvo_mac/files/dotfiles/local/bin/sync-sshid-keys"
+    path: "{{ ansible_env.HOME }}/.local/bin/sync-sshid-keys"
+    state: link
+    force: true
+  when: remote_access_enabled | bool
+
+- name: Ensure the SSH-ID synchronization helper is executable
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin/sync-sshid-keys"
+    mode: '0755'
+  when: remote_access_enabled | bool
+
+- name: Validate opted-in remote access settings
+  assert:
+    that:
+    - sshid_handle | length > 0
+    - sshid_handle is match('^[A-Za-z0-9._-]+$')
+    - remote_access_allowed_users | length > 0
+    - remote_access_allowed_users | select('match', '^[A-Za-z_][A-Za-z0-9_.-]*$') | list | length == remote_access_allowed_users | length
+    fail_msg: >-
+      Remote access requires a valid sshid_handle and at least one valid
+      remote_access_allowed_users entry.
+  when: remote_access_enabled | bool
+
+- name: Synchronize validated SSH-ID public keys
+  command:
+    argv:
+    - "{{ ansible_env.HOME }}/.local/bin/sync-sshid-keys"
+    - "{{ sshid_handle }}"
+  register: sshid_sync
+  changed_when: "'changed' in sshid_sync.stdout_lines"
+  when: remote_access_enabled | bool
+
+- name: Require validated SSH-ID keys before key-only authentication
+  assert:
+    that:
+    - sshid_sync is succeeded
+    - sshid_sync.stdout is search('(^|\\n)(changed|unchanged)(\\n|$)')
+    fail_msg: Refusing to disable password authentication without a validated SSH-ID key set.
+  when:
+  - remote_access_enabled | bool
+  - ssh_key_only_auth | bool
+
+- name: Ensure the OpenSSH drop-in directory exists
+  file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: wheel
+    mode: '0755'
+  become: true
+  when: remote_access_enabled | bool
+
+- name: Install the managed OpenSSH remote-access drop-in
+  template:
+    src: ssh/99-mac-automation-remote-access.conf.j2
+    dest: /etc/ssh/sshd_config.d/99-mac-automation-remote-access.conf
+    owner: root
+    group: wheel
+    mode: '0644'
+    validate: /usr/sbin/sshd -t -f %s
+  become: true
+  register: sshd_dropin
+  when: remote_access_enabled | bool
+
+- name: Validate the complete macOS OpenSSH configuration
+  command: /usr/sbin/sshd -t
+  become: true
+  changed_when: false
+  when: remote_access_enabled | bool
+
+- name: Read current macOS Remote Login state
+  command: /usr/sbin/systemsetup -getremotelogin
+  become: true
+  register: remote_login_state
+  changed_when: false
+  when: remote_access_enabled | bool
+
+- name: Enable macOS Remote Login after SSH validation
+  command: /usr/sbin/systemsetup -setremotelogin on
+  become: true
+  when:
+  - remote_access_enabled | bool
+  - "'On' not in remote_login_state.stdout"
+
+- name: Reload macOS OpenSSH after validated configuration changes
+  command: /bin/launchctl kickstart -k system/com.openssh.sshd
+  become: true
+  when:
+  - remote_access_enabled | bool
+  - sshd_dropin.changed
+
+- name: Explain the macOS firewall policy
+  debug:
+    msg: >-
+      remote_access_configure_firewall is intentionally not applied on macOS:
+      connect only over Tailscale and do not expose SSH or Mosh on a router.
+  when:
+  - remote_access_enabled | bool
+  - remote_access_configure_firewall | bool

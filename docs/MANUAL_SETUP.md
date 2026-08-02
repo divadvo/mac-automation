@@ -2,6 +2,8 @@
 
 This document covers tasks that require manual intervention after running the automation playbooks.
 
+For the optional iPhone workflow, complete the [Mobile Remote Development guide](./REMOTE_MOBILE.md), including the second-session SSH-ID check before enabling key-only authentication.
+
 
 ## Terminal and Shell Configuration
 
@@ -184,6 +186,7 @@ This document covers tasks that require manual intervention after running the au
    - Open Tailscale app (installed via automation)
    - Sign in with your Tailscale account
    - Connect to your tailnet
+   - Install Tailscale on the iPhone and follow the [mobile remote checklist](./REMOTE_MOBILE.md)
 
 #### Printer Setup
 1. **Add printer**

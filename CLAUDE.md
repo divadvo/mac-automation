@@ -63,6 +63,9 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **setup.yml**: SSH key generation and initial system setup
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
 - **config.yml**: Dotfiles linking and shell configuration
+- **zellij.yml**: Cross-platform mobile Zellij configuration, layouts, and helpers
+- **remote-access.yml**: Opt-in SSH-ID sync, Remote Login, and validated OpenSSH configuration
+- **notifications.yml**: Opt-in 1Password-backed Claude Pushover credential cache
 - **claude.yml**: Claude Code extensions (user-scope MCP servers, marketplace plugins, global npm CLIs)
 - **repositories.yml**: GitHub repository cloning to organized directory structure
 - **macos.yml**: macOS system settings and defaults (tagged as "never")
@@ -120,6 +123,8 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 ### Ubuntu VPS parity (`ubuntu-setup.sh`)
 - `ubuntu-setup.sh` (repo root) is a single self-contained bash script that reproduces this macOS setup on a fresh Ubuntu server (dev tools, mise runtimes, uv/Python, zsh + oh-my-zsh, dotfiles). It mirrors `packages.yml`, `config.yml`, `setup.yml`, and `repositories.yml`. GUI casks, `macos.yml` defaults, and LaunchAgents are intentionally omitted (no server equivalent).
 - **IMPORTANT: keep it in sync.** When you change packages, tool/runtime versions, `uv_tools`, `ohmyzsh_custom_plugins`, the Claude Code extension lists (`claude_mcp_servers`, `claude_plugins`, `claude_global_npm_tools` in `vars/main.yml` / `claude.yml`), or the repo dotfiles (in `vars/main.yml`, `packages.yml`, `config.yml`, `claude.yml`, or `files/dotfiles/`), update `ubuntu-setup.sh` to match (`CLAUDE_MCP_SERVERS`, `CLAUDE_PLUGINS`, `CLAUDE_NPM_TOOLS`).
+- Keep mobile workflow parity too: both platforms link the Zellij config/layouts and helper scripts, validate SSH-ID keys before changing `authorized_keys`, validate the complete OpenSSH configuration before reload, and install the metadata-only Claude Pushover hook. Platform differences are intentional: macOS retrieves notification secrets from 1Password; Ubuntu uses a protected local file; `caffeinate` is macOS-only.
+- Remote access must remain safe by default. Do not enable Remote Login, key-only authentication, UFW, public listeners, or permanent no-sleep settings without the documented opt-in variables. Never add a public Mosh UDP rule.
 
 ### Claude Code extensions (`claude.yml` / `install_claude_extensions`)
 - MCP servers, marketplace plugins, and Claude-workflow global npm CLIs are installed **user-wide** (`--scope user`, available in every repo) and enabled by default. Configured via `claude_mcp_servers` / `claude_plugins` / `claude_global_npm_tools` in `vars/main.yml` (macOS) and the `CLAUDE_MCP_SERVERS` / `CLAUDE_PLUGINS` / `CLAUDE_NPM_TOOLS` arrays in `ubuntu-setup.sh`.

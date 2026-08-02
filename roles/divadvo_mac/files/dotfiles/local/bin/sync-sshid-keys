@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Safely replace only the repository-managed SSH-ID authorized_keys block.
+set -euo pipefail
+umask 077
+
+handle="${1:-}"
+authorized_keys="${2:-$HOME/.ssh/authorized_keys}"
+
+if [[ ! "$handle" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  printf 'sync-sshid-keys: invalid or missing SSH-ID handle\n' >&2
+  exit 64
+fi
+command -v curl >/dev/null 2>&1 || { printf 'sync-sshid-keys: curl is required\n' >&2; exit 69; }
+command -v ssh-keygen >/dev/null 2>&1 || { printf 'sync-sshid-keys: ssh-keygen is required\n' >&2; exit 69; }
+
+target_dir="$(dirname "$authorized_keys")"
+temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/mac-automation-sshid.XXXXXX")"
+trap 'rm -rf "$temp_dir"' EXIT HUP INT TERM
+download="$temp_dir/download"
+keys="$temp_dir/keys"
+merged="$temp_dir/authorized_keys"
+
+# Never touch the installed block when download or validation fails.
+curl --fail --silent --show-error --location --max-time 10 \
+  "https://sshid.io/${handle}" --output "$download"
+
+awk '
+  /^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com)[[:space:]]+/ {
+    if (!seen[$0]++) print
+  }
+' "$download" > "$keys"
+
+if [[ ! -s "$keys" ]]; then
+  printf 'sync-sshid-keys: SSH-ID returned no supported public keys\n' >&2
+  exit 65
+fi
+
+# Each accepted line must independently parse as a public key.
+while IFS= read -r key; do
+  printf '%s\n' "$key" | ssh-keygen -l -f - >/dev/null
+done < "$keys"
+
+mkdir -p "$target_dir"
+chmod 0700 "$target_dir"
+if [[ -e "$authorized_keys" ]]; then
+  cp "$authorized_keys" "$temp_dir/existing"
+else
+  : > "$temp_dir/existing"
+fi
+
+awk '
+  /^# BEGIN mac-automation SSH-ID(:|$)/ { managed = 1; next }
+  /^# END mac-automation SSH-ID$/ { if (managed) { managed = 0; next } }
+  !managed { print }
+' "$temp_dir/existing" > "$merged"
+
+# Ensure the unmanaged content ends with a newline before adding the block.
+if [[ -s "$merged" ]] && [[ -n "$(tail -c 1 "$merged" 2>/dev/null || true)" ]]; then
+  printf '\n' >> "$merged"
+fi
+{
+  printf '# BEGIN mac-automation SSH-ID\n'
+  cat "$keys"
+  printf '# END mac-automation SSH-ID\n'
+} >> "$merged"
+
+if [[ -e "$authorized_keys" ]] && cmp -s "$merged" "$authorized_keys"; then
+  chmod 0600 "$authorized_keys"
+  printf 'unchanged\n'
+  exit 0
+fi
+
+install -m 0600 "$merged" "$authorized_keys"
+printf 'changed\n'
