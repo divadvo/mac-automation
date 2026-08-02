@@ -5,7 +5,6 @@
   loop:
   - config/git
   - config/fish
-  - config/zellij
   - local/bin
   - claude
   tags:
@@ -22,7 +21,6 @@
   - config/git/attributes
   - config/git/ignore
   - config/fish/config.fish
-  - config/zellij/config.kdl
   - ssh/config
   - zprofile
   - claude/settings.json
