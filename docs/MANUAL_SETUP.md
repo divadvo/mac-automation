@@ -9,7 +9,7 @@ This document covers tasks that require manual intervention after running the au
 
 ```bash
 zj claude                         # default: claude-<project-directory>
-zj codex --awake                 # caffeinate the agent on macOS
+zj codex
 zj opencode release-fix          # explicit session name
 zellij ls
 zellij a SESSION

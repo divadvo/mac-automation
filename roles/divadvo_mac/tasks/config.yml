@@ -59,7 +59,6 @@
   tags:
   - iterm
 
-
 - name: Download Catppuccin Frappé iTerm2 color scheme
   get_url:
     url: https://raw.githubusercontent.com/catppuccin/iterm/main/colors/catppuccin-frappe.itermcolors

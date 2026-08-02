@@ -4,11 +4,5 @@ simplified_ui true
 pane_frames false
 scroll_buffer_size 50000
 
-// Zellij switches these when the terminal reports its appearance. Terminals
-// without appearance reporting use the dark fallback.
-theme "one-half-dark"
-theme_dark "one-half-dark"
-theme_light "dayfox"
-
 show_startup_tips false
 show_release_notes false
