@@ -184,6 +184,7 @@ This document covers tasks that require manual intervention after running the au
    - Open Tailscale app (installed via automation)
    - Sign in with your Tailscale account
    - Connect to your tailnet
+   - Follow the [mobile remote-access guide](./MOBILE_REMOTE_ACCESS.md) before enabling strict SSH authentication
 
 #### Printer Setup
 1. **Add printer**

@@ -18,6 +18,12 @@
   - mise
   - uv
 
+- name: Configure guarded mobile remote access
+  import_tasks: remote-access.yml
+  tags:
+  - remote-access
+  - ssh
+
 - name: Configure dotfiles and settings
   import_tasks: config.yml
   tags:
@@ -48,4 +54,3 @@
   - macos
   - system
   - never
-

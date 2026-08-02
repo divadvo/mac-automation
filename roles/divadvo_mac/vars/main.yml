@@ -28,6 +28,7 @@ homebrew_packages:
   - miniserve
   - render
   - xh
+  - mosh
   
   # Media Tools
   - ffmpeg
@@ -216,3 +217,11 @@ repos_pushed_after: "2022-01-01"
 
 # Set to true to install only essential casks for faster testing
 testing_mode: false
+
+# Mobile remote access (all inbound-access changes are opt-in).
+remote_access_enabled: false
+sshid_handle: ""
+ssh_key_only_auth: false
+remote_access_allowed_users:
+  - "{{ ansible_user_id }}"
+remote_access_configure_firewall: false

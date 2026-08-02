@@ -62,6 +62,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **validate.yml**: System requirements and dependency validation
 - **setup.yml**: SSH key generation and initial system setup
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
+- **remote-access.yml**: Opt-in SSH-ID sync, Remote Login, and validated OpenSSH configuration
 - **config.yml**: Dotfiles linking and shell configuration
 - **claude.yml**: Claude Code extensions (user-scope MCP servers, marketplace plugins, global npm CLIs)
 - **repositories.yml**: GitHub repository cloning to organized directory structure
@@ -120,6 +121,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 ### Ubuntu VPS parity (`ubuntu-setup.sh`)
 - `ubuntu-setup.sh` (repo root) is a single self-contained bash script that reproduces this macOS setup on a fresh Ubuntu server (dev tools, mise runtimes, uv/Python, zsh + oh-my-zsh, dotfiles). It mirrors `packages.yml`, `config.yml`, `setup.yml`, and `repositories.yml`. GUI casks, `macos.yml` defaults, and LaunchAgents are intentionally omitted (no server equivalent).
 - **IMPORTANT: keep it in sync.** When you change packages, tool/runtime versions, `uv_tools`, `ohmyzsh_custom_plugins`, the Claude Code extension lists (`claude_mcp_servers`, `claude_plugins`, `claude_global_npm_tools` in `vars/main.yml` / `claude.yml`), or the repo dotfiles (in `vars/main.yml`, `packages.yml`, `config.yml`, `claude.yml`, or `files/dotfiles/`), update `ubuntu-setup.sh` to match (`CLAUDE_MCP_SERVERS`, `CLAUDE_PLUGINS`, `CLAUDE_NPM_TOOLS`).
+- Keep SSH-ID validation and complete OpenSSH validation safeguards aligned on both platforms. Never enable strict authentication, UFW, public listeners, or public Mosh rules without the documented opt-in controls.
 
 ### Claude Code extensions (`claude.yml` / `install_claude_extensions`)
 - MCP servers, marketplace plugins, and Claude-workflow global npm CLIs are installed **user-wide** (`--scope user`, available in every repo) and enabled by default. Configured via `claude_mcp_servers` / `claude_plugins` / `claude_global_npm_tools` in `vars/main.yml` (macOS) and the `CLAUDE_MCP_SERVERS` / `CLAUDE_PLUGINS` / `CLAUDE_NPM_TOOLS` arrays in `ubuntu-setup.sh`.

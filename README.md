@@ -64,6 +64,8 @@ After logging back in:
 
 1. **Manually configure installed applications:** Configure applications such as Raycast, Rectangle, VS Code, etc. See [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) for detailed instructions.
 
+2. **Optional mobile access:** Follow [MOBILE_REMOTE_ACCESS.md](./docs/MOBILE_REMOTE_ACCESS.md) for Termius over Tailscale with guarded SSH-ID and Mosh setup.
+
 ## Configuration
 
 Edit `roles/divadvo_mac/vars/main.yml` to customize:
@@ -100,8 +102,8 @@ uv run ./playbook.yml --step -vvv --diff --start-at-task "dotfiles links"
 ## Documentation
 
 - [PREPARATION.md](./docs/PREPARATION.md) - Pre-automation setup and old Mac migration
+- [MOBILE_REMOTE_ACCESS.md](./docs/MOBILE_REMOTE_ACCESS.md) - Secure Termius, Tailscale, SSH-ID, and Mosh workflow
 - [MANUAL_SETUP.md](./docs/MANUAL_SETUP.md) - Post-automation manual tasks
 - [TESTING.md](./docs/TESTING.md) - VM-based testing instructions
 - [RESOURCES.md](./docs/RESOURCES.md) - External links and references
 - [CLAUDE.md](./CLAUDE.md) - Development commands and project architecture
-

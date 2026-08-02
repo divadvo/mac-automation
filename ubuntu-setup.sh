@@ -29,6 +29,12 @@ REPO_URL="${REPO_URL:-https://github.com/divadvo/mac-automation.git}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
 REPO_DIR="${REPO_DIR:-$HOME/pr/github/mac-automation}"
 
+ENABLE_REMOTE_ACCESS="${ENABLE_REMOTE_ACCESS:-0}"
+SSHID_HANDLE="${SSHID_HANDLE:-}"
+SSH_KEY_ONLY_AUTH="${SSH_KEY_ONLY_AUTH:-0}"
+TAILSCALE_AUTH_KEY="${TAILSCALE_AUTH_KEY:-}"
+TAILSCALE_FIREWALL="${TAILSCALE_FIREWALL:-0}"
+
 # Identity — leave blank to be prompted at runtime (or pass via env).
 GIT_USER_NAME="${GIT_USER_NAME:-}"
 GIT_USER_EMAIL="${GIT_USER_EMAIL:-}"
@@ -105,6 +111,13 @@ confirm_no() {
   [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
 }
 
+remote_flag_enabled() {
+  case "${1,,}" in
+    1|true|yes|on) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 prompt_required() {
   local var_name="$1" label="$2" value=""
   while [[ -z "$value" ]]; do
@@ -151,6 +164,7 @@ user_phase() {
   fetch_repo
   link_dotfiles
   ensure_ssh_key
+  link_remote_access_helper
   configure_github_auth
   upload_ssh_key
   clone_repositories
@@ -362,6 +376,13 @@ link_dotfiles() {
   render_git_config
 }
 
+link_remote_access_helper() {
+  local helper="$REPO_DIR/roles/divadvo_mac/files/dotfiles/local/bin/sync-sshid-keys"
+  mkdir -p "$HOME/.local/bin"
+  ln -sfn "$helper" "$HOME/.local/bin/sync-sshid-keys"
+  chmod 0755 "$helper"
+}
+
 render_git_config() {
   local tpl="$REPO_DIR/roles/divadvo_mac/templates/config/git/config.j2"
   [[ -f "$tpl" ]] || { warn "git config template missing, skipping"; return; }
@@ -487,7 +508,7 @@ system_phase() {
     ansible
     neovim
     ripgrep fd-find bat lsd git-delta tree fzf zoxide
-    tmux
+    tmux mosh openssh-server
     htop
     wget curl rsync jq
     ffmpeg nmap qpdf
@@ -495,7 +516,7 @@ system_phase() {
     build-essential
     # Ruby build dependencies (mise compiles ruby via ruby-build)
     libssl-dev libyaml-dev zlib1g-dev libreadline-dev libffi-dev libgdbm-dev autoconf bison
-    ca-certificates gnupg
+    ca-certificates gnupg ufw
   )
   $SUDO apt-get install -y "${pkgs[@]}"
 
@@ -503,9 +524,35 @@ system_phase() {
   try_apt_install just
 
   install_github_cli
+  install_tailscale
 
   # Match macOS binary names for apt tools that ship under different names.
   make_bin_shims
+}
+
+install_tailscale() {
+  log "Installing Tailscale from its signed APT repository"
+  local codename keyring source_list
+  source /etc/os-release
+  codename="${VERSION_CODENAME:-}"
+  [[ "$codename" =~ ^[a-z0-9-]+$ ]] || die "could not determine the Ubuntu release codename"
+  keyring=/usr/share/keyrings/tailscale-archive-keyring.gpg
+  source_list=/etc/apt/sources.list.d/tailscale.list
+  $SUDO install -d -m 0755 /usr/share/keyrings
+  curl -fsSL "https://pkgs.tailscale.com/stable/ubuntu/${codename}.noarmor.gpg" | $SUDO tee "$keyring" >/dev/null
+  curl -fsSL "https://pkgs.tailscale.com/stable/ubuntu/${codename}.tailscale-keyring.list" | $SUDO tee "$source_list" >/dev/null
+  $SUDO chmod 0644 "$keyring" "$source_list"
+  $SUDO apt-get update -y
+  $SUDO apt-get install -y tailscale
+  $SUDO systemctl enable --now tailscaled
+  if $SUDO tailscale status --json 2>/dev/null | jq -e '.BackendState == "Running"' >/dev/null; then
+    ok "Tailscale is already connected"
+  elif [[ -n "$TAILSCALE_AUTH_KEY" ]]; then
+    $SUDO tailscale up --auth-key="$TAILSCALE_AUTH_KEY"
+    ok "Tailscale connected"
+  else
+    warn "Tailscale is installed but not authenticated. Run: sudo tailscale up"
+  fi
 }
 
 try_apt_install() {
@@ -536,6 +583,70 @@ make_bin_shims() {
   command -v fdfind >/dev/null 2>&1 && $SUDO ln -sf "$(command -v fdfind)" /usr/local/bin/fd
   command -v batcat >/dev/null 2>&1 && $SUDO ln -sf "$(command -v batcat)" /usr/local/bin/bat
   ok "fd/bat shims linked"
+}
+
+configure_remote_access() {
+  remote_flag_enabled "$ENABLE_REMOTE_ACCESS" || return 0
+  log "Configuring guarded SSH-ID remote access"
+  [[ "$SSHID_HANDLE" =~ ^[A-Za-z0-9._-]+$ ]] || die "ENABLE_REMOTE_ACCESS=1 requires a valid SSHID_HANDLE"
+  if remote_flag_enabled "$SSH_KEY_ONLY_AUTH" && [[ "$TARGET_USER" == "root" ]]; then
+    die "key-only remote access requires a non-root target user"
+  fi
+  local helper="$TARGET_HOME/.local/bin/sync-sshid-keys"
+  if [[ $EUID -eq 0 && "$TARGET_USER" != "root" ]]; then
+    sudo -u "$TARGET_USER" -H "$helper" "$SSHID_HANDLE"
+  else
+    HOME="$TARGET_HOME" "$helper" "$SSHID_HANDLE"
+  fi
+
+  local sshd_bin=/usr/sbin/sshd dropin=/etc/ssh/sshd_config.d/99-mac-automation-remote-access.conf
+  local temp_dir candidate future_config changed=0
+  temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/mac-automation-sshd.XXXXXX")"
+  candidate="$temp_dir/99-mac-automation-remote-access.conf"
+  future_config="$temp_dir/sshd_config"
+  {
+    printf '# Managed by mac-automation. Local changes will be replaced.\n'
+    printf 'AllowUsers %s\n' "$TARGET_USER"
+    if remote_flag_enabled "$SSH_KEY_ONLY_AUTH"; then
+      printf '%s\n' 'PubkeyAuthentication yes' 'PasswordAuthentication no' \
+        'KbdInteractiveAuthentication no' 'PermitRootLogin no' 'MaxAuthTries 3' \
+        'ClientAliveInterval 300' 'ClientAliveCountMax 2'
+    fi
+  } > "$candidate"
+  { printf 'Include %s\n' "$candidate"; cat /etc/ssh/sshd_config; } > "$future_config"
+  if ! $SUDO "$sshd_bin" -t -f "$future_config"; then
+    rm -rf "$temp_dir"
+    die "candidate OpenSSH configuration is invalid; installed configuration unchanged"
+  fi
+  if ! $SUDO test -f "$dropin" || ! $SUDO cmp -s "$candidate" "$dropin"; then
+    $SUDO test ! -f "$dropin" || $SUDO cp "$dropin" "$temp_dir/previous.conf"
+    $SUDO install -d -m 0755 /etc/ssh/sshd_config.d
+    $SUDO install -m 0644 -o root -g root "$candidate" "$dropin"
+    changed=1
+  fi
+  if ! $SUDO "$sshd_bin" -t; then
+    if [[ -f "$temp_dir/previous.conf" ]]; then
+      $SUDO install -m 0644 -o root -g root "$temp_dir/previous.conf" "$dropin"
+    else
+      $SUDO rm -f "$dropin"
+    fi
+    rm -rf "$temp_dir"
+    die "complete OpenSSH validation failed; previous configuration restored"
+  fi
+  (( changed == 0 )) || $SUDO systemctl reload ssh
+  rm -rf "$temp_dir"
+}
+
+configure_tailscale_firewall() {
+  remote_flag_enabled "$TAILSCALE_FIREWALL" || return 0
+  local ports port
+  ports="$($SUDO /usr/sbin/sshd -T 2>/dev/null | awk '$1 == "port" { print $2 }' | sort -nu)"
+  [[ -n "$ports" ]] || ports=22
+  while IFS= read -r port; do
+    $SUDO ufw allow in on tailscale0 proto tcp to any port "$port" comment 'mac-automation SSH via Tailscale'
+  done <<< "$ports"
+  $SUDO ufw allow in on tailscale0 proto udp to any port 60000:61000 comment 'mac-automation Mosh via Tailscale'
+  warn "Existing firewall rules were preserved; UFW was not enabled automatically"
 }
 
 # ----------------------------------------------------------------------------
@@ -625,6 +736,9 @@ main() {
   else
     user_phase
   fi
+
+  configure_remote_access
+  configure_tailscale_firewall
 
   log "All done."
   info "Log in as ${BOLD}${TARGET_USER}${RST} and start a new shell (or run: exec zsh)."
