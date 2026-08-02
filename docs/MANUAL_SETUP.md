@@ -8,16 +8,13 @@ This document covers tasks that require manual intervention after running the au
 ### Mobile Zellij
 
 ```bash
-zj claude                         # default: claude-<project-directory>
+zj claude
 zj codex
-zj opencode release-fix          # explicit session name
-zellij ls
-zellij a SESSION
-zellij a SESSION options --mirror-session true
-zellij delete-all-sessions
+zj opencode release-fix
 ```
 
-Sessions persist after disconnects. Termius must allow OSC 52 clipboard access.
+Sessions default to `<agent>-<project-directory>` and persist after disconnects;
+pass a second argument to name one explicitly. Termius must allow OSC 52 clipboard access.
 
 ### Powerlevel10k Configuration
 1. **Run Interactive Configuration**

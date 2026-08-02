@@ -13,10 +13,9 @@ esac
 
 (( $# <= 1 )) || { usage >&2; exit 64; }
 session="${1:-${agent}-$(basename "$PWD")}"
-export ZJ_AGENT="$agent"
 
 if zellij list-sessions --short 2>/dev/null | grep -Fxq -- "$session"; then
   exec zellij attach --force-run-commands "$session"
 fi
 
-exec zellij --session "$session" --layout-string 'layout { pane command="zsh" name="Agent" { args "-lic" "exec $ZJ_AGENT"; }; pane size=1 borderless=true { plugin location="compact-bar"; }; }' options --simplified-ui true --pane-frames false --scroll-buffer-size 50000
+exec zellij --session "$session" --layout-string "layout { pane command=\"$agent\"; pane size=1 borderless=true { plugin location=\"compact-bar\"; }; }" options --simplified-ui true --pane-frames false --scroll-buffer-size 50000
