@@ -348,7 +348,6 @@ link_dotfiles() {
     config/git/ignore \
     config/zellij/config.kdl \
     config/zellij/layouts/agent.kdl \
-    config/zellij/layouts/project.kdl \
     ssh/config \
     zprofile \
     claude/settings.json \
@@ -356,8 +355,7 @@ link_dotfiles() {
     hushlogin \
     zshrc \
     tmux.conf \
-    local/bin/zj \
-    local/bin/zj-agent-launcher
+    local/bin/zj
   do
     ln -sfn "$df/$rel" "$HOME/.$rel"
   done

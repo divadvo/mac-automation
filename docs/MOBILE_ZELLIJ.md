@@ -24,8 +24,8 @@ zellij ls
 zellij a [session]
 zj mirror <session>
 zellij d <session>
-zj clean-exited
-zellij --layout project
+zellij delete-all-sessions
+zellij
 ```
 
 Normal clients have independent cursors. `zj mirror` deliberately shares focus

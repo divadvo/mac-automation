@@ -24,7 +24,6 @@
   - config/fish/config.fish
   - config/zellij/config.kdl
   - config/zellij/layouts/agent.kdl
-  - config/zellij/layouts/project.kdl
   - ssh/config
   - zprofile
   - claude/settings.json
@@ -33,7 +32,6 @@
   - zshrc
   - tmux.conf
   - local/bin/zj
-  - local/bin/zj-agent-launcher
   tags:
   - dotfiles
 

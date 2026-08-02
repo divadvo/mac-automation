@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-if [[ "${ZJ_AGENT_AWAKE:-0}" == "1" && "$(uname -s)" == "Darwin" ]]; then
-  exec caffeinate -dimsu "$ZJ_AGENT"
-fi
-
-exec "$ZJ_AGENT"
