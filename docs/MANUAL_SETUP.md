@@ -5,6 +5,8 @@ This document covers tasks that require manual intervention after running the au
 
 ## Terminal and Shell Configuration
 
+For persistent phone-friendly Claude, Codex, and OpenCode sessions, see [Mobile Zellij](./MOBILE_ZELLIJ.md).
+
 ### Powerlevel10k Configuration
 1. **Run Interactive Configuration**
    - Open iTerm2 and start a new terminal session a few times until the p10k config WITH the font install appears.

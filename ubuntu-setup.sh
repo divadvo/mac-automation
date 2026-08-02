@@ -149,6 +149,7 @@ user_phase() {
   install_claude_cli
   install_claude_extensions
   fetch_repo
+  link_zellij
   link_dotfiles
   ensure_ssh_key
   configure_github_auth
@@ -330,6 +331,26 @@ fetch_repo() {
   else
     git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_DIR"
   fi
+}
+
+link_zellij() {
+  log "Linking mobile Zellij configuration"
+  local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
+  local rel
+  mkdir -p "$HOME/.config/zellij/layouts" "$HOME/.local/bin"
+  for rel in \
+    config/zellij/config.kdl \
+    config/zellij/layouts/claude.kdl \
+    config/zellij/layouts/codex.kdl \
+    config/zellij/layouts/opencode.kdl \
+    config/zellij/layouts/project.kdl \
+    local/bin/zj \
+    local/bin/zj-agent-launcher
+  do
+    ln -sfn "$df/$rel" "$HOME/.$rel"
+  done
+  chmod 0755 "$df/local/bin/zj" "$df/local/bin/zj-agent-launcher"
+  ok "linked Zellij layouts and helpers"
 }
 
 link_dotfiles() {

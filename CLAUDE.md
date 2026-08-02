@@ -63,6 +63,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **setup.yml**: SSH key generation and initial system setup
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
 - **config.yml**: Dotfiles linking and shell configuration
+- **zellij.yml**: Cross-platform mobile Zellij configuration, layouts, and helpers
 - **claude.yml**: Claude Code extensions (user-scope MCP servers, marketplace plugins, global npm CLIs)
 - **repositories.yml**: GitHub repository cloning to organized directory structure
 - **macos.yml**: macOS system settings and defaults (tagged as "never")
@@ -126,6 +127,7 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - To add an extension, append to those lists on **both** platforms. All steps are idempotent (existing MCP servers/plugins are detected and skipped). Ubuntu also installs the `claude` CLI itself (macOS gets it from the `claude-code` cask).
 - `openspec` is a global npm CLI, not a plugin — its slash commands still require a per-project `openspec init`.
 - The `zshrc` and `zprofile` dotfiles are **OS-aware** (mac-only lines guarded behind `$OSTYPE == darwin*`, with Linux equivalents). They are the single source of truth for both platforms — any edit must keep working on both macOS and Ubuntu.
+- Keep Zellij configuration, layouts, and helper commands linked on both platforms. `caffeinate` behavior remains macOS-only.
 
 ### Testing and Development
 - Step mode (`--step`) available for debugging task execution
