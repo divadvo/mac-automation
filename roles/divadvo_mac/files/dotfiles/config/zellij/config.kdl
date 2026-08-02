@@ -1,5 +1,4 @@
 // Compact, phone-friendly defaults shared by macOS and Ubuntu.
-default_shell "zsh"
 default_layout "compact"
 simplified_ui true
 pane_frames false

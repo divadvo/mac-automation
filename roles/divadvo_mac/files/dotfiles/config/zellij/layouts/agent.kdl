@@ -1,8 +1,0 @@
-layout {
-    pane command="zsh" name="Agent" {
-        args "-lic" "[[ $ZJ_AGENT_AWAKE == 1 && $OSTYPE == darwin* ]] && exec caffeinate -dimsu $ZJ_AGENT; exec $ZJ_AGENT"
-    }
-    pane size=1 borderless=true {
-        plugin location="compact-bar"
-    }
-}

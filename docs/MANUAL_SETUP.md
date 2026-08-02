@@ -5,7 +5,19 @@ This document covers tasks that require manual intervention after running the au
 
 ## Terminal and Shell Configuration
 
-For persistent phone-friendly Claude, Codex, and OpenCode sessions, see [Mobile Zellij](./MOBILE_ZELLIJ.md).
+### Mobile Zellij
+
+```bash
+zj claude                         # default: claude-<project-directory>
+zj codex --awake                 # caffeinate the agent on macOS
+zj opencode release-fix          # explicit session name
+zellij ls
+zellij a SESSION
+zellij a SESSION options --mirror-session true
+zellij delete-all-sessions
+```
+
+Sessions persist after disconnects. Termius must allow OSC 52 clipboard access.
 
 ### Powerlevel10k Configuration
 1. **Run Interactive Configuration**

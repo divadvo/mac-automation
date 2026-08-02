@@ -337,7 +337,7 @@ link_dotfiles() {
   local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
   [[ -d "$df" ]] || die "dotfiles not found at $df"
 
-  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij/layouts" "$HOME/.claude" "$HOME/.ssh"
+  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij" "$HOME/.claude" "$HOME/.ssh"
   chmod 700 "$HOME/.ssh"
 
   # repo-relative path -> $HOME/.<path>  (mirrors config.yml, minus macOS-only vscode)
@@ -347,7 +347,6 @@ link_dotfiles() {
     config/git/attributes \
     config/git/ignore \
     config/zellij/config.kdl \
-    config/zellij/layouts/agent.kdl \
     ssh/config \
     zprofile \
     claude/settings.json \
