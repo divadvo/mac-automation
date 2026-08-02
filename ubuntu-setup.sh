@@ -149,7 +149,6 @@ user_phase() {
   install_claude_cli
   install_claude_extensions
   fetch_repo
-  link_zellij
   link_dotfiles
   ensure_ssh_key
   configure_github_auth
@@ -333,32 +332,12 @@ fetch_repo() {
   fi
 }
 
-link_zellij() {
-  log "Linking mobile Zellij configuration"
-  local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
-  local rel
-  mkdir -p "$HOME/.config/zellij/layouts" "$HOME/.local/bin"
-  for rel in \
-    config/zellij/config.kdl \
-    config/zellij/layouts/claude.kdl \
-    config/zellij/layouts/codex.kdl \
-    config/zellij/layouts/opencode.kdl \
-    config/zellij/layouts/project.kdl \
-    local/bin/zj \
-    local/bin/zj-agent-launcher
-  do
-    ln -sfn "$df/$rel" "$HOME/.$rel"
-  done
-  chmod 0755 "$df/local/bin/zj" "$df/local/bin/zj-agent-launcher"
-  ok "linked Zellij layouts and helpers"
-}
-
 link_dotfiles() {
   log "Linking dotfiles from $REPO_DIR"
   local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
   [[ -d "$df" ]] || die "dotfiles not found at $df"
 
-  mkdir -p "$HOME/.config/git" "$HOME/.config" "$HOME/.claude" "$HOME/.ssh"
+  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij/layouts" "$HOME/.claude" "$HOME/.ssh"
   chmod 700 "$HOME/.ssh"
 
   # repo-relative path -> $HOME/.<path>  (mirrors config.yml, minus macOS-only vscode)
@@ -367,13 +346,18 @@ link_dotfiles() {
     config/ripgreprc \
     config/git/attributes \
     config/git/ignore \
+    config/zellij/config.kdl \
+    config/zellij/layouts/agent.kdl \
+    config/zellij/layouts/project.kdl \
     ssh/config \
     zprofile \
     claude/settings.json \
     claude/statusline.sh \
     hushlogin \
     zshrc \
-    tmux.conf
+    tmux.conf \
+    local/bin/zj \
+    local/bin/zj-agent-launcher
   do
     ln -sfn "$df/$rel" "$HOME/.$rel"
   done

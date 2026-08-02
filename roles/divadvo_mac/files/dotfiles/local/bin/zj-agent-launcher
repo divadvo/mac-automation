@@ -1,22 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-agent="${1:-}"
-case "$agent" in
-  claude|codex|opencode) ;;
-  *)
-    printf 'usage: zj-agent-launcher {claude|codex|opencode}\n' >&2
-    exit 64
-    ;;
-esac
-
-if ! command -v "$agent" >/dev/null 2>&1; then
-  printf 'zj: %s is not installed or is not on PATH\n' "$agent" >&2
-  exit 127
-fi
-
 if [[ "${ZJ_AGENT_AWAKE:-0}" == "1" && "$(uname -s)" == "Darwin" ]]; then
-  exec caffeinate -dimsu "$agent"
+  exec caffeinate -dimsu "$ZJ_AGENT"
 fi
 
-exec "$agent"
+exec "$ZJ_AGENT"

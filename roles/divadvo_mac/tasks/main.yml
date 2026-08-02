@@ -24,12 +24,6 @@
   - dotfiles
   - config
 
-- name: Configure mobile-oriented Zellij
-  import_tasks: zellij.yml
-  tags:
-  - zellij
-  - dotfiles
-
 - name: Install Claude Code extensions (MCP, plugins, skills)
   import_tasks: claude.yml
   tags:

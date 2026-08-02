@@ -1,0 +1,8 @@
+layout {
+    pane command="zsh" name="Agent" {
+        args "-lic" "exec ~/.local/bin/zj-agent-launcher"
+    }
+    pane size=1 borderless=true {
+        plugin location="compact-bar"
+    }
+}

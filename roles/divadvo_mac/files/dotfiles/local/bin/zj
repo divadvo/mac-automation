@@ -5,10 +5,7 @@ usage() {
   cat <<'EOF'
 Usage:
   zj agent {claude|codex|opencode} [--name NAME] [--new] [--awake]
-  zj attach [SESSION]
   zj mirror SESSION
-  zj list
-  zj delete SESSION
   zj clean-exited
 
 Agent sessions default to <agent>-<current-project>. --new appends a timestamp.
@@ -68,13 +65,13 @@ start_agent() {
     name="${name}-$(date +%m%d-%H%M%S)"
   fi
   session="$name"
-  export ZJ_AGENT_AWAKE="$awake"
+  export ZJ_AGENT="$agent" ZJ_AGENT_AWAKE="$awake"
 
   if session_exists "$session"; then
     exec zellij attach --force-run-commands "$session"
   fi
 
-  exec zellij --session "$session" --layout "$agent"
+  exec zellij --session "$session" --layout agent
 }
 
 clean_exited() {
@@ -105,22 +102,9 @@ case "$command" in
     shift
     start_agent "$@"
     ;;
-  attach)
-    shift
-    if (( $# > 1 )); then usage; exit 64; fi
-    exec zellij attach --force-run-commands "$@"
-    ;;
   mirror)
     (( $# == 2 )) || { usage; exit 64; }
     exec zellij attach --force-run-commands "$2" options --mirror-session true
-    ;;
-  list)
-    (( $# == 1 )) || { usage; exit 64; }
-    exec zellij list-sessions
-    ;;
-  delete)
-    (( $# == 2 )) || { usage; exit 64; }
-    exec zellij delete-session "$2"
     ;;
   clean-exited)
     (( $# == 1 )) || { usage; exit 64; }

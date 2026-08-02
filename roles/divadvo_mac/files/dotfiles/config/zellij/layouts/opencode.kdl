@@ -1,8 +1,0 @@
-layout {
-    pane command="zsh" name="OpenCode" {
-        args "-lic" "exec ~/.local/bin/zj-agent-launcher opencode"
-    }
-    pane size=1 borderless=true {
-        plugin location="compact-bar"
-    }
-}

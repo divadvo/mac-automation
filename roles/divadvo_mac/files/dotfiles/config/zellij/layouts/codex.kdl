@@ -1,8 +1,0 @@
-layout {
-    pane command="zsh" name="Codex" {
-        args "-lic" "exec ~/.local/bin/zj-agent-launcher codex"
-    }
-    pane size=1 borderless=true {
-        plugin location="compact-bar"
-    }
-}

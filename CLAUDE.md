@@ -63,7 +63,6 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 - **setup.yml**: SSH key generation and initial system setup
 - **packages.yml**: Homebrew packages, mise tools, uv tools, npm packages
 - **config.yml**: Dotfiles linking and shell configuration
-- **zellij.yml**: Cross-platform mobile Zellij configuration, layouts, and helpers
 - **claude.yml**: Claude Code extensions (user-scope MCP servers, marketplace plugins, global npm CLIs)
 - **repositories.yml**: GitHub repository cloning to organized directory structure
 - **macos.yml**: macOS system settings and defaults (tagged as "never")

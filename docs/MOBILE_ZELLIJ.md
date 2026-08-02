@@ -20,10 +20,10 @@ Default names are `<agent>-<project-directory>`. Existing sessions attach or
 resurrect; absent sessions start the matching layout.
 
 ```bash
-zj list
-zj attach [session]
+zellij ls
+zellij a [session]
 zj mirror <session>
-zj delete <session>
+zellij d <session>
 zj clean-exited
 zellij --layout project
 ```
