@@ -450,16 +450,21 @@ clone_repositories() {
 
   log "Cloning personal repos pushed after $REPOS_PUSHED_AFTER"
   local recent
-  recent="$(gh repo list --limit 200 --json nameWithOwner,pushedAt \
-            --jq ".[] | select(.pushedAt > \"$REPOS_PUSHED_AFTER\") | .nameWithOwner" 2>/dev/null || true)"
-  local r
-  while IFS= read -r r; do
+  recent="$(gh repo list --limit 200 --json nameWithOwner,pushedAt,repositoryTopics \
+            --jq ".[] | select(.pushedAt > \"$REPOS_PUSHED_AFTER\") | [.nameWithOwner, ([((.repositoryTopics // [])[].name)] | contains([\"sandbox\"]))] | @tsv" 2>/dev/null || true)"
+  local r is_sandbox dest
+  while IFS=$'\t' read -r r is_sandbox; do
     [[ -z "$r" ]] && continue
+    [[ " ${PRIORITY_REPOS[*]} " == *" $r "* ]] && continue
     name="${r##*/}"
-    [[ -d "$HOME/pr/github/$name" ]] && continue
-    try gh repo clone "$r" "$HOME/pr/github/$name"
+    dest="$HOME/pr/github"
+    if [[ "$is_sandbox" == true ]]; then
+      dest="$HOME/pr/sandbox"
+    fi
+    [[ -d "$dest/$name" ]] && continue
+    try gh repo clone "$r" "$dest/$name"
   done <<< "$recent"
-  ok "repositories cloned into ~/pr/github"
+  ok "repositories cloned into ~/pr/github and ~/pr/sandbox"
 }
 
 clone_if_missing() {

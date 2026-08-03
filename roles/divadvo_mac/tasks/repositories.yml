@@ -29,17 +29,20 @@
   failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.stderr
 
 - name: Fetch all repositories pushed after {{ repos_pushed_after }}
-  shell: gh repo list --limit 200 --json nameWithOwner,pushedAt --jq '.[] | select(.pushedAt > "{{ repos_pushed_after }}") | .nameWithOwner'
+  shell: gh repo list --limit 200 --json nameWithOwner,pushedAt,repositoryTopics --jq '.[] | select(.pushedAt > "{{ repos_pushed_after }}") | [.nameWithOwner, ([((.repositoryTopics // [])[].name)] | contains(["sandbox"]))] | @tsv'
   register: recent_repos_result
 
 # Clone remaining recent repositories (excluding already cloned priority repos)
-- name: Clone recent repositories to {{ github_dir }}/ (excluding priority repos)
-  command: gh repo clone {{ item }} {{ github_dir }}/{{ item.split('/')[1] }}
+- name: Clone recent repositories by topic (excluding priority repos)
+  command: gh repo clone {{ repo }} {{ destination }}/{{ repo.split('/')[1] }}
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
+  vars:
+    repo: "{{ item.split('\t')[0] }}"
+    destination: "{{ sandbox_dir if item.split('\t')[1] == 'true' else github_dir }}"
   when:
     - recent_repos_result is defined
     - recent_repos_result.stdout_lines is defined
-    - item not in priority_repos
+    - repo not in priority_repos
   register: recent_clone_result
   changed_when: recent_clone_result.rc == 0 and "already exists" not in recent_clone_result.stderr
   failed_when: recent_clone_result.rc != 0 and "already exists" not in recent_clone_result.stderr
@@ -49,11 +52,11 @@
     msg: |
       Repository cloning complete!
       
-      Your repositories: {{ priority_repos | length }} priority + {{ (recent_repos_result.stdout_lines | default([]) | reject('in', priority_repos) | list) | length }} recently pushed repos cloned to {{ github_dir }}/
+      Priority repositories cloned to {{ github_dir }}/; recently pushed repositories routed by topic.
       
       Directory structure:
       - {{ github_dir }}/ - Your personal repositories
       - {{ github_other_dir }}/ - External repositories (empty, ready for use)
-      - {{ sandbox_dir }}/ - Experimental projects (empty, ready for use)
+      - {{ sandbox_dir }}/ - Repositories with the sandbox topic
       
       Check {{ projects_dir }}/ for all your development projects.
