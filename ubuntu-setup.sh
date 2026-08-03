@@ -337,7 +337,7 @@ link_dotfiles() {
   local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
   [[ -d "$df" ]] || die "dotfiles not found at $df"
 
-  mkdir -p "$HOME/.config/git" "$HOME/.config" "$HOME/.claude" "$HOME/.ssh"
+  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij" "$HOME/.config" "$HOME/.claude" "$HOME/.ssh"
   chmod 700 "$HOME/.ssh"
 
   # repo-relative path -> $HOME/.<path>  (mirrors config.yml, minus macOS-only vscode)
@@ -346,6 +346,7 @@ link_dotfiles() {
     config/ripgreprc \
     config/git/attributes \
     config/git/ignore \
+    config/zellij/config.kdl \
     ssh/config \
     zprofile \
     claude/settings.json \
@@ -356,7 +357,7 @@ link_dotfiles() {
   do
     ln -sfn "$df/$rel" "$HOME/.$rel"
   done
-  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin, tmux.conf"
+  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin, tmux.conf, zellij/config.kdl"
 
   # Git config is templated in Ansible (config.j2). Render name/email here.
   render_git_config

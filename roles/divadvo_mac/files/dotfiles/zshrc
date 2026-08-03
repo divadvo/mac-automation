@@ -33,6 +33,9 @@ function chpwd_ls { ls }
 add-zsh-hook chpwd chpwd_ls
 
 # Aliases
+alias zj='zellij attach -c main'
+alias zjl='zellij ls'
+
 if [[ "$OSTYPE" == darwin* ]]; then
   alias toggle-dark-mode='osascript -e "tell app \"System Events\" to tell appearance preferences to set dark mode to not dark mode"'
   alias o=open

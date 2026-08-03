@@ -52,6 +52,15 @@
   when: "'On' not in restart_freeze_current.stdout"
   # Original: systemsetup -setrestartfreeze on (requires sudo)
 
+- name: Keep Mac awake on AC power so it stays SSH-reachable
+  command: pmset -c sleep 0 displaysleep 10 disksleep 0
+  become: true
+  changed_when: false
+  # Only covers lid open, or clamshell with an external display attached.
+  # A closed lid with no display still sleeps; the fix for that is global (applies on
+  # battery too) and cooks the laptop in a bag, so it stays opt-in:
+  #   pmset -a disablesleep 1
+
 - name: Disable smart quotes (annoying when typing code)
   osx_defaults:
     domain: NSGlobalDomain

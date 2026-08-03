@@ -1,0 +1,17 @@
+// Sessions survive dropped SSH connections (phone -> Mac).
+session_serialization true
+serialize_pane_viewport true
+scrollback_lines_to_serialize 10000
+
+// Mobile-friendly: no wasted rows/columns on a phone screen.
+default_layout "compact"
+pane_frames false
+
+// Claude Code is verbose.
+scroll_buffer_size 50000
+
+// Matches the iTerm2 scheme downloaded in config.yml.
+theme "catppuccin-frappe"
+
+// No copy_command on purpose: unset means OSC 52, so a copy over SSH lands on the
+// client's clipboard (phone) instead of the Mac's, and it works the same on Linux.
