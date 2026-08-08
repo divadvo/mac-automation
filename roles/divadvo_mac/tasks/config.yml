@@ -41,6 +41,25 @@
   tags:
   - dotfiles
 
+- name: Set IINA as default video player
+  command: duti -s com.colliderli.iina {{ item }} all
+  loop:
+  - mkv
+  - mp4
+  - m4v
+  - mov
+  - avi
+  - webm
+  - flv
+  - wmv
+  - mpg
+  - mpeg
+  - ts
+  - m2ts
+  changed_when: false
+  tags:
+  - iina
+
 - name: Template git configuration file
   template:
     src: config/git/config.j2
