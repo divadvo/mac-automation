@@ -38,16 +38,33 @@
 
 # --- Third-party skills for agents without a plugin build ---------------------
 
+# Run every time rather than skipping when the skill directory already exists.
+# `skills add` overwrites in place and exits 0, so re-running is how these stay
+# current — a presence check would freeze them at whatever version first landed
+# and silently miss skills added upstream later.
 - name: Install third-party skills for Codex and OpenCode
   command: >-
     npx -y skills@latest add {{ item.source }} --global --yes
     {{ item.agents | map('regex_replace', '^(.*)$', '--agent \1') | join(' ') }}
-  args:
-    creates: "{{ ansible_env.HOME }}/.agents/skills/{{ item.probe }}"
   loop: "{{ cross_agent_skills }}"
   loop_control:
     label: "{{ item.source }}"
+  register: cross_skills_install
+  changed_when: false
   failed_when: false
+  tags:
+  - skills
+
+# These are optional tooling, so a failure must not abort provisioning — but it
+# must not pass silently either. An install that quietly does nothing looks
+# identical to a working one until the skill turns up missing weeks later.
+- name: Warn about third-party skills that failed to install
+  debug:
+    msg: "skills add {{ item.item.source }} failed (rc={{ item.rc }}): {{ item.stderr | default('') | trim | truncate(200) }}"
+  loop: "{{ cross_skills_install.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.source }}"
+  when: item.rc | default(0) != 0
   tags:
   - skills
 
@@ -69,11 +86,21 @@
   tags:
   - skills
 
+# Also unguarded: the installer detects an existing install and skips it (that
+# is what its --force flag overrides), so re-running keeps it current for free.
 - name: Install caveman for OpenCode (native plugin, hooks included)
   command: bash install.sh --only opencode
   args:
     chdir: "{{ ansible_env.HOME }}/.cache/caveman-installer"
-    creates: "{{ ansible_env.HOME }}/.config/opencode/plugins/caveman"
+  register: caveman_opencode_install
+  changed_when: false
   failed_when: false
+  tags:
+  - skills
+
+- name: Warn if caveman failed to install for OpenCode
+  debug:
+    msg: "caveman opencode install failed (rc={{ caveman_opencode_install.rc }}): {{ caveman_opencode_install.stderr | default('') | trim | truncate(200) }}"
+  when: caveman_opencode_install.rc | default(0) != 0
   tags:
   - skills

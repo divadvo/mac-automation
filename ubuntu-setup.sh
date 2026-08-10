@@ -75,11 +75,11 @@ CODEX_PLUGINS=(
 )
 # Own skills from skills/ in this repo, symlinked for every agent.
 AGENT_SKILLS=(houserules)
-# Third-party skills for agents with no plugin build: "source|probe-skill|agents".
+# Third-party skills for agents with no plugin build: "source|agents".
 # Claude Code gets these through CLAUDE_PLUGINS, so it is deliberately absent.
 CROSS_AGENT_SKILLS=(
-  "cloudflare/skills|wrangler|codex,opencode"
-  "JuliusBrussee/caveman|caveman|codex"
+  "cloudflare/skills|codex,opencode"
+  "JuliusBrussee/caveman|codex"
 )
 
 # Repositories (mirrors repositories.yml)
@@ -400,13 +400,14 @@ install_cross_agent_skills() {
 
   log "Installing cross-agent skills"
 
-  local spec rest source probe agents a flags
+  # Run every time rather than skipping when already present. `skills add`
+  # overwrites in place and exits 0, so re-running is how these stay current —
+  # a presence check freezes them at whatever version first landed and misses
+  # skills added upstream later. Failures warn rather than abort: this is
+  # optional tooling, but an install that quietly did nothing must still show.
+  local spec source agents a flags
   for spec in "${CROSS_AGENT_SKILLS[@]}"; do
-    source="${spec%%|*}"; rest="${spec#*|}"
-    probe="${rest%%|*}"; agents="${rest#*|}"
-    if [[ -e "$HOME/.agents/skills/$probe" ]]; then
-      ok "skill $probe already installed"; continue
-    fi
+    source="${spec%%|*}"; agents="${spec#*|}"
     flags=()
     for a in ${agents//,/ }; do flags+=(--agent "$a"); done
     try npx -y skills@latest add "$source" --global --yes "${flags[@]}"
@@ -419,10 +420,8 @@ install_cross_agent_skills() {
   # refuses git-source packages under some configurations (EALLOWGIT) and there
   # is no installer package on the registry. install.sh resolves its own path,
   # so it survives upstream moving the script (bin/ -> cli/ in Aug 2026).
-  if [[ -e "$HOME/.config/opencode/plugins/caveman" ]]; then
-    ok "caveman already installed for opencode"
-    return
-  fi
+  # Unguarded for the same reason: the installer detects an existing install and
+  # skips it (what its --force flag overrides), so re-running keeps it current.
   local cdir="$HOME/.cache/caveman-installer"
   if [[ -d "$cdir/.git" ]]; then
     try git -C "$cdir" pull --quiet --ff-only

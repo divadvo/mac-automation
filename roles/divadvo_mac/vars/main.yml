@@ -209,10 +209,10 @@ agent_skills:
 
 # Third-party skills for the agents that have no plugin build of them. Claude
 # Code already gets these through claude_plugins, so it is deliberately absent.
-# `probe` is a skill directory the source installs — used to skip re-running.
+# Reinstalled on every run, which is what keeps them up to date.
 cross_agent_skills:
-  - { source: "cloudflare/skills", probe: wrangler, agents: [codex, opencode] }
-  - { source: "JuliusBrussee/caveman", probe: caveman, agents: [codex] }
+  - { source: "cloudflare/skills", agents: [codex, opencode] }
+  - { source: "JuliusBrussee/caveman", agents: [codex] }
 
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically
