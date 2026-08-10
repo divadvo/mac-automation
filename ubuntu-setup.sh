@@ -195,21 +195,27 @@ install_extra_tools() {
 
 install_render_cli() {
   log "Installing Render CLI"
-  local render_bin="$HOME/.render/bin/render"
   if command -v render >/dev/null 2>&1; then
     ok "render already installed"
     return
   fi
-  if [[ ! -x "$render_bin" ]]; then
-    # A third-party installer must not take the whole user phase down with it:
-    # this one exits non-zero when unzip is missing, and under `set -e` that
-    # aborted everything after it.
-    curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh \
-      || { warn "Render CLI installer failed (continuing)"; return; }
+  # A third-party installer must not take the whole user phase down with it:
+  # this one exits non-zero when unzip is missing, and under `set -e` that
+  # aborted everything after it.
+  curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh \
+    || { warn "Render CLI installer failed (continuing)"; return; }
+
+  # The installer used to drop the binary in ~/.render/bin and now puts it
+  # straight into ~/.local/bin. Accept either, so a successful install stops
+  # being reported as a failure.
+  if command -v render >/dev/null 2>&1; then
+    ok "render installed"
+  elif [[ -x "$HOME/.render/bin/render" ]]; then
+    ln -sfn "$HOME/.render/bin/render" "$HOME/.local/bin/render"
+    ok "render linked into ~/.local/bin"
+  else
+    warn "Render CLI installer ran but produced no render binary"
   fi
-  [[ -x "$render_bin" ]] || { warn "Render CLI installer did not create $render_bin"; return; }
-  ln -sfn "$render_bin" "$HOME/.local/bin/render"
-  ok "render linked into ~/.local/bin"
 }
 
 install_uv() {
