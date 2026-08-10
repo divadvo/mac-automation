@@ -267,16 +267,37 @@ install_claude_cli() {
 
 # Install Claude Code extensions user-wide: MCP servers, marketplace plugins,
 # and related global npm CLIs. Mirrors roles/divadvo_mac/tasks/claude.yml.
+# Never let a claude subcommand inherit our stdin. When this script is piped to
+# `bash -s` (which is how devbox provisions it), stdin IS the rest of the script:
+# a child that reads it swallows the remainder of the run, and one that waits on
+# it hangs forever. Measured on claude 2.1.226: `mcp list`, `mcp add`, `plugin
+# list` and `plugin marketplace list` all exit 0 with no TTY and a fresh config
+# dir, so nothing here needs an authenticated login — only a closed stdin.
+claude_q() { claude "$@" </dev/null; }
+
 install_claude_extensions() {
   if ! command -v claude >/dev/null 2>&1; then
     warn "claude CLI not found; skipping Claude Code extensions"
     return
   fi
+
+  # One probe for the whole block. If claude cannot answer a read-only question
+  # unattended, every call below would fail the same way, so say it once and
+  # leave the user a command instead of a wall of warnings.
+  if ! claude_q mcp list >/dev/null 2>&1; then
+    local self="$0"
+    [[ -f "$self" ]] || self="ubuntu-setup.sh"
+    warn "claude cannot run unattended here; skipping Claude Code extensions"
+    info "sign in with ${BOLD}claude${RST}, then apply them with:"
+    info "  _EXTENSIONS_ONLY=1 bash $self"
+    return
+  fi
+
   log "Configuring Claude Code extensions (user scope)"
 
   # --- MCP servers (name|http|<url>  OR  name|stdio|<command with args>) ---
   local existing entry name transport rest
-  existing="$(claude mcp list 2>/dev/null || true)"
+  existing="$(claude_q mcp list 2>/dev/null || true)"
   for entry in "${CLAUDE_MCP_SERVERS[@]}"; do
     name="${entry%%|*}"; rest="${entry#*|}"
     transport="${rest%%|*}"; rest="${rest#*|}"
@@ -284,26 +305,26 @@ install_claude_extensions() {
       ok "mcp $name already configured"; continue
     fi
     if [[ "$transport" == "http" ]]; then
-      try claude mcp add --scope user --transport http "$name" "$rest"
+      try claude_q mcp add --scope user --transport http "$name" "$rest"
     else
       # stdio: split the command line into argv on whitespace (intentional).
       # shellcheck disable=SC2086
-      try claude mcp add --scope user "$name" -- $rest
+      try claude_q mcp add --scope user "$name" -- $rest
     fi
   done
 
   # --- Marketplace plugins (plugin@marketplace|marketplace-source) ---
   local marketplaces installed spec plugin_id source pname mkt
-  marketplaces="$(claude plugin marketplace list 2>/dev/null || true)"
-  installed="$(claude plugin list 2>/dev/null || true)"
+  marketplaces="$(claude_q plugin marketplace list 2>/dev/null || true)"
+  installed="$(claude_q plugin list 2>/dev/null || true)"
   for spec in "${CLAUDE_PLUGINS[@]}"; do
     plugin_id="${spec%%|*}"; source="${spec#*|}"
     pname="${plugin_id%@*}"; mkt="${plugin_id#*@}"
-    grep -qF "$mkt" <<<"$marketplaces" || try claude plugin marketplace add "$source"
+    grep -qF "$mkt" <<<"$marketplaces" || try claude_q plugin marketplace add "$source"
     if grep -qF "$pname" <<<"$installed"; then
       ok "plugin $plugin_id already installed"
     else
-      try claude plugin install "$plugin_id" --scope user
+      try claude_q plugin install "$plugin_id" --scope user
     fi
   done
 
@@ -589,6 +610,14 @@ determine_target_user() {
 }
 
 main() {
+  # Re-entry: apply only the Claude extensions to the current user's home. This
+  # is the follow-up install_claude_extensions prints when it has to skip.
+  if [[ "${_EXTENSIONS_ONLY:-}" == "1" ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+    install_claude_extensions
+    exit 0
+  fi
+
   # Re-entry: this invocation is the per-user phase spawned by root.
   if [[ "${_USER_PHASE:-}" == "1" ]]; then
     prompt_identity
