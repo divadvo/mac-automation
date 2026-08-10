@@ -29,6 +29,16 @@
   tags:
   - claude
 
+- name: Install Codex plugins
+  import_tasks: codex.yml
+  tags:
+  - codex
+
+- name: Install agent skills (own + cross-agent third-party)
+  import_tasks: skills.yml
+  tags:
+  - skills
+
 - name: Install LaunchAgents
   import_tasks: launchd.yml
   tags:

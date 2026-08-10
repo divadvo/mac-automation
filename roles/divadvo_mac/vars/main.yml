@@ -195,6 +195,25 @@ claude_plugins:
 claude_global_npm_tools:
   - "@fission-ai/openspec@latest"
 
+# Codex plugins — see roles/divadvo_mac/tasks/codex.yml. Codex mirrors Claude's
+# marketplace commands, so the shape here matches claude_plugins above. Only
+# packages with a native Codex plugin build belong here; packages that ship
+# skills but no Codex hooks go in cross_agent_skills instead.
+codex_plugins:
+  - { name: ponytail, marketplace: ponytail, source: "DietrichGebert/ponytail" }
+
+# Own skills, living in skills/ in this repo. Symlinked rather than copied, so
+# editing the SKILL.md here takes effect immediately with no reinstall step.
+agent_skills:
+  - houserules
+
+# Third-party skills for the agents that have no plugin build of them. Claude
+# Code already gets these through claude_plugins, so it is deliberately absent.
+# `probe` is a skill directory the source installs — used to skip re-running.
+cross_agent_skills:
+  - { source: "cloudflare/skills", probe: wrangler, agents: [codex, opencode] }
+  - { source: "JuliusBrussee/caveman", probe: caveman, agents: [codex] }
+
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically
 user_email: "your@email.com"

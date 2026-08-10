@@ -1,0 +1,7 @@
+{
+  // OpenCode gets ponytail as a native plugin (always-on ruleset + /ponytail
+  // commands), not just the skill. caveman installs its own plugin here via
+  // tasks/skills.yml, and skills land in ~/.agents/skills.
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@dietrichgebert/ponytail"]
+}

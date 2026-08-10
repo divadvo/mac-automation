@@ -1,0 +1,62 @@
+# Agent skills that are not tied to one CLI's plugin system.
+#
+# ~/.agents/skills is the shared directory Codex and OpenCode both read
+# directly; Claude Code reads ~/.claude/skills, so it gets a symlink into the
+# same tree. One copy on disk, three agents.
+#
+# Own skills are symlinked straight at this repo rather than installed with
+# `skills add`, because that CLI copies the file — edits here would not reach
+# the agents until a reinstall. Third-party sources have no such problem and
+# do go through the CLI.
+
+- name: Create the shared agent skills directory
+  file:
+    path: ~/.agents/skills
+    state: directory
+  tags:
+  - skills
+
+- name: Symlink own skills into the shared agent skills directory
+  file:
+    src: '{{ ansible_env.PWD }}/skills/{{ item }}'
+    path: '~/.agents/skills/{{ item }}'
+    state: link
+    force: yes
+  loop: "{{ agent_skills }}"
+  tags:
+  - skills
+
+- name: Symlink own skills into Claude Code
+  file:
+    src: '{{ ansible_env.HOME }}/.agents/skills/{{ item }}'
+    path: '~/.claude/skills/{{ item }}'
+    state: link
+    force: yes
+  loop: "{{ agent_skills }}"
+  tags:
+  - skills
+
+# --- Third-party skills for agents without a plugin build ---------------------
+
+- name: Install third-party skills for Codex and OpenCode
+  command: >-
+    npx -y skills@latest add {{ item.source }} --global --yes
+    {{ item.agents | map('regex_replace', '^(.*)$', '--agent \1') | join(' ') }}
+  args:
+    creates: "{{ ansible_env.HOME }}/.agents/skills/{{ item.probe }}"
+  loop: "{{ cross_agent_skills }}"
+  loop_control:
+    label: "{{ item.source }}"
+  failed_when: false
+  tags:
+  - skills
+
+# caveman ships a native OpenCode plugin (hooks + commands), which the skills
+# CLI would not install — it only moves SKILL.md files. Its own installer does.
+- name: Install caveman for OpenCode (native plugin, hooks included)
+  command: npx -y github:JuliusBrussee/caveman -- --only opencode --yes --non-interactive
+  args:
+    creates: "{{ ansible_env.HOME }}/.config/opencode/plugins/caveman"
+  failed_when: false
+  tags:
+  - skills

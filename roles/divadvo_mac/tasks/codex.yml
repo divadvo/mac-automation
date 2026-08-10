@@ -1,0 +1,68 @@
+# Install Codex plugins user-wide. Codex mirrors Claude Code's marketplace
+# commands, so this is claude.yml's plugin half pointed at the codex CLI.
+# Kept in sync with ubuntu-setup.sh.
+#
+# `plugin add` is safe to re-run (exits 0, keeps the installed version), but it
+# refreshes a last_updated timestamp in ~/.codex/config.toml, so the same
+# "already in the list" guard claude.yml uses is what keeps runs idempotent.
+
+- name: Check that the Codex CLI is available
+  command: which codex
+  register: codex_bin
+  changed_when: false
+  failed_when: false
+  tags:
+  - codex
+
+- name: Warn if Codex CLI is missing (skipping plugins)
+  debug:
+    msg: "codex CLI not found on PATH - skipping Codex plugin setup"
+  when: codex_bin.rc != 0
+  tags:
+  - codex
+
+- name: List configured Codex plugin marketplaces
+  command: codex plugin marketplace list
+  register: codex_marketplace_list
+  changed_when: false
+  failed_when: false
+  when: codex_bin.rc == 0
+  tags:
+  - codex
+
+- name: Register Codex plugin marketplaces
+  command: codex plugin marketplace add {{ item.source }}
+  loop: "{{ codex_plugins }}"
+  loop_control:
+    label: "{{ item.marketplace }}"
+  when:
+    - codex_bin.rc == 0
+    - item.marketplace not in (codex_marketplace_list.stdout | default(''))
+  register: codex_marketplace_add
+  changed_when: codex_marketplace_add.rc == 0
+  failed_when: false
+  tags:
+  - codex
+
+- name: List installed Codex plugins
+  command: codex plugin list
+  register: codex_plugin_list
+  changed_when: false
+  failed_when: false
+  when: codex_bin.rc == 0
+  tags:
+  - codex
+
+- name: Install Codex plugins
+  command: codex plugin add {{ item.name }}@{{ item.marketplace }}
+  loop: "{{ codex_plugins }}"
+  loop_control:
+    label: "{{ item.name }}@{{ item.marketplace }}"
+  when:
+    - codex_bin.rc == 0
+    - item.name not in (codex_plugin_list.stdout | default(''))
+  register: codex_plugin_install
+  changed_when: codex_plugin_install.rc == 0
+  failed_when: false
+  tags:
+  - codex

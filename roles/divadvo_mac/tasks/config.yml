@@ -6,7 +6,9 @@
   - config/git
   - config/fish
   - config/zellij
+  - config/opencode
   - claude
+  - claude/skills
   tags:
   - dotfiles
 
@@ -22,6 +24,7 @@
   - config/git/ignore
   - config/fish/config.fish
   - config/zellij/config.kdl
+  - config/opencode/opencode.jsonc
   - ssh/config
   - zprofile
   - claude/settings.json
