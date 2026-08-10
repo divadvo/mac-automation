@@ -201,7 +201,11 @@ install_render_cli() {
     return
   fi
   if [[ ! -x "$render_bin" ]]; then
-    curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh
+    # A third-party installer must not take the whole user phase down with it:
+    # this one exits non-zero when unzip is missing, and under `set -e` that
+    # aborted everything after it.
+    curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh \
+      || { warn "Render CLI installer failed (continuing)"; return; }
   fi
   [[ -x "$render_bin" ]] || { warn "Render CLI installer did not create $render_bin"; return; }
   ln -sfn "$render_bin" "$HOME/.local/bin/render"
@@ -516,7 +520,7 @@ system_phase() {
     ripgrep fd-find bat lsd git-delta tree fzf zoxide
     tmux
     htop
-    wget curl rsync jq
+    wget curl rsync jq unzip
     ffmpeg nmap qpdf
     redis-server
     build-essential
