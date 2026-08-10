@@ -21,12 +21,15 @@
     - "{{ github_other_dir }}"
     - "{{ sandbox_dir }}"
 
+# `creates` skips the clone when the checkout is already there, instead of
+# running it and filtering the "already exists" failure back out afterwards.
+# Same outcome, minus a red rc=1 per existing repo on every run — noise that
+# trains you to skim past errors that turn out to matter.
 - name: Clone priority repositories to {{ github_dir }}/
   command: gh repo clone {{ item }} {{ github_dir }}/{{ item.split('/')[1] }}
+  args:
+    creates: "{{ (github_dir + '/' + item.split('/')[1]) | expanduser }}"
   loop: "{{ priority_repos }}"
-  register: priority_clone_result
-  changed_when: priority_clone_result.rc == 0 and "already exists" not in priority_clone_result.stderr
-  failed_when: priority_clone_result.rc != 0 and "already exists" not in priority_clone_result.stderr
 
 - name: Fetch all repositories pushed after {{ repos_pushed_after }}
   shell: gh repo list --limit 200 --json nameWithOwner,pushedAt,repositoryTopics --jq '.[] | select(.pushedAt > "{{ repos_pushed_after }}") | [.nameWithOwner, ([((.repositoryTopics // [])[].name)] | contains(["sandbox"]))] | @tsv'
@@ -35,6 +38,8 @@
 # Clone remaining recent repositories (excluding already cloned priority repos)
 - name: Clone recent repositories by topic (excluding priority repos)
   command: gh repo clone {{ repo }} {{ destination }}/{{ repo.split('/')[1] }}
+  args:
+    creates: "{{ (destination + '/' + repo.split('/')[1]) | expanduser }}"
   loop: "{{ recent_repos_result.stdout_lines | default([]) }}"
   vars:
     repo: "{{ item.split('\t')[0] }}"
@@ -43,9 +48,6 @@
     - recent_repos_result is defined
     - recent_repos_result.stdout_lines is defined
     - repo not in priority_repos
-  register: recent_clone_result
-  changed_when: recent_clone_result.rc == 0 and "already exists" not in recent_clone_result.stderr
-  failed_when: recent_clone_result.rc != 0 and "already exists" not in recent_clone_result.stderr
 
 - name: Show summary of cloned repositories
   debug:
