@@ -414,11 +414,22 @@ install_cross_agent_skills() {
 
   # caveman ships a native OpenCode plugin (hooks + commands) that the skills
   # CLI cannot install, since that only moves SKILL.md files. Its own can.
+  #
+  # Cloned rather than run via `npx github:...` as upstream documents: npm
+  # refuses git-source packages under some configurations (EALLOWGIT) and there
+  # is no installer package on the registry. install.sh resolves its own path,
+  # so it survives upstream moving the script (bin/ -> cli/ in Aug 2026).
   if [[ -e "$HOME/.config/opencode/plugins/caveman" ]]; then
     ok "caveman already installed for opencode"
-  else
-    try npx -y github:JuliusBrussee/caveman -- --only opencode --yes --non-interactive
+    return
   fi
+  local cdir="$HOME/.cache/caveman-installer"
+  if [[ -d "$cdir/.git" ]]; then
+    try git -C "$cdir" pull --quiet --ff-only
+  else
+    try git clone --depth 1 --quiet https://github.com/JuliusBrussee/caveman.git "$cdir"
+  fi
+  [[ -f "$cdir/install.sh" ]] && try bash "$cdir/install.sh" --only opencode </dev/null
 }
 
 # Ensure this repo is available locally so we can symlink its dotfiles.

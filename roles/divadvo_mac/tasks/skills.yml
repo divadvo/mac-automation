@@ -53,9 +53,26 @@
 
 # caveman ships a native OpenCode plugin (hooks + commands), which the skills
 # CLI would not install — it only moves SKILL.md files. Its own installer does.
+#
+# Cloned rather than run through `npx github:...` as upstream documents, because
+# npm refuses git-source packages under some configurations (EALLOWGIT) and
+# caveman publishes no installer package to the registry. install.sh is the
+# entry point rather than the Node script directly: it resolves its own path,
+# so it survives upstream moving the script (bin/ -> cli/ in Aug 2026).
+- name: Clone the caveman installer
+  git:
+    repo: https://github.com/JuliusBrussee/caveman.git
+    dest: "{{ ansible_env.HOME }}/.cache/caveman-installer"
+    version: main
+    depth: 1
+  failed_when: false
+  tags:
+  - skills
+
 - name: Install caveman for OpenCode (native plugin, hooks included)
-  command: npx -y github:JuliusBrussee/caveman -- --only opencode --yes --non-interactive
+  command: bash install.sh --only opencode
   args:
+    chdir: "{{ ansible_env.HOME }}/.cache/caveman-installer"
     creates: "{{ ansible_env.HOME }}/.config/opencode/plugins/caveman"
   failed_when: false
   tags:
