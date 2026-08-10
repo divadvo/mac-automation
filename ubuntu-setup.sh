@@ -68,6 +68,20 @@ CLAUDE_PLUGINS=(
 # Global npm CLIs for the Claude workflow (installed via mise node).
 CLAUDE_NPM_TOOLS=(@fission-ai/openspec@latest)
 
+# Codex plugins: "plugin@marketplace|marketplace-source" (mirrors tasks/codex.yml).
+# Only packages with a native Codex plugin build; skills-only ones go below.
+CODEX_PLUGINS=(
+  "ponytail@ponytail|DietrichGebert/ponytail"
+)
+# Own skills from skills/ in this repo, symlinked for every agent.
+AGENT_SKILLS=(houserules)
+# Third-party skills for agents with no plugin build: "source|probe-skill|agents".
+# Claude Code gets these through CLAUDE_PLUGINS, so it is deliberately absent.
+CROSS_AGENT_SKILLS=(
+  "cloudflare/skills|wrangler|codex,opencode"
+  "JuliusBrussee/caveman|caveman|codex"
+)
+
 # Repositories (mirrors repositories.yml)
 PRIORITY_REPOS=(divadvo/divadvo-scripts)
 REPOS_PUSHED_AFTER="2022-01-01"
@@ -148,8 +162,11 @@ user_phase() {
   install_nvchad
   install_claude_cli
   install_claude_extensions
+  install_codex_plugins
   fetch_repo
   link_dotfiles
+  link_agent_skills
+  install_cross_agent_skills
   ensure_ssh_key
   configure_github_auth
   upload_ssh_key
@@ -345,6 +362,65 @@ install_claude_extensions() {
   done
 }
 
+# Codex mirrors Claude Code's marketplace commands, so this is the plugin half
+# of install_claude_extensions pointed at codex. Mirrors tasks/codex.yml.
+# Same closed-stdin reasoning as claude_q above.
+codex_q() { codex "$@" </dev/null; }
+
+install_codex_plugins() {
+  if ! command -v codex >/dev/null 2>&1; then
+    warn "codex CLI not found; skipping Codex plugins"
+    return
+  fi
+
+  log "Configuring Codex plugins"
+
+  local marketplaces installed spec plugin_id source pname mkt
+  marketplaces="$(codex_q plugin marketplace list 2>/dev/null || true)"
+  installed="$(codex_q plugin list 2>/dev/null || true)"
+  for spec in "${CODEX_PLUGINS[@]}"; do
+    plugin_id="${spec%%|*}"; source="${spec#*|}"
+    pname="${plugin_id%@*}"; mkt="${plugin_id#*@}"
+    grep -qF "$mkt" <<<"$marketplaces" || try codex_q plugin marketplace add "$source"
+    if grep -qF "$pname" <<<"$installed"; then
+      ok "codex plugin $plugin_id already installed"
+    else
+      try codex_q plugin add "$plugin_id"
+    fi
+  done
+}
+
+# Third-party skills for the agents that have no plugin build of them.
+# Mirrors the second half of tasks/skills.yml.
+install_cross_agent_skills() {
+  if ! command -v npx >/dev/null 2>&1; then
+    warn "npx not found; skipping cross-agent skills"
+    return
+  fi
+
+  log "Installing cross-agent skills"
+
+  local spec rest source probe agents a flags
+  for spec in "${CROSS_AGENT_SKILLS[@]}"; do
+    source="${spec%%|*}"; rest="${spec#*|}"
+    probe="${rest%%|*}"; agents="${rest#*|}"
+    if [[ -e "$HOME/.agents/skills/$probe" ]]; then
+      ok "skill $probe already installed"; continue
+    fi
+    flags=()
+    for a in ${agents//,/ }; do flags+=(--agent "$a"); done
+    try npx -y skills@latest add "$source" --global --yes "${flags[@]}"
+  done
+
+  # caveman ships a native OpenCode plugin (hooks + commands) that the skills
+  # CLI cannot install, since that only moves SKILL.md files. Its own can.
+  if [[ -e "$HOME/.config/opencode/plugins/caveman" ]]; then
+    ok "caveman already installed for opencode"
+  else
+    try npx -y github:JuliusBrussee/caveman -- --only opencode --yes --non-interactive
+  fi
+}
+
 # Ensure this repo is available locally so we can symlink its dotfiles.
 fetch_repo() {
   # If the script is being run from inside a checkout, use that.
@@ -368,7 +444,8 @@ link_dotfiles() {
   local df="$REPO_DIR/roles/divadvo_mac/files/dotfiles"
   [[ -d "$df" ]] || die "dotfiles not found at $df"
 
-  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij" "$HOME/.config" "$HOME/.claude" "$HOME/.ssh"
+  mkdir -p "$HOME/.config/git" "$HOME/.config/zellij" "$HOME/.config/opencode" \
+           "$HOME/.config" "$HOME/.claude" "$HOME/.ssh"
   chmod 700 "$HOME/.ssh"
 
   # repo-relative path -> $HOME/.<path>  (mirrors config.yml, minus macOS-only vscode)
@@ -378,6 +455,7 @@ link_dotfiles() {
     config/git/attributes \
     config/git/ignore \
     config/zellij/config.kdl \
+    config/opencode/opencode.jsonc \
     ssh/config \
     zprofile \
     claude/settings.json \
@@ -388,10 +466,27 @@ link_dotfiles() {
   do
     ln -sfn "$df/$rel" "$HOME/.$rel"
   done
-  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin, tmux.conf, zellij/config.kdl"
+  ok "symlinked zshrc, zprofile, git/*, ripgreprc, ssh/config, claude/*, hushlogin, tmux.conf, zellij/config.kdl, opencode.jsonc"
 
   # Git config is templated in Ansible (config.j2). Render name/email here.
   render_git_config
+}
+
+# Symlink this repo's own skills so every agent picks them up. ~/.agents/skills
+# is read directly by Codex and OpenCode; Claude Code reads ~/.claude/skills, so
+# it gets a symlink into the same tree. Symlinks rather than copies, so editing
+# a SKILL.md in the repo takes effect with no reinstall. Mirrors tasks/skills.yml.
+link_agent_skills() {
+  local src="$REPO_DIR/skills"
+  [[ -d "$src" ]] || { warn "no skills/ in repo, skipping agent skills"; return; }
+
+  mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
+  local name
+  for name in "${AGENT_SKILLS[@]}"; do
+    ln -sfn "$src/$name" "$HOME/.agents/skills/$name"
+    ln -sfn "$HOME/.agents/skills/$name" "$HOME/.claude/skills/$name"
+  done
+  ok "linked agent skills: ${AGENT_SKILLS[*]}"
 }
 
 render_git_config() {
@@ -620,11 +715,13 @@ determine_target_user() {
 }
 
 main() {
-  # Re-entry: apply only the Claude extensions to the current user's home. This
+  # Re-entry: apply only the agent extensions to the current user's home. This
   # is the follow-up install_claude_extensions prints when it has to skip.
   if [[ "${_EXTENSIONS_ONLY:-}" == "1" ]]; then
     export PATH="$HOME/.local/bin:$PATH"
     install_claude_extensions
+    install_codex_plugins
+    install_cross_agent_skills
     exit 0
   fi
 
