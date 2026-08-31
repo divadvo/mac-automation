@@ -23,6 +23,10 @@ elif [[ "$OSTYPE" == darwin* ]]; then
 else
   export EDITOR=vim
 fi
+# Turbostarter worktrees (scripts/wt.sh): host for dev-server URLs, so the app is
+# reachable from a phone. mDNS name works on the same wifi; from anywhere, start
+# Tailscale and swap in its MagicDNS name (tailscale status --json | jq -r .Self.DNSName, minus the dot).
+[[ "$OSTYPE" == darwin* ]] && export WT_HOST="$(scutil --get LocalHostName).local"
 
 # PATH
 export PATH=~/bin:~/pr/github/divadvo-scripts/mac:~/pr/github/divadvo-scripts/mac/pdf:~/.local/bin:~/.cargo/bin:$PATH

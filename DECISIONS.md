@@ -14,3 +14,7 @@
 ## repos
 - houserules skill lives in this repo rather than its own — fewer repos to clone and wire per machine, and nothing in it is private
 - Clone tasks use `creates` rather than filtering "already exists" out of the failure — a red rc=1 per existing repo every run trains you to skim past errors that matter
+
+## dotfiles
+- `WT_HOST` derived from `scutil --get LocalHostName` rather than hardcoded — the zshrc is machine-agnostic and ships to every Mac this repo sets up
+- Tailscale MagicDNS left as a comment, not the value — it only resolves while Tailscale is running, and the mDNS name covers the same-wifi case
