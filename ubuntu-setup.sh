@@ -64,6 +64,7 @@ CLAUDE_PLUGINS=(
   "cloudflare@cloudflare|cloudflare/skills"
   "caveman@caveman|juliusbrussee/caveman"
   "ponytail@ponytail|DietrichGebert/ponytail"
+  "skill-creator@claude-plugins-official|anthropics/claude-plugins-official"
 )
 # Global npm CLIs for the Claude workflow (installed via mise node).
 CLAUDE_NPM_TOOLS=(@fission-ai/openspec@latest)
@@ -80,6 +81,7 @@ AGENT_SKILLS=(houserules)
 CROSS_AGENT_SKILLS=(
   "cloudflare/skills|codex,opencode"
   "JuliusBrussee/caveman|codex"
+  "danyuchn/asd-ste100-skill|claude-code,codex,opencode"
 )
 
 # Repositories (mirrors repositories.yml)

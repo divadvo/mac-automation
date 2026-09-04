@@ -190,6 +190,7 @@ claude_plugins:
   - { name: cloudflare, marketplace: cloudflare, source: "cloudflare/skills" }
   - { name: caveman, marketplace: caveman, source: "juliusbrussee/caveman" }
   - { name: ponytail, marketplace: ponytail, source: "DietrichGebert/ponytail" }
+  - { name: skill-creator, marketplace: claude-plugins-official, source: "anthropics/claude-plugins-official" }
 
 # Global npm CLIs related to the Claude workflow (installed via mise's node/npm).
 claude_global_npm_tools:
@@ -208,11 +209,14 @@ agent_skills:
   - houserules
 
 # Third-party skills for the agents that have no plugin build of them. Claude
-# Code already gets these through claude_plugins, so it is deliberately absent.
+# Code usually gets these through claude_plugins instead, so it is absent from
+# most rows — asd-ste100 ships no plugin build for any agent, so it goes through
+# the skills CLI for all three. The agent id for Claude Code is claude-code.
 # Reinstalled on every run, which is what keeps them up to date.
 cross_agent_skills:
   - { source: "cloudflare/skills", agents: [codex, opencode] }
   - { source: "JuliusBrussee/caveman", agents: [codex] }
+  - { source: "danyuchn/asd-ste100-skill", agents: [claude-code, codex, opencode] }
 
 # User Configuration - Override these in local.yml (gitignored)
 # The bootstrap script creates local.yml automatically

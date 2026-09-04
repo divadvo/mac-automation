@@ -119,13 +119,18 @@ The `roles/divadvo_mac/tasks/main.yml` orchestrates these task files:
 
 ### Ubuntu VPS parity (`ubuntu-setup.sh`)
 - `ubuntu-setup.sh` (repo root) is a single self-contained bash script that reproduces this macOS setup on a fresh Ubuntu server (dev tools, mise runtimes, uv/Python, zsh + oh-my-zsh, dotfiles). It mirrors `packages.yml`, `config.yml`, `setup.yml`, and `repositories.yml`. GUI casks, `macos.yml` defaults, and LaunchAgents are intentionally omitted (no server equivalent).
-- **IMPORTANT: keep it in sync.** When you change packages, tool/runtime versions, `uv_tools`, `ohmyzsh_custom_plugins`, the Claude Code extension lists (`claude_mcp_servers`, `claude_plugins`, `claude_global_npm_tools` in `vars/main.yml` / `claude.yml`), or the repo dotfiles (in `vars/main.yml`, `packages.yml`, `config.yml`, `claude.yml`, or `files/dotfiles/`), update `ubuntu-setup.sh` to match (`CLAUDE_MCP_SERVERS`, `CLAUDE_PLUGINS`, `CLAUDE_NPM_TOOLS`).
+- **IMPORTANT: keep it in sync.** When you change packages, tool/runtime versions, `uv_tools`, `ohmyzsh_custom_plugins`, the Claude Code extension lists (`claude_mcp_servers`, `claude_plugins`, `claude_global_npm_tools` in `vars/main.yml` / `claude.yml`), or the repo dotfiles (in `vars/main.yml`, `packages.yml`, `config.yml`, `claude.yml`, or `files/dotfiles/`), update `ubuntu-setup.sh` to match (`CLAUDE_MCP_SERVERS`, `CLAUDE_PLUGINS`, `CLAUDE_NPM_TOOLS`). The same applies to the agent-skill lists (`codex_plugins`, `agent_skills`, `cross_agent_skills` in `vars/main.yml` / `skills.yml`), which mirror to `CODEX_PLUGINS`, `AGENT_SKILLS`, `CROSS_AGENT_SKILLS`.
 
 ### Claude Code extensions (`claude.yml` / `install_claude_extensions`)
 - MCP servers, marketplace plugins, and Claude-workflow global npm CLIs are installed **user-wide** (`--scope user`, available in every repo) and enabled by default. Configured via `claude_mcp_servers` / `claude_plugins` / `claude_global_npm_tools` in `vars/main.yml` (macOS) and the `CLAUDE_MCP_SERVERS` / `CLAUDE_PLUGINS` / `CLAUDE_NPM_TOOLS` arrays in `ubuntu-setup.sh`.
 - To add an extension, append to those lists on **both** platforms. All steps are idempotent (existing MCP servers/plugins are detected and skipped). Ubuntu also installs the `claude` CLI itself (macOS gets it from the `claude-code` cask).
 - `openspec` is a global npm CLI, not a plugin — its slash commands still require a per-project `openspec init`.
 - The `zshrc` and `zprofile` dotfiles are **OS-aware** (mac-only lines guarded behind `$OSTYPE == darwin*`, with Linux equivalents). They are the single source of truth for both platforms — any edit must keep working on both macOS and Ubuntu.
+
+### Agent skills (`skills.yml` / `link_agent_skills` + `install_cross_agent_skills`)
+- Skills that are not tied to one CLI's plugin system live in `skills/` and are symlinked into `~/.agents/skills` and `~/.claude/skills`, so editing a `SKILL.md` here takes effect with no reinstall. Listed in `agent_skills` / `AGENT_SKILLS`.
+- Remote skills with no plugin build go through the `skills` CLI, listed in `cross_agent_skills` / `CROSS_AGENT_SKILLS` as `{source, agents}`. The agent id for Claude Code is `claude-code`, not `claude`.
+- `asd-ste100` (ASD-STE100 Simplified Technical English) is installed this way for all three agents — it governs prose in docs, READMEs, error messages and tool descriptions. `houserules` names the boundary between it and caveman.
 
 ### Testing and Development
 - Step mode (`--step`) available for debugging task execution

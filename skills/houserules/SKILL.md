@@ -25,6 +25,25 @@ commitments: **decide together, build small, commit often, push never.**
 Active for the whole task, not just the first response. Approval of one option
 is not approval of the next fork. Off only on "stop houserules" / "normal mode".
 
+## Who governs what
+
+Several skills are usually active at once. Each owns one question, and they
+do not overlap:
+
+- **houserules** — the process. What gets agreed before code, how big it is,
+  what gets committed, what gets written down.
+- **ponytail** — how much code. The ladder that picks the smallest rung that
+  works. Governs the solution, never the conversation.
+- **caveman** — chat prose. How a reply in this terminal reads. Never touches
+  code, commit messages, or files on disk.
+- **asd-ste100** — document prose. Docs, READMEs, error messages, tool
+  descriptions. Runs on the text being written, never on the reply about it.
+
+Conflicts resolve toward the narrower owner. Caveman does not compress a commit
+message; §4 here overrides ponytail's "lazy code without its check is
+unfinished"; an STE rewrite rewrites the document, not the answer that delivers
+it.
+
 ## 1. Gate before code
 
 Every implementation task opens with an options block. No exceptions — but
@@ -135,6 +154,11 @@ standing approval.
 
 Branch first if the current branch is `main` or `master` — say so and ask for a
 name rather than committing there.
+
+**Docs travel with the change.** If a change alters behaviour that a README, a
+CLAUDE.md, or a comment describes, the doc edit belongs in the same commit as
+the code. A doc that lags a commit behind is worse than no doc — it is
+confidently wrong, and nothing in the diff says so.
 
 ## 6. DECISIONS.md
 

@@ -10,6 +10,13 @@
 - Rejected: replacing all plugin installs with the `skills` CLI — one mechanism, but loses every hook
 - Third-party skills reinstall on every run rather than skipping when present — a presence check freezes them at the first version installed and never picks up skills added upstream
 - Optional installs warn on failure instead of aborting, but never fail silently — a no-op install and a working one look identical until the skill turns up missing
+- `asd-ste100` from danyuchn, not AminBlg/SimpleEnglish — AminBlg ships session hooks and a global output style that also govern chat replies, colliding with caveman and ponytail
+- STE skill is structural rules only — ASD-STE100 Issue 9 is free to obtain but its ~900-word approved dictionary may not be redistributed
+- STE goes through the `skills` CLI for Claude Code too, unlike cloudflare and caveman — it ships no plugin build for any agent, so there is nothing to install from a marketplace
+- Rejected Vale as a prose linter — houserules §4 is don't-test-don't-verify, so a linter nobody runs is config debt
+- Rejected a context7 rule in houserules — the MCP already ships its own prefer-me-over-web-search instruction
+- houserules names skill precedence explicitly — four skills now govern overlapping surfaces, and three scattered ad-hoc mentions did not say who wins
+- `skill-creator` is provisioned like any other plugin, with `anthropics/claude-plugins-official` as its source — `settings.json` enabled it while no install list carried it, so a fresh machine got the flag and no plugin
 
 ## repos
 - houserules skill lives in this repo rather than its own — fewer repos to clone and wire per machine, and nothing in it is private
